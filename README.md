@@ -1,31 +1,53 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+## Auth-Ready Next.js + Supabase Starter
 
-## Getting Started
+This project is a Next.js App Router starter with:
+- Supabase Auth (email/password + OAuth)
+- Protected routes with middleware
+- Password reset flow
+- `profiles` table schema + RLS policies
 
-First, run the development server:
+## Setup
+
+1. Install dependencies:
+
+```bash
+npm install
+```
+
+2. Create `.env.local` from `.env.example` and set values.
+3. Run SQL in Supabase: [`supabase/schema.sql`](./supabase/schema.sql)
+4. In Supabase Dashboard:
+- Enable Email provider
+- Enable Google provider
+- Enable Facebook provider
+- Add redirect URL: `http://localhost:3000/auth/callback`
+
+5. Start app:
 
 ```bash
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+## Routes
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+- `/sign-in`
+- `/sign-up`
+- `/forgot-password`
+- `/reset-password`
+- `/dashboard` (protected)
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+## Security Notes
 
-## Learn More
+- Keep `SUPABASE_SERVICE_ROLE_KEY` server-only. Never expose it client-side.
+- `.env.local` is gitignored; `.env.example` contains field names only.
+- Middleware enforces auth on protected routes.
 
-To learn more about Next.js, take a look at the following resources:
+## Verification
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+```bash
+npm run lint
+npm run build
+```
 
 You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
 

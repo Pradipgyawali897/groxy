@@ -1,6 +1,5 @@
 import Link from "next/link";
 import { redirect } from "next/navigation";
-import { getServerSession } from "next-auth";
 
 import { SignOutButton } from "@/components/auth-controls";
 import {
@@ -10,14 +9,23 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { authOptions } from "@/lib/auth";
+import { createSupabaseServerClient } from "@/lib/supabase/server";
 
 export default async function DashboardPage() {
-  const session = await getServerSession(authOptions);
+  const supabase = await createSupabaseServerClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
 
-  if (!session) {
+  if (!user) {
     redirect("/sign-in");
   }
+
+  const { data: profile } = await supabase
+    .from("profiles")
+    .select("full_name")
+    .eq("id", user.id)
+    .maybeSingle();
 
   return (
     <main className="mx-auto flex w-full max-w-5xl flex-1 flex-col gap-6 px-6 py-8 md:px-10">
@@ -41,21 +49,21 @@ export default async function DashboardPage() {
         <CardHeader>
           <CardTitle>Session info</CardTitle>
           <CardDescription>
-            This route is protected by middleware and server-side session checks.
+            Protected by Supabase session middleware and server-side checks.
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-2 text-sm">
           <p>
             <span className="text-muted-foreground">User:</span>{" "}
-            {session.user?.name ?? "Unknown"}
+            {profile?.full_name ?? user.user_metadata?.full_name ?? "Unknown"}
           </p>
           <p>
             <span className="text-muted-foreground">Email:</span>{" "}
-            {session.user?.email ?? "Not provided"}
+            {user.email ?? "Not provided"}
           </p>
           <p>
             <span className="text-muted-foreground">User ID:</span>{" "}
-            {session.user?.id}
+            {user.id}
           </p>
         </CardContent>
       </Card>

@@ -5,7 +5,6 @@ import {
   SparklesIcon,
 } from "lucide-react";
 import Link from "next/link";
-import { getServerSession } from "next-auth";
 
 import { ModeToggle } from "@/components/mode-toggle";
 import { StarterActions } from "@/components/starter-actions";
@@ -17,10 +16,13 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { authOptions } from "@/lib/auth";
+import { createSupabaseServerClient } from "@/lib/supabase/server";
 
 export default async function Home() {
-  const session = await getServerSession(authOptions);
+  const supabase = await createSupabaseServerClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
 
   return (
     <main className="relative flex-1 overflow-hidden">
@@ -44,7 +46,7 @@ export default async function Home() {
             </div>
           </div>
           <div className="flex flex-wrap items-center gap-2">
-            {session?.user ? (
+            {user ? (
               <>
                 <Link
                   href="/dashboard"
