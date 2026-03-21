@@ -1,6 +1,6 @@
 "use client";
 
-import Image from "next/image";
+import { Image } from "@/components/ui/image";
 import * as React from "react";
 
 import { BOOK_CONDITIONS, BOOK_STATUSES, type BookRecord } from "@/lib/books";

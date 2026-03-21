@@ -1,6 +1,6 @@
 "use client";
 
-import Image from "next/image";
+import { Image } from "@/components/ui/image";
 import * as React from "react";
 
 import { normalizeCloudinaryUrl } from "@/lib/books";
