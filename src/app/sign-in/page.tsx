@@ -14,7 +14,8 @@ export default async function SignInPage({
   searchParams: Promise<{ next?: string }>;
 }) {
   const params = await searchParams;
-  const nextPath = params.next && params.next.startsWith("/") ? params.next : "/dashboard";
+  const nextPath =
+    params.next && params.next.startsWith("/") ? params.next : "/service/select";
 
   const supabase = await createSupabaseServerClient();
   const {

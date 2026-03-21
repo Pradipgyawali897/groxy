@@ -8,7 +8,7 @@ import { Button } from "@/components/ui/button";
 import { createSupabaseBrowserClient } from "@/lib/supabase/browser";
 
 function getAuthRedirectPath(nextPath?: string) {
-  const next = nextPath ?? "/dashboard";
+  const next = nextPath ?? "/service/select";
   const appUrl =
     process.env.NEXT_PUBLIC_APP_URL ??
     (typeof window !== "undefined" ? window.location.origin : "");
@@ -90,7 +90,7 @@ export function EmailSignInForm({ nextPath }: { nextPath?: string }) {
       return;
     }
 
-    router.push(nextPath ?? "/dashboard");
+    router.push(nextPath ?? "/service/select");
     router.refresh();
   };
 
@@ -121,9 +121,14 @@ export function EmailSignInForm({ nextPath }: { nextPath?: string }) {
   );
 }
 
-export function EmailSignUpForm() {
+export function EmailSignUpForm({
+  defaultService = "customer",
+}: {
+  defaultService?: "customer" | "merchant";
+}) {
   const [email, setEmail] = React.useState("");
   const [password, setPassword] = React.useState("");
+  const [service, setService] = React.useState<"customer" | "merchant">(defaultService);
   const [message, setMessage] = React.useState("");
   const [error, setError] = React.useState("");
   const [loading, setLoading] = React.useState(false);
@@ -139,7 +144,10 @@ export function EmailSignUpForm() {
       email,
       password,
       options: {
-        emailRedirectTo: getAuthRedirectPath("/dashboard"),
+        emailRedirectTo: getAuthRedirectPath(`/service/select?intent=${service}`),
+        data: {
+          preferred_service: service,
+        },
       },
     });
 
@@ -151,7 +159,7 @@ export function EmailSignUpForm() {
     }
 
     setMessage(
-      "Sign-up submitted. Check your email to verify your account before logging in."
+      "Account created. Verify email and continue to service selection."
     );
   };
 
@@ -174,6 +182,14 @@ export function EmailSignUpForm() {
         placeholder="Minimum 8 characters"
         className="h-10 w-full rounded-lg border border-input bg-background px-3 text-sm outline-none focus-visible:ring-2 focus-visible:ring-ring/60"
       />
+      <select
+        value={service}
+        onChange={(event) => setService(event.target.value as "customer" | "merchant")}
+        className="h-10 w-full rounded-lg border border-input bg-background px-3 text-sm outline-none focus-visible:ring-2 focus-visible:ring-ring/60"
+      >
+        <option value="customer">Register for Customer service</option>
+        <option value="merchant">Register for Merchant service</option>
+      </select>
       {error ? <p className="text-sm text-destructive">{error}</p> : null}
       {message ? <p className="text-sm text-emerald-600">{message}</p> : null}
       <Button type="submit" variant="secondary" disabled={loading}>
@@ -268,9 +284,9 @@ export function ResetPasswordForm() {
       return;
     }
 
-    setMessage("Password updated. Redirecting to dashboard...");
+    setMessage("Password updated. Redirecting to your services...");
     setTimeout(() => {
-      router.push("/dashboard");
+      router.push("/service/select");
       router.refresh();
     }, 1000);
   };

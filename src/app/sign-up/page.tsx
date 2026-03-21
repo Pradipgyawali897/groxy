@@ -5,7 +5,15 @@ import { EmailSignUpForm, OAuthButtons } from "@/components/auth-controls";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 
-export default async function SignUpPage() {
+export default async function SignUpPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ intent?: string }>;
+}) {
+  const params = await searchParams;
+  const defaultService =
+    params.intent === "merchant" ? "merchant" : "customer";
+
   const supabase = await createSupabaseServerClient();
   const {
     data: { user },
@@ -26,8 +34,10 @@ export default async function SignUpPage() {
           <OAuthButtons />
           <div className="h-px bg-border" />
           <div className="space-y-2">
-            <p className="text-sm text-muted-foreground">Email and password</p>
-            <EmailSignUpForm />
+            <p className="text-sm text-muted-foreground">
+              Email/password + service selection
+            </p>
+            <EmailSignUpForm defaultService={defaultService} />
           </div>
           <div className="text-sm">
             <Link href="/sign-in" className="text-muted-foreground hover:text-foreground">
