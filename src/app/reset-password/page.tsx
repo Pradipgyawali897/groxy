@@ -1,24 +1,28 @@
 import Link from "next/link";
 
 import { ResetPasswordForm } from "@/components/auth-controls";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { AuthShell } from "@/features/auth/auth-shell";
+import { APP_ROUTES } from "@/lib/roles";
 
 export default function ResetPasswordPage() {
   return (
-    <main className="relative flex flex-1 items-center justify-center px-6 py-10">
-      <Card className="w-full max-w-md border border-border/70 bg-background/90 shadow-sm backdrop-blur">
-        <CardHeader>
-          <CardTitle>Set a new password</CardTitle>
-        </CardHeader>
-        <CardContent className="space-y-5">
-          <ResetPasswordForm />
-          <div className="text-sm">
-            <Link href="/sign-in" className="text-muted-foreground hover:text-foreground">
-              Back to sign in
-            </Link>
-          </div>
-        </CardContent>
-      </Card>
-    </main>
+    <AuthShell
+      eyebrow="New password"
+      title="Choose a new password"
+      description="Set a strong password and continue back to your bookstore account."
+      sideTitle="Finish the reset with a single clear step."
+      sideBody="Once updated, you can sign in again and return to onboarding or your role-based dashboard."
+      footer={
+        <>
+          Back to{" "}
+          <Link href={APP_ROUTES.signIn} className="text-foreground hover:text-primary">
+            sign in
+          </Link>
+          .
+        </>
+      }
+    >
+      <ResetPasswordForm />
+    </AuthShell>
   );
 }

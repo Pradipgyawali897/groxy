@@ -56,7 +56,7 @@ export function normalizeCloudinaryUrl(url: string, width = 960) {
   if (url.includes("/image/upload/")) {
     return url.replace(
       "/image/upload/",
-      `/image/upload/f_auto,q_auto,dpr_auto,c_limit,w_${width}/`
+      `/image/upload/f_auto,q_auto,dpr_auto,fl_progressive,c_limit,w_${width}/`
     );
   }
   return url;

@@ -2,34 +2,35 @@ import Link from "next/link";
 import { redirect } from "next/navigation";
 
 import { ForgotPasswordForm } from "@/components/auth-controls";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { createSupabaseServerClient } from "@/lib/supabase/server";
+import { AuthShell } from "@/features/auth/auth-shell";
+import { getViewerContext } from "@/lib/profile";
+import { APP_ROUTES, getRoleHome } from "@/lib/roles";
 
 export default async function ForgotPasswordPage() {
-  const supabase = await createSupabaseServerClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
+  const viewer = await getViewerContext();
 
-  if (user) {
-    redirect("/dashboard");
+  if (viewer.user) {
+    redirect(viewer.isOnboarded ? getRoleHome(viewer.role) : APP_ROUTES.onboardingStep1);
   }
 
   return (
-    <main className="relative flex flex-1 items-center justify-center px-6 py-10">
-      <Card className="w-full max-w-md border border-border/70 bg-background/90 shadow-sm backdrop-blur">
-        <CardHeader>
-          <CardTitle>Reset your password</CardTitle>
-        </CardHeader>
-        <CardContent className="space-y-5">
-          <ForgotPasswordForm />
-          <div className="text-sm">
-            <Link href="/sign-in" className="text-muted-foreground hover:text-foreground">
-              Back to sign in
-            </Link>
-          </div>
-        </CardContent>
-      </Card>
-    </main>
+    <AuthShell
+      eyebrow="Reset password"
+      title="Recover access"
+      description="Enter the email connected to your account and we’ll send a secure reset link."
+      sideTitle="Security should feel calm, not confusing."
+      sideBody="Password recovery uses the same reliable Supabase session flow as the rest of the platform."
+      footer={
+        <>
+          Back to{" "}
+          <Link href={APP_ROUTES.signIn} className="text-foreground hover:text-primary">
+            sign in
+          </Link>
+          .
+        </>
+      }
+    >
+      <ForgotPasswordForm />
+    </AuthShell>
   );
 }

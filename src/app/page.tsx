@@ -1,171 +1,218 @@
 import Image from "next/image";
 import Link from "next/link";
+import { ArrowRight, BookOpenText, PackageCheck, Quote, Sparkles, Store } from "lucide-react";
 
-import { GroxyLogo } from "@/components/groxy-logo";
+import { BookGrid } from "@/features/catalog/book-grid";
+import { SectionHeading } from "@/features/shared/section-heading";
 import { normalizeCloudinaryUrl } from "@/lib/books";
-import { createSupabaseServerClient } from "@/lib/supabase/server";
+import { groupCatalogBooks, listPublishedBooks } from "@/lib/catalog";
+import { getPortalImageUrls } from "@/lib/portal-images";
+import { getViewerContext } from "@/lib/profile";
+import { APP_ROUTES, getRoleHome } from "@/lib/roles";
 
 export default async function HomePage() {
-  const supabase = await createSupabaseServerClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
+  const [{ role, isOnboarded }, books, portalImages] = await Promise.all([
+    getViewerContext(),
+    listPublishedBooks(8),
+    getPortalImageUrls(),
+  ]);
 
-  const { data: featured } = await supabase
-    .from("books")
-    .select("*")
-    .eq("status", "published")
-    .order("is_featured", { ascending: false })
-    .order("created_at", { ascending: false })
-    .limit(6);
+  const heroImage = books[0]?.cover_image_url ?? portalImages.customer;
+  const featuredBooks = books.slice(0, 4);
+  const { categories, authors } = groupCatalogBooks(books);
 
   return (
-    <main className="relative flex-1 overflow-hidden">
-      <div className="absolute inset-0 -z-10 bg-[radial-gradient(circle_at_8%_2%,rgba(37,99,235,0.14),transparent_42%),radial-gradient(circle_at_90%_5%,rgba(14,165,233,0.15),transparent_38%),linear-gradient(to_bottom,rgba(248,252,255,0.98),rgba(244,249,255,1))] dark:bg-[radial-gradient(circle_at_8%_2%,rgba(59,130,246,0.2),transparent_42%),radial-gradient(circle_at_90%_5%,rgba(14,165,233,0.18),transparent_38%),linear-gradient(to_bottom,rgba(6,12,24,0.98),rgba(4,9,18,1))]" />
-
-      <div className="mx-auto flex w-full max-w-6xl flex-col gap-10 px-6 py-8 md:px-10 lg:py-12">
-        <header className="flex flex-wrap items-center justify-between gap-3">
-          <GroxyLogo />
-          <div className="flex items-center gap-2">
-            <Link
-              href="/customer"
-              className="inline-flex h-9 items-center rounded-lg border border-border bg-background/80 px-3 text-sm hover:bg-muted"
-            >
-              Customer view
-            </Link>
-            <Link
-              href="/merchant"
-              className="inline-flex h-9 items-center rounded-lg border border-border bg-background/80 px-3 text-sm hover:bg-muted"
-            >
-              Merchant view
-            </Link>
-            <Link
-              href={user ? "/dashboard" : "/sign-in"}
-              className="inline-flex h-9 items-center rounded-lg bg-primary px-3 text-sm text-primary-foreground"
-            >
-              {user ? "My account" : "Sign in"}
-            </Link>
+    <main className="overflow-hidden">
+      <section className="mx-auto grid w-full max-w-7xl gap-10 px-4 py-16 sm:px-6 lg:grid-cols-[1.05fr_0.95fr] lg:px-8 lg:py-24">
+        <div className="space-y-8">
+          <div className="inline-flex items-center gap-2 rounded-full border border-primary/20 bg-primary/8 px-4 py-2 text-sm text-primary">
+            <Sparkles className="size-4" />
+            Premium bookstore marketplace
           </div>
-        </header>
-
-        <section className="grid gap-8 rounded-3xl border border-border/70 bg-card/75 p-6 shadow-sm lg:grid-cols-[1.1fr_0.9fr] lg:p-10">
-          <div className="space-y-6">
-            <p className="inline-flex rounded-full border border-sky-300/40 bg-sky-500/10 px-3 py-1 text-xs font-medium tracking-wide text-sky-700 dark:text-sky-300">
-              GROXY • Modern Book Commerce
-            </p>
-            <h1 className="max-w-xl text-4xl font-semibold tracking-tight sm:text-5xl lg:text-6xl">
-              Your next book marketplace with two dedicated experiences.
+          <div className="space-y-5">
+            <h1 className="max-w-4xl font-heading text-5xl tracking-tight text-foreground sm:text-6xl lg:text-7xl">
+              Discover beautifully curated books and sell through a calmer kind of marketplace.
             </h1>
-            <p className="max-w-xl text-base leading-7 text-muted-foreground">
-              Customers discover and buy. Merchants manage inventory and publish listings.
-              Groxy ships with secure auth, role onboarding, Cloudinary images, and webhook-ready data flow.
+            <p className="max-w-2xl text-base leading-8 text-muted-foreground sm:text-lg">
+              Groxy combines a refined bookstore experience, a structured onboarding flow,
+              and clear role-based workspaces for readers, sellers, and marketplace operators.
             </p>
-            <div className="flex flex-wrap gap-3">
-              <Link
-                href="/customer"
-                className="inline-flex h-10 items-center rounded-lg bg-primary px-4 text-sm text-primary-foreground"
-              >
-                Open customer app
-              </Link>
-              <Link
-                href="/merchant"
-                className="inline-flex h-10 items-center rounded-lg border border-border px-4 text-sm hover:bg-muted"
-              >
-                Open merchant studio
-              </Link>
-              <Link
-                href="/admin"
-                className="inline-flex h-10 items-center rounded-lg border border-border px-4 text-sm hover:bg-muted"
-              >
-                Admin panel
-              </Link>
-            </div>
           </div>
-          <div className="rounded-2xl border border-border/70 bg-background/90 p-4">
-            <Image
-              src={normalizeCloudinaryUrl(
-                "https://res.cloudinary.com/demo/image/upload/v1312461204/sample.jpg",
-                1000
-              )}
-              alt="Groxy storefront preview"
-              width={1200}
-              height={900}
-              className="h-56 w-full rounded-xl object-cover"
-            />
-            <div className="mt-4 grid gap-3">
-              <article className="rounded-xl border border-border/70 p-3">
-                <p className="text-sm font-semibold">Customer lane</p>
-                <p className="text-sm text-muted-foreground">
-                  Filters, list/grid browsing, detail view, seller mail, and cart flow.
-                </p>
-              </article>
-              <article className="rounded-xl border border-border/70 p-3">
-                <p className="text-sm font-semibold">Merchant lane</p>
-                <p className="text-sm text-muted-foreground">
-                  CRUD listings, publish control, Cloudinary links, and live preview.
-                </p>
-              </article>
-            </div>
-          </div>
-        </section>
 
-        <section className="grid gap-4 lg:grid-cols-2">
-          <article className="rounded-2xl border border-border/70 bg-card/80 p-5">
-            <p className="text-xs uppercase tracking-wide text-sky-700 dark:text-sky-300">Customer experience</p>
-            <h2 className="mt-2 text-xl font-semibold">Smooth shopping flow</h2>
-            <p className="mt-2 text-sm text-muted-foreground">
-              Service-based onboarding, clean browsing controls, and purchase-ready contact actions.
-            </p>
-            <Link href="/customer" className="mt-4 inline-flex text-sm font-medium text-primary">
-              Enter customer app →
-            </Link>
-          </article>
-          <article className="rounded-2xl border border-border/70 bg-card/80 p-5">
-            <p className="text-xs uppercase tracking-wide text-sky-700 dark:text-sky-300">Merchant experience</p>
-            <h2 className="mt-2 text-xl font-semibold">Inventory and publishing</h2>
-            <p className="mt-2 text-sm text-muted-foreground">
-              Dedicated merchant registration and secure inventory controls for listing lifecycle.
-            </p>
-            <Link href="/merchant" className="mt-4 inline-flex text-sm font-medium text-primary">
-              Enter merchant studio →
-            </Link>
-          </article>
-        </section>
-
-        <section className="space-y-4">
-          <div className="flex items-center justify-between">
-            <h2 className="text-2xl font-semibold tracking-tight">Featured books</h2>
+          <div className="flex flex-col gap-4 sm:flex-row">
             <Link
-              href="/customer"
-              className="text-sm text-muted-foreground hover:text-foreground"
+              href={isOnboarded ? getRoleHome(role) : APP_ROUTES.signUp}
+              className="inline-flex h-12 items-center justify-center rounded-2xl bg-primary px-6 text-sm font-medium text-primary-foreground"
             >
-              View all
+              {isOnboarded ? "Open my workspace" : "Start your account"}
+              <ArrowRight className="ml-2 size-4" />
+            </Link>
+            <Link
+              href={APP_ROUTES.books}
+              className="inline-flex h-12 items-center justify-center rounded-2xl border border-border bg-card/80 px-6 text-sm font-medium text-foreground hover:bg-muted"
+            >
+              Browse catalog
             </Link>
           </div>
-          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-            {(featured ?? []).map((book) => (
+
+          <div className="grid gap-4 sm:grid-cols-3">
+            {[
+              {
+                icon: BookOpenText,
+                title: "Curated catalog",
+                copy: "Minimal browsing with rich detail pages, wishlist intent, and bookstore tone.",
+              },
+              {
+                icon: Store,
+                title: "Seller studio",
+                copy: "Thoughtful tools for store setup, inventory control, and order visibility.",
+              },
+              {
+                icon: PackageCheck,
+                title: "Clean operations",
+                copy: "Role-aware dashboards and a safer auth flow built around onboarding.",
+              },
+            ].map((item) => (
+              <article key={item.title} className="rounded-[1.75rem] border border-border/70 bg-card/85 p-5 shadow-sm">
+                <item.icon className="size-5 text-primary" />
+                <h2 className="mt-4 font-heading text-2xl tracking-tight">{item.title}</h2>
+                <p className="mt-2 text-sm leading-6 text-muted-foreground">{item.copy}</p>
+              </article>
+            ))}
+          </div>
+        </div>
+
+        <div className="space-y-4">
+          <div className="relative overflow-hidden rounded-[2rem] border border-border/70 bg-card/85 p-3 shadow-[0_30px_120px_-50px_rgba(15,23,42,0.45)]">
+            <Image
+              src={normalizeCloudinaryUrl(heroImage, 1800)}
+              alt="Premium bookstore storefront"
+              width={1800}
+              height={1400}
+              priority
+              className="h-[420px] w-full rounded-[1.5rem] object-cover"
+            />
+            <div className="absolute inset-x-8 bottom-8 rounded-[1.5rem] border border-white/15 bg-black/45 p-5 text-white backdrop-blur">
+              <p className="text-xs uppercase tracking-[0.22em] text-white/72">Featured collection</p>
+              <p className="mt-3 font-heading text-3xl tracking-tight">
+                Designed for browsing like a premium reading room.
+              </p>
+            </div>
+          </div>
+          <div className="grid gap-4 sm:grid-cols-2">
+            {authors.slice(0, 2).map((author) => (
               <Link
-                key={book.id}
-                href={`/customer/books/${book.id}`}
-                className="group overflow-hidden rounded-2xl border border-border/70 bg-card/80"
+                key={author.slug}
+                href={`/authors/${author.slug}`}
+                className="rounded-[1.5rem] border border-border/70 bg-card/85 p-5 shadow-sm"
               >
-                <Image
-                  src={normalizeCloudinaryUrl(book.cover_image_url, 700)}
-                  alt={book.title}
-                  width={900}
-                  height={1200}
-                  className="h-60 w-full object-cover transition-transform duration-300 group-hover:scale-[1.02]"
-                />
-                <div className="space-y-1 p-4">
-                  <p className="line-clamp-1 text-base font-semibold">{book.title}</p>
-                  <p className="text-sm text-muted-foreground">{book.author}</p>
-                  <p className="text-sm font-medium">${Number(book.price).toFixed(2)}</p>
-                </div>
+                <p className="text-xs uppercase tracking-[0.22em] text-primary/75">Trending author</p>
+                <h3 className="mt-3 font-heading text-2xl tracking-tight">{author.name}</h3>
+                <p className="mt-2 text-sm text-muted-foreground">{author.count} featured titles in catalog</p>
               </Link>
             ))}
           </div>
-        </section>
-      </div>
+        </div>
+      </section>
+
+      <section className="mx-auto grid w-full max-w-7xl gap-5 px-4 pb-16 sm:px-6 lg:grid-cols-3 lg:px-8">
+        {[
+          {
+            title: "Browse with confidence",
+            body: "Clear categories, rich covers, and focused detail pages reduce decision fatigue.",
+          },
+          {
+            title: "Onboard without confusion",
+            body: "Identity creation stays separate from role setup so onboarding can do the real routing work.",
+          },
+          {
+            title: "Operate with structure",
+            body: "Customer, merchant, and admin spaces share one platform but keep their responsibilities clean.",
+          },
+        ].map((item) => (
+          <article key={item.title} className="rounded-[1.75rem] border border-border/70 bg-card/85 p-6 shadow-sm">
+            <h2 className="font-heading text-3xl tracking-tight">{item.title}</h2>
+            <p className="mt-3 text-sm leading-7 text-muted-foreground">{item.body}</p>
+          </article>
+        ))}
+      </section>
+
+      <section className="mx-auto w-full max-w-7xl space-y-8 px-4 py-16 sm:px-6 lg:px-8">
+        <SectionHeading
+          eyebrow="Featured books"
+          title="Handpicked titles to anchor the storefront"
+          description="Book-first cards, quiet typography, and consistent product presentation make the catalog feel premium from the first scroll."
+        />
+        <BookGrid books={featuredBooks} />
+      </section>
+
+      <section className="mx-auto grid w-full max-w-7xl gap-6 px-4 py-16 sm:px-6 lg:grid-cols-[1fr_1fr_1fr] lg:px-8">
+        <div className="rounded-[1.75rem] border border-border/70 bg-card/85 p-6 shadow-sm lg:col-span-2">
+          <SectionHeading
+            eyebrow="Browse by category"
+            title="Popular shelves with a literary, warm editorial tone"
+            description="Categories and authors act like guided entry points instead of dumping users into a faceless grid."
+          />
+          <div className="mt-6 grid gap-3 sm:grid-cols-2">
+            {categories.slice(0, 6).map((category) => (
+              <Link
+                key={category.slug}
+                href={`/categories/${category.slug}`}
+                className="rounded-2xl border border-border/70 bg-background/75 px-4 py-4 text-sm hover:bg-muted"
+              >
+                <p className="font-medium text-foreground">{category.name}</p>
+                <p className="mt-1 text-muted-foreground">{category.count} books available</p>
+              </Link>
+            ))}
+          </div>
+        </div>
+        <div className="rounded-[1.75rem] border border-border/70 bg-foreground p-6 text-background shadow-sm">
+          <Quote className="size-5 text-background/70" />
+          <p className="mt-6 font-heading text-3xl tracking-tight">
+            “It feels less like a crowded marketplace and more like a bookstore I’d actually return to.”
+          </p>
+          <p className="mt-6 text-sm text-background/70">Early merchant feedback on the new Groxy experience</p>
+        </div>
+      </section>
+
+      <section className="mx-auto grid w-full max-w-7xl gap-6 px-4 py-16 sm:px-6 lg:grid-cols-[0.95fr_1.05fr] lg:px-8">
+        <div className="rounded-[1.75rem] border border-border/70 bg-card/85 p-6 shadow-sm">
+          <SectionHeading
+            eyebrow="For sellers"
+            title="A merchant experience that respects focus"
+            description="Store setup, inventory, orders, and analytics live in one structured studio, instead of scattered pages and unclear states."
+          />
+          <ul className="mt-6 grid gap-3 text-sm text-muted-foreground">
+            <li className="rounded-2xl border border-border/70 bg-background/75 px-4 py-4">Dedicated onboarding for store identity and brand assets</li>
+            <li className="rounded-2xl border border-border/70 bg-background/75 px-4 py-4">Clear split between public browsing and merchant operations</li>
+            <li className="rounded-2xl border border-border/70 bg-background/75 px-4 py-4">Future-ready structure for analytics, orders, and merchandising</li>
+          </ul>
+        </div>
+        <div className="rounded-[1.75rem] border border-border/70 bg-primary p-8 text-primary-foreground shadow-sm">
+          <p className="text-xs uppercase tracking-[0.22em] text-primary-foreground/75">Start with confidence</p>
+          <h2 className="mt-4 font-heading text-5xl tracking-tight">
+            One authentication flow. One onboarding flow. Clear routes after that.
+          </h2>
+          <p className="mt-4 max-w-xl text-sm leading-7 text-primary-foreground/85">
+            Signup creates identity only. Onboarding captures profile, role, and workspace data.
+            Middleware then routes users by role and onboarding state without loops.
+          </p>
+          <div className="mt-8 flex flex-col gap-4 sm:flex-row">
+            <Link
+              href={APP_ROUTES.signUp}
+              className="inline-flex h-12 items-center justify-center rounded-2xl bg-background px-6 text-sm font-medium text-foreground"
+            >
+              Begin onboarding
+            </Link>
+            <Link
+              href={APP_ROUTES.merchantHome}
+              className="inline-flex h-12 items-center justify-center rounded-2xl border border-white/20 px-6 text-sm font-medium text-primary-foreground"
+            >
+              Explore merchant space
+            </Link>
+          </div>
+        </div>
+      </section>
     </main>
   );
 }

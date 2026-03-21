@@ -138,6 +138,11 @@ export function CustomerMarketplace({ books }: { books: BookRecord[] }) {
                 alt={book.title}
                 width={700}
                 height={900}
+                sizes={
+                  viewMode === "list"
+                    ? "(max-width: 768px) 100vw, 220px"
+                    : "(max-width: 768px) 100vw, (max-width: 1280px) 50vw, 33vw"
+                }
                 className={`w-full object-cover ${viewMode === "list" ? "h-full min-h-56" : "h-64"}`}
               />
             </div>

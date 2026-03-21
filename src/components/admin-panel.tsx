@@ -19,6 +19,7 @@ type Stats = {
   books: number;
   customers: number;
   merchants: number;
+  admins: number;
   inquiries: number;
 };
 
@@ -35,11 +36,18 @@ type MerchantProfile = {
   city: string | null;
 };
 
+type AdminProfile = {
+  user_id: string;
+  display_name: string | null;
+  work_email: string;
+};
+
 type AdminSnapshot = {
   stats: Stats;
   books: Book[];
   customers: CustomerProfile[];
   merchants: MerchantProfile[];
+  admins: AdminProfile[];
 };
 
 export function AdminPanel({ initial }: { initial: AdminSnapshot }) {
@@ -111,6 +119,10 @@ export function AdminPanel({ initial }: { initial: AdminSnapshot }) {
         <article className="rounded-2xl border border-border/70 bg-card/80 p-4">
           <p className="text-sm text-muted-foreground">Merchants</p>
           <p className="mt-1 text-2xl font-semibold">{state.stats.merchants}</p>
+        </article>
+        <article className="rounded-2xl border border-border/70 bg-card/80 p-4">
+          <p className="text-sm text-muted-foreground">Admins</p>
+          <p className="mt-1 text-2xl font-semibold">{state.stats.admins}</p>
         </article>
         <article className="rounded-2xl border border-border/70 bg-card/80 p-4">
           <p className="text-sm text-muted-foreground">Inquiries</p>
@@ -186,7 +198,7 @@ export function AdminPanel({ initial }: { initial: AdminSnapshot }) {
         </div>
       </section>
 
-      <section className="grid gap-4 lg:grid-cols-2">
+      <section className="grid gap-4 lg:grid-cols-3">
         <article className="rounded-2xl border border-border/70 bg-card/80 p-5">
           <h3 className="text-base font-semibold">Recent customers</h3>
           <div className="mt-3 space-y-2">
@@ -208,6 +220,17 @@ export function AdminPanel({ initial }: { initial: AdminSnapshot }) {
                 <p className="font-medium">{merchant.store_name}</p>
                 <p className="text-muted-foreground">{merchant.business_email}</p>
                 <p className="text-muted-foreground">{merchant.city ?? "City not set"}</p>
+              </div>
+            ))}
+          </div>
+        </article>
+        <article className="rounded-2xl border border-border/70 bg-card/80 p-5">
+          <h3 className="text-base font-semibold">Recent admins</h3>
+          <div className="mt-3 space-y-2">
+            {state.admins.slice(0, 8).map((admin) => (
+              <div key={admin.user_id} className="rounded-lg border border-border/60 p-3 text-sm">
+                <p className="font-medium">{admin.display_name ?? "Admin user"}</p>
+                <p className="text-muted-foreground">{admin.work_email}</p>
               </div>
             ))}
           </div>

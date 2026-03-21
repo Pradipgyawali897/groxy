@@ -1,9 +1,22 @@
 import { NextResponse } from "next/server";
 
 import { inquiryWebhookSchema } from "@/lib/books";
+import { checkRateLimit, getClientIp } from "@/lib/rate-limit";
 import { createSupabaseAdminClient } from "@/lib/supabase/admin";
 
 export async function POST(request: Request) {
+  const ip = getClientIp(new Headers(request.headers));
+  const limit = checkRateLimit(`webhook:book-interest:${ip}`, {
+    windowMs: 5 * 60 * 1000,
+    max: 30,
+  });
+  if (!limit.ok) {
+    return NextResponse.json(
+      { error: "Too many webhook requests." },
+      { status: 429, headers: { "Retry-After": String(limit.retryAfter) } }
+    );
+  }
+
   const expectedSecret = process.env.GROXY_WEBHOOK_SECRET;
   if (expectedSecret) {
     const headerSecret = request.headers.get("x-groxy-webhook-secret");

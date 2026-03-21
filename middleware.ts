@@ -1,18 +1,70 @@
 import { createServerClient } from "@supabase/ssr";
 import { NextResponse, type NextRequest } from "next/server";
 
-const protectedRoutes = ["/dashboard", "/merchant", "/customer", "/api/merchant", "/service"];
-const authRoutes = ["/sign-in", "/sign-up", "/forgot-password", "/reset-password"];
+import {
+  APP_ROUTES,
+  getOnboardingPath,
+  getRoleFromPath,
+  getRoleHome,
+  isAppRole,
+} from "@/lib/roles";
 
-function parseAdminEmails() {
-  return (process.env.ADMIN_EMAILS ?? "")
-    .split(",")
-    .map((item) => item.trim().toLowerCase())
-    .filter(Boolean);
+const authRoutes = [
+  APP_ROUTES.signIn,
+  APP_ROUTES.signUp,
+  APP_ROUTES.forgotPassword,
+  APP_ROUTES.resetPassword,
+];
+
+const onboardingRoutes = [
+  APP_ROUTES.onboardingRoot,
+  APP_ROUTES.onboardingStep1,
+  APP_ROUTES.onboardingStep2,
+  APP_ROUTES.onboardingStep3,
+  APP_ROUTES.onboardingComplete,
+];
+
+const protectedPrefixes = [
+  APP_ROUTES.account,
+  APP_ROUTES.customerHome,
+  APP_ROUTES.merchantHome,
+  APP_ROUTES.adminHome,
+  "/api/onboarding",
+  "/api/merchant",
+  "/api/admin",
+];
+
+function isAuthRoute(pathname: string) {
+  return authRoutes.some((route) => pathname === route || pathname.startsWith(`${route}/`));
+}
+
+function isOnboardingRoute(pathname: string) {
+  return onboardingRoutes.some((route) => pathname === route || pathname.startsWith(`${route}/`));
+}
+
+function isProtectedRoute(pathname: string) {
+  return protectedPrefixes.some((route) => pathname === route || pathname.startsWith(`${route}/`));
+}
+
+function buildSignInRedirect(request: NextRequest) {
+  const url = request.nextUrl.clone();
+  url.pathname = APP_ROUTES.signIn;
+  url.search = "";
+  url.searchParams.set("next", request.nextUrl.pathname);
+  return url;
+}
+
+function buildRoleRedirect(request: NextRequest, pathname: string, role: string | null) {
+  const url = request.nextUrl.clone();
+  const nextRole = isAppRole(role) ? role : getRoleFromPath(pathname);
+  url.pathname = nextRole ? getRoleHome(nextRole) : APP_ROUTES.landing;
+  url.search = "";
+  return url;
 }
 
 export async function middleware(request: NextRequest) {
   let response = NextResponse.next({ request });
+  const { pathname } = request.nextUrl;
 
   const supabase = createServerClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -25,9 +77,9 @@ export async function middleware(request: NextRequest) {
         setAll(cookiesToSet) {
           cookiesToSet.forEach(({ name, value }) => request.cookies.set(name, value));
           response = NextResponse.next({ request });
-          cookiesToSet.forEach(({ name, value, options }) =>
-            response.cookies.set(name, value, options)
-          );
+          cookiesToSet.forEach(({ name, value, options }) => {
+            response.cookies.set(name, value, options);
+          });
         },
       },
     }
@@ -37,69 +89,61 @@ export async function middleware(request: NextRequest) {
     data: { user },
   } = await supabase.auth.getUser();
 
-  const { pathname } = request.nextUrl;
-  const isProtectedRoute = protectedRoutes.some((route) =>
-    pathname.startsWith(route)
-  );
-  const isMerchantRoute = pathname.startsWith("/merchant") || pathname.startsWith("/api/merchant");
-  const isCustomerRoute = pathname.startsWith("/customer");
-  const isAdminRoute = pathname.startsWith("/admin") || pathname.startsWith("/api/admin");
-  const isAuthRoute = authRoutes.some((route) => pathname.startsWith(route));
-
-  if (isProtectedRoute && !user) {
-    const url = request.nextUrl.clone();
-    url.pathname = "/sign-in";
-    url.searchParams.set("next", pathname);
-    return NextResponse.redirect(url);
+  if (!user) {
+    if (isProtectedRoute(pathname) || isOnboardingRoute(pathname)) {
+      return NextResponse.redirect(buildSignInRedirect(request));
+    }
+    return response;
   }
 
-  if (isAuthRoute && user) {
+  const { data: profile } = await supabase
+    .from("profiles")
+    .select("role,is_onboarded,onboarding_step")
+    .eq("id", user.id)
+    .maybeSingle();
+
+  const role = isAppRole(profile?.role) ? profile.role : null;
+  const isOnboarded = Boolean(profile?.is_onboarded);
+  const onboardingStep = profile?.onboarding_step ?? 1;
+  const requiredRole = getRoleFromPath(pathname);
+
+  if (isAuthRoute(pathname)) {
     const url = request.nextUrl.clone();
-    url.pathname = "/service/select";
+    url.pathname = isOnboarded ? getRoleHome(role) : getOnboardingPath(onboardingStep);
     url.search = "";
     return NextResponse.redirect(url);
   }
 
-  if (isAdminRoute) {
-    const allowlist = parseAdminEmails();
-    const email = user?.email?.toLowerCase();
-    if (!user || !email || !allowlist.includes(email)) {
+  if (!isOnboarded) {
+    if (!isOnboardingRoute(pathname) && isProtectedRoute(pathname)) {
       const url = request.nextUrl.clone();
-      url.pathname = user ? "/dashboard" : "/sign-in";
-      if (!user) {
-        url.searchParams.set("next", pathname);
-      }
+      url.pathname = getOnboardingPath(onboardingStep);
+      url.search = "";
       return NextResponse.redirect(url);
     }
+
+    if (isOnboardingRoute(pathname)) {
+      const normalizedTarget = getOnboardingPath(onboardingStep);
+      if (pathname !== normalizedTarget) {
+        const url = request.nextUrl.clone();
+        url.pathname = normalizedTarget;
+        url.search = "";
+        return NextResponse.redirect(url);
+      }
+    }
+
+    return response;
   }
 
-  if (user && (isMerchantRoute || isCustomerRoute)) {
-    const [customerRole, merchantRole] = await Promise.all([
-      supabase
-        .from("customer_profiles")
-        .select("user_id")
-        .eq("user_id", user.id)
-        .maybeSingle(),
-      supabase
-        .from("merchant_profiles")
-        .select("user_id")
-        .eq("user_id", user.id)
-        .maybeSingle(),
-    ]);
+  if (isOnboardingRoute(pathname)) {
+    const url = request.nextUrl.clone();
+    url.pathname = getRoleHome(role);
+    url.search = "";
+    return NextResponse.redirect(url);
+  }
 
-    if (isCustomerRoute && !customerRole.data) {
-      const url = request.nextUrl.clone();
-      url.pathname = "/service/select";
-      url.searchParams.set("intent", "customer");
-      return NextResponse.redirect(url);
-    }
-
-    if (isMerchantRoute && !merchantRole.data) {
-      const url = request.nextUrl.clone();
-      url.pathname = "/service/select";
-      url.searchParams.set("intent", "merchant");
-      return NextResponse.redirect(url);
-    }
+  if (requiredRole && role !== requiredRole) {
+    return NextResponse.redirect(buildRoleRedirect(request, pathname, role));
   }
 
   return response;

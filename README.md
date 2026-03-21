@@ -1,18 +1,46 @@
-## Groxy • Book Marketplace Starter
+## Groxy Books
 
-This project is a Next.js App Router starter with:
-- Supabase Auth (email/password + OAuth)
-- Protected routes with middleware
-- Password reset flow
-- Blue minimal landing page (`/`)
-- Service selection + separate customer/merchant registration flows
-- Customer view (`/customer`, `/customer/books/[id]`, `/customer/cart`)
-- Merchant view (`/merchant`) with full CRUD
-- Admin panel (`/admin`) with listing moderation controls
-- `profiles`, `customer_profiles`, `merchant_profiles`, `books`, and `book_inquiries` schema + RLS policies
-- Webhook endpoint for buyer interest events
+Premium bookstore marketplace built with Next.js App Router, TypeScript, Supabase, Tailwind CSS, and shadcn/ui.
 
-## Setup
+### What this version includes
+
+- Premium public bookstore experience with:
+  - `/`
+  - `/books`
+  - `/books/[slug]`
+  - `/categories/[slug]`
+  - `/authors/[slug]`
+  - `/about`
+  - `/contact`
+- Identity-only auth:
+  - `/sign-in`
+  - `/sign-up`
+  - `/forgot-password`
+  - `/reset-password`
+  - `/auth/callback`
+- Multi-step onboarding:
+  - `/onboarding/step-1`
+  - `/onboarding/step-2`
+  - `/onboarding/step-3`
+  - `/onboarding/complete`
+- Role-based app shells:
+  - `/customer`
+  - `/merchant`
+  - `/admin`
+- Future-ready schema in [`supabase/schema.sql`](./supabase/schema.sql)
+- Middleware based on `profiles.role`, `profiles.is_onboarded`, and `profiles.onboarding_step`
+- Shared design system with premium bookstore styling, reusable shells, cards, and dashboard navigation
+
+### Architecture summary
+
+- Authentication creates identity only.
+- Onboarding collects profile data, role selection, and role-specific setup.
+- Authorization happens in middleware and server layouts.
+- Business data is separated into books, authors, categories, carts, wishlists, orders, reviews, addresses, payments, and merchant/customer data.
+
+Detailed blueprint: [`docs/bookstore-blueprint.md`](./docs/bookstore-blueprint.md)
+
+### Setup
 
 1. Install dependencies:
 
@@ -20,57 +48,81 @@ This project is a Next.js App Router starter with:
 npm install
 ```
 
-2. Create `.env.local` from `.env.example` and set values.
-3. Run SQL in Supabase: [`supabase/schema.sql`](./supabase/schema.sql)
-4. In Supabase Dashboard:
-- Enable Email provider
-- Enable Google provider
-- Enable Facebook provider
-- Add redirect URL: `http://localhost:3000/auth/callback`
-- Run SQL in [`supabase/schema.sql`](./supabase/schema.sql)
-
-5. Start app:
+2. Copy `.env.example` to `.env.local`
+3. Run [`supabase/schema.sql`](./supabase/schema.sql) in Supabase
+4. In Supabase Auth:
+   - enable Email provider
+   - enable Google provider if needed
+   - add `http://localhost:3000/auth/callback`
+5. Start the app:
 
 ```bash
 npm run dev
 ```
 
-## Routes
+### Core routes
 
-- `/` landing page
-- `/service/select` choose service entity
-- `/service/select/customer` customer service registration
-- `/service/select/merchant` merchant service registration
-- `/customer` customer catalog
-- `/customer/books/[id]` customer detail with seller email contact
-- `/customer/cart` customer cart preview
-- `/merchant` merchant dashboard (protected)
-- `/admin` admin panel (allowlist protected)
-- `/sign-in`
-- `/sign-up`
-- `/forgot-password`
-- `/reset-password`
-- `/dashboard` (protected)
+- Public:
+  - `/`
+  - `/books`
+  - `/books/[slug]`
+  - `/categories/[slug]`
+  - `/authors/[slug]`
+  - `/about`
+  - `/contact`
+- Auth:
+  - `/sign-in`
+  - `/sign-up`
+  - `/forgot-password`
+  - `/reset-password`
+- Onboarding:
+  - `/onboarding/step-1`
+  - `/onboarding/step-2`
+  - `/onboarding/step-3`
+  - `/onboarding/complete`
+- Customer:
+  - `/customer`
+  - `/customer/books`
+  - `/customer/wishlist`
+  - `/customer/cart`
+  - `/customer/orders`
+  - `/customer/profile`
+  - `/customer/settings`
+- Merchant:
+  - `/merchant`
+  - `/merchant/books`
+  - `/merchant/books/new`
+  - `/merchant/orders`
+  - `/merchant/analytics`
+  - `/merchant/store-settings`
+- Admin:
+  - `/admin`
+  - `/admin/users`
+  - `/admin/merchants`
+  - `/admin/books`
+  - `/admin/categories`
+  - `/admin/reviews`
+  - `/admin/analytics`
 
-## API Endpoints
+### Important server routes
 
+- `POST /api/onboarding`
 - `GET /api/books`
 - `GET /api/books/:id`
-- `GET /api/merchant/books` (protected)
-- `POST /api/merchant/books` (protected)
-- `GET /api/merchant/books/:id` (protected)
-- `PATCH /api/merchant/books/:id` (protected)
-- `DELETE /api/merchant/books/:id` (protected)
+- `GET /api/merchant/books`
+- `POST /api/merchant/books`
+- `GET /api/merchant/books/:id`
+- `PATCH /api/merchant/books/:id`
+- `DELETE /api/merchant/books/:id`
+- `GET /api/admin/overview`
+- `PATCH /api/admin/books/:id`
+- `DELETE /api/admin/books/:id`
 - `POST /api/webhooks/book-interest`
-- `GET /api/admin/overview` (allowlist protected)
-- `PATCH /api/admin/books/:id` (allowlist protected)
-- `DELETE /api/admin/books/:id` (allowlist protected)
 
-## Security Notes
+### Production notes
 
-- Keep `SUPABASE_SERVICE_ROLE_KEY` server-only. Never expose it client-side.
-- `.env.local` is gitignored; `.env.example` contains field names only.
-- Middleware enforces auth on protected routes.
-- Set `ADMIN_EMAILS` (comma-separated) to lock admin access.
-- Add `GROXY_WEBHOOK_SECRET` and send the same value in `x-groxy-webhook-secret`.
-- Merchant CRUD is protected by auth + owner checks.
+- `SUPABASE_SERVICE_ROLE_KEY` must stay server-only.
+- `NEXT_PUBLIC_APP_URL` should be set in production.
+- `ADMIN_EMAILS` can still be used for staff governance around admin access.
+- Admin users should be provisioned with `profiles.role = 'admin'` and `profiles.is_onboarded = true`.
+- Current rate limiting is in-memory; move it to Redis/KV for multi-instance production.

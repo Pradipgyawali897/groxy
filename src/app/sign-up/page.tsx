@@ -2,50 +2,46 @@ import Link from "next/link";
 import { redirect } from "next/navigation";
 
 import { EmailSignUpForm, OAuthButtons } from "@/components/auth-controls";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { createSupabaseServerClient } from "@/lib/supabase/server";
+import { AuthShell } from "@/features/auth/auth-shell";
+import { getViewerContext } from "@/lib/profile";
+import { APP_ROUTES, getRoleHome } from "@/lib/roles";
 
-export default async function SignUpPage({
-  searchParams,
-}: {
-  searchParams: Promise<{ intent?: string }>;
-}) {
-  const params = await searchParams;
-  const defaultService =
-    params.intent === "merchant" ? "merchant" : "customer";
+export default async function SignUpPage() {
+  const viewer = await getViewerContext();
 
-  const supabase = await createSupabaseServerClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-
-  if (user) {
-    redirect("/dashboard");
+  if (viewer.user) {
+    redirect(viewer.isOnboarded ? getRoleHome(viewer.role) : APP_ROUTES.onboardingStep1);
   }
 
   return (
-    <main className="relative flex flex-1 items-center justify-center px-6 py-10">
-      <div className="absolute inset-0 -z-10 bg-[radial-gradient(circle_at_top,_rgba(30,30,30,0.07),transparent_45%)] dark:bg-[radial-gradient(circle_at_top,_rgba(255,255,255,0.08),transparent_38%)]" />
-      <Card className="w-full max-w-md border border-border/70 bg-background/90 shadow-sm backdrop-blur">
-        <CardHeader>
-          <CardTitle>Create account</CardTitle>
-        </CardHeader>
-        <CardContent className="space-y-5">
-          <OAuthButtons />
-          <div className="h-px bg-border" />
-          <div className="space-y-2">
-            <p className="text-sm text-muted-foreground">
-              Email/password + service selection
-            </p>
-            <EmailSignUpForm defaultService={defaultService} />
+    <AuthShell
+      eyebrow="Create account"
+      title="Create your bookstore account"
+      description="Start with email or Google, then move through a guided onboarding flow for profile, role, and workspace details."
+      sideTitle="Sign up once. Choose your path in onboarding."
+      sideBody="This avoids brittle sign-up coupling and keeps the customer and merchant journeys intentional, visual, and easy to understand."
+      footer={
+        <>
+          Already have an account?{" "}
+          <Link href={APP_ROUTES.signIn} className="text-foreground hover:text-primary">
+            Sign in
+          </Link>
+          .
+        </>
+      }
+    >
+      <div className="space-y-4">
+        <OAuthButtons nextPath={APP_ROUTES.onboardingStep1} />
+        <div className="relative py-2">
+          <div className="absolute inset-0 flex items-center">
+            <span className="w-full border-t border-border/70" />
           </div>
-          <div className="text-sm">
-            <Link href="/sign-in" className="text-muted-foreground hover:text-foreground">
-              Already have an account? Sign in
-            </Link>
+          <div className="relative flex justify-center text-xs uppercase tracking-[0.22em] text-muted-foreground">
+            <span className="bg-card px-4">Or create with email</span>
           </div>
-        </CardContent>
-      </Card>
-    </main>
+        </div>
+        <EmailSignUpForm />
+      </div>
+    </AuthShell>
   );
 }

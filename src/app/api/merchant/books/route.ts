@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 
 import { merchantBookSchema } from "@/lib/books";
+import { checkRateLimit, getClientIp } from "@/lib/rate-limit";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 
 export async function GET() {
@@ -13,14 +14,14 @@ export async function GET() {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
-  const { data: merchantRole } = await supabase
-    .from("merchant_profiles")
-    .select("user_id,business_email")
-    .eq("user_id", user.id)
+  const { data: profile } = await supabase
+    .from("profiles")
+    .select("role,is_onboarded")
+    .eq("id", user.id)
     .maybeSingle();
-  if (!merchantRole) {
+  if (profile?.role !== "merchant" || !profile.is_onboarded) {
     return NextResponse.json(
-      { error: "Merchant service registration required" },
+      { error: "Merchant access required" },
       { status: 403 }
     );
   }
@@ -48,14 +49,39 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
-  const { data: merchantRole } = await supabase
-    .from("merchant_profiles")
-    .select("user_id,business_email")
+  const ip = getClientIp(new Headers(request.headers));
+  const limit = checkRateLimit(`merchant:create:${user.id}:${ip}`, {
+    windowMs: 10 * 60 * 1000,
+    max: 30,
+  });
+  if (!limit.ok) {
+    return NextResponse.json(
+      { error: "Too many create requests. Try again later." },
+      { status: 429, headers: { "Retry-After": String(limit.retryAfter) } }
+    );
+  }
+
+  const { data: profile } = await supabase
+    .from("profiles")
+    .select("role,is_onboarded")
+    .eq("id", user.id)
+    .maybeSingle();
+  if (profile?.role !== "merchant" || !profile.is_onboarded) {
+    return NextResponse.json(
+      { error: "Merchant access required" },
+      { status: 403 }
+    );
+  }
+
+  const { data: workspace } = await supabase
+    .from("merchant_workspaces")
+    .select("support_email")
     .eq("user_id", user.id)
     .maybeSingle();
-  if (!merchantRole) {
+
+  if (!workspace) {
     return NextResponse.json(
-      { error: "Merchant service registration required" },
+      { error: "Merchant workspace setup required" },
       { status: 403 }
     );
   }
@@ -75,7 +101,7 @@ export async function POST(request: Request) {
     .insert({
       ...payload,
       merchant_id: user.id,
-      seller_email: merchantRole.business_email ?? user.email ?? "",
+      seller_email: workspace.support_email ?? user.email ?? "",
       gallery_urls: payload.gallery_urls ?? [],
       original_price: payload.original_price ?? null,
     })

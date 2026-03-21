@@ -1,8 +1,9 @@
 import { NextResponse } from "next/server";
 import { z } from "zod";
 
-import { getSessionUser, isAdminEmail } from "@/lib/admin-auth";
+import { isSessionAdmin } from "@/lib/admin-auth";
 import { BOOK_STATUSES } from "@/lib/books";
+import { checkRateLimit, getClientIp } from "@/lib/rate-limit";
 import { createSupabaseAdminClient } from "@/lib/supabase/admin";
 
 const adminBookPatchSchema = z.object({
@@ -16,9 +17,20 @@ export async function PATCH(
   request: Request,
   { params }: { params: Promise<{ id: string }> }
 ) {
-  const user = await getSessionUser();
-  if (!user || !isAdminEmail(user.email)) {
+  if (!(await isSessionAdmin())) {
     return NextResponse.json({ error: "Forbidden" }, { status: 403 });
+  }
+
+  const ip = getClientIp(new Headers(request.headers));
+  const limit = checkRateLimit(`admin:update:${ip}`, {
+    windowMs: 10 * 60 * 1000,
+    max: 80,
+  });
+  if (!limit.ok) {
+    return NextResponse.json(
+      { error: "Too many admin update requests. Try again later." },
+      { status: 429, headers: { "Retry-After": String(limit.retryAfter) } }
+    );
   }
 
   const payload = await request.json();
@@ -50,12 +62,23 @@ export async function PATCH(
 }
 
 export async function DELETE(
-  _request: Request,
+  request: Request,
   { params }: { params: Promise<{ id: string }> }
 ) {
-  const user = await getSessionUser();
-  if (!user || !isAdminEmail(user.email)) {
+  if (!(await isSessionAdmin())) {
     return NextResponse.json({ error: "Forbidden" }, { status: 403 });
+  }
+
+  const ip = getClientIp(new Headers(request.headers));
+  const limit = checkRateLimit(`admin:delete:${ip}`, {
+    windowMs: 10 * 60 * 1000,
+    max: 40,
+  });
+  if (!limit.ok) {
+    return NextResponse.json(
+      { error: "Too many admin delete requests. Try again later." },
+      { status: 429, headers: { "Retry-After": String(limit.retryAfter) } }
+    );
   }
 
   const { id } = await params;

@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 
 import { merchantBookSchema } from "@/lib/books";
+import { checkRateLimit, getClientIp } from "@/lib/rate-limit";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 
 async function getAuthedUserBook(bookId: string) {
@@ -13,17 +14,17 @@ async function getAuthedUserBook(bookId: string) {
     return { supabase, user: null, book: null, error: "Unauthorized", status: 401 };
   }
 
-  const { data: merchantRole } = await supabase
-    .from("merchant_profiles")
-    .select("user_id")
-    .eq("user_id", user.id)
+  const { data: profile } = await supabase
+    .from("profiles")
+    .select("role,is_onboarded")
+    .eq("id", user.id)
     .maybeSingle();
-  if (!merchantRole) {
+  if (profile?.role !== "merchant" || !profile.is_onboarded) {
     return {
       supabase,
       user,
       book: null,
-      error: "Merchant service registration required",
+      error: "Merchant access required",
       status: 403,
     };
   }
@@ -66,6 +67,18 @@ export async function PATCH(
     return NextResponse.json({ error: result.error }, { status: result.status });
   }
 
+  const ip = getClientIp(new Headers(request.headers));
+  const limit = checkRateLimit(`merchant:update:${result.user?.id}:${ip}`, {
+    windowMs: 10 * 60 * 1000,
+    max: 60,
+  });
+  if (!limit.ok) {
+    return NextResponse.json(
+      { error: "Too many update requests. Try again later." },
+      { status: 429, headers: { "Retry-After": String(limit.retryAfter) } }
+    );
+  }
+
   const body = await request.json();
   const parsed = merchantBookSchema.partial().safeParse(body);
   if (!parsed.success) {
@@ -99,13 +112,25 @@ export async function PATCH(
 }
 
 export async function DELETE(
-  _request: Request,
+  request: Request,
   { params }: { params: Promise<{ id: string }> }
 ) {
   const { id } = await params;
   const result = await getAuthedUserBook(id);
   if (result.error) {
     return NextResponse.json({ error: result.error }, { status: result.status });
+  }
+
+  const ip = getClientIp(new Headers(request.headers));
+  const limit = checkRateLimit(`merchant:delete:${result.user?.id}:${ip}`, {
+    windowMs: 10 * 60 * 1000,
+    max: 30,
+  });
+  if (!limit.ok) {
+    return NextResponse.json(
+      { error: "Too many delete requests. Try again later." },
+      { status: 429, headers: { "Retry-After": String(limit.retryAfter) } }
+    );
   }
 
   const { error } = await result.supabase

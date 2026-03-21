@@ -163,6 +163,7 @@ export function MerchantStudio({ initialBooks }: { initialBooks: BookRecord[] })
               alt={form.title || "Preview"}
               width={1100}
               height={700}
+              sizes="(max-width: 1024px) 100vw, 46vw"
               className="h-72 w-full rounded-lg object-cover"
             />
             <h3 className="mt-3 text-xl font-semibold">{form.title || "Book title"}</h3>
@@ -336,6 +337,7 @@ export function MerchantStudio({ initialBooks }: { initialBooks: BookRecord[] })
                   alt={book.title}
                   width={120}
                   height={160}
+                  sizes="64px"
                   className="h-24 w-16 rounded-md object-cover"
                 />
                 <div className="flex-1">
