@@ -1,5 +1,6 @@
 import { createServerClient } from "@supabase/ssr";
 import { NextResponse, type NextRequest } from "next/server";
+import { ResponseCookie } from 'next/dist/compiled/@edge-runtime/cookies';
 
 import {
   APP_ROUTES,
@@ -15,7 +16,11 @@ const authRoutes = [
   APP_ROUTES.forgotPassword,
   APP_ROUTES.resetPassword,
 ];
-
+type CookieSet = {
+  name: string;
+  value: string;
+  options?: ResponseCookie;
+}[];
 const onboardingRoutes = [
   APP_ROUTES.onboardingRoot,
   APP_ROUTES.onboardingStep1,
@@ -74,7 +79,7 @@ export async function middleware(request: NextRequest) {
         getAll() {
           return request.cookies.getAll();
         },
-        setAll(cookiesToSet) {
+        setAll(cookiesToSet: CookieSet) {
           cookiesToSet.forEach(({ name, value }) => request.cookies.set(name, value));
           response = NextResponse.next({ request });
           cookiesToSet.forEach(({ name, value, options }) => {
