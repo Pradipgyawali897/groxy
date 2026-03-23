@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button";
 import { BookGrid } from "@/features/catalog/book-grid";
 import { getPublishedBookBySlug, listPublishedBooks } from "@/lib/catalog";
 import { normalizeCloudinaryUrl } from "@/lib/books";
+import { slugify } from "@/lib/utils";
 
 export default async function BookDetailPage({
   params,
@@ -15,22 +16,23 @@ export default async function BookDetailPage({
 }) {
   const { slug } = await params;
   const [book, allBooks] = await Promise.all([getPublishedBookBySlug(slug), listPublishedBooks(8)]);
-
   if (!book) {
     notFound();
   }
+  const authorSlug = slugify(book.author);
 
   const related = allBooks.filter((candidate) => candidate.id !== book.id).slice(0, 4);
-
   return (
     <main className="mx-auto w-full max-w-7xl space-y-12 px-4 py-12 sm:px-6 lg:px-8">
       <div className="flex items-center justify-between">
         <Link href="/books" className="text-sm text-muted-foreground hover:text-foreground">
           Back to catalog
         </Link>
-        <Link href={`/authors/${book.author.toLowerCase().replace(/[^a-z0-9]+/g, "-")}`} className="text-sm text-muted-foreground hover:text-foreground">
-          More from {book.author}
-        </Link>
+        {authorSlug && (
+          <Link href={`/authors/${authorSlug}`} className="text-sm text-muted-foreground hover:text-foreground">
+            More from {book.author}
+          </Link>
+        )}
       </div>
 
       <section className="grid gap-8 rounded-[2rem] border border-border/70 bg-card/90 p-6 shadow-sm lg:grid-cols-[0.8fr_1.2fr] lg:p-8">

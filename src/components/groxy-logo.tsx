@@ -4,12 +4,16 @@ import Link from "next/link";
 import Image from "next/image";
 import { useTheme } from "next-themes";
 import { useEffect, useState } from "react";
-
+type dimenssion={
+  width?:number;
+  height?:number;
+}
 type prop={
-  mybackground?: "different" | "same" 
+  mybackground?: "different" | "same" ,
+  dimenssion?:dimenssion
 }
 
-export function GroxyLogo({mybackground="same"}: prop) {
+export function GroxyLogo({mybackground="same",dimenssion={width:80,height:80}}: prop) {
   const { resolvedTheme } = useTheme();
   const [mounted, setMounted] = useState(false);
 
@@ -29,8 +33,8 @@ export function GroxyLogo({mybackground="same"}: prop) {
           key={resolvedTheme}
           src={logoSrc}
           alt="App Logo"
-          width={80}
-          height={80}
+          width={dimenssion.width}
+          height={dimenssion.height}
           className="drop-shadow-xl rounded-full object-cover"
           priority
         />

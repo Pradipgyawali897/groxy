@@ -81,7 +81,7 @@ export default async function RootLayout({
               <div className="mx-auto grid w-full max-w-7xl gap-8 px-4 py-12 sm:px-6 lg:grid-cols-[1.25fr_0.8fr_0.8fr] lg:px-8">
                 <div className="space-y-4">
                   <div className="flex ">
-                  <GroxyLogo mybackground={"different"}/>
+                  <GroxyLogo mybackground={"different"} dimenssion={{width:120,height:120}}/>
                   </div>
                   <p className="max-w-md text-sm leading-7 text-background/70">
                     Groxy combines a premium bookstore front end, a clean merchant studio,
