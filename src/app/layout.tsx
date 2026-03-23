@@ -43,7 +43,7 @@ export default async function RootLayout({
                 </div>
               </div>
               <div className="mx-auto flex w-full max-w-7xl flex-wrap items-center justify-between gap-4 px-4 py-4 sm:px-6 lg:px-8">
-                <div className="flex items-center gap-8">
+                <div className="flex items-left gap-8">
                   <GroxyLogo />
                   <nav className="hidden items-center gap-6 text-sm text-muted-foreground lg:flex">
                     {PUBLIC_NAV.map((item) => (
@@ -80,7 +80,9 @@ export default async function RootLayout({
             <footer className="border-t border-border/70 bg-foreground text-background">
               <div className="mx-auto grid w-full max-w-7xl gap-8 px-4 py-12 sm:px-6 lg:grid-cols-[1.25fr_0.8fr_0.8fr] lg:px-8">
                 <div className="space-y-4">
-                  <GroxyLogo light />
+                  <div className="flex ">
+                  <GroxyLogo mybackground={"different"}/>
+                  </div>
                   <p className="max-w-md text-sm leading-7 text-background/70">
                     Groxy combines a premium bookstore front end, a clean merchant studio,
                     and structured marketplace controls for growth-ready commerce.

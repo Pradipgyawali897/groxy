@@ -1,26 +1,39 @@
+"use client";
+
 import Link from "next/link";
+import Image from "next/image";
+import { useTheme } from "next-themes";
+import { useEffect, useState } from "react";
 
-import { cn } from "@/lib/utils";
+type prop={
+  mybackground?: "different" | "same" 
+}
 
-export function GroxyLogo({ light = false }: { light?: boolean }) {
+export function GroxyLogo({mybackground="same"}: prop) {
+  const { resolvedTheme } = useTheme();
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+  }, [resolvedTheme]);
+
+  if (!mounted) return null;
+  let logoSrc = resolvedTheme === "dark" ? "/logol.png" : "/logod.png";
+  if(mybackground=="different"){
+    logoSrc = resolvedTheme === "dark" ? "/logod.png" : "/logol.png";
+  }
   return (
     <Link href="/" className="inline-flex items-center gap-3">
-      <span className="relative inline-flex size-10 items-center justify-center overflow-hidden rounded-2xl bg-[linear-gradient(135deg,#2b5beb,#1a2b66)] shadow-[0_18px_40px_-20px_rgba(43,91,235,0.75)]">
-        <span className="absolute inset-0 bg-[radial-gradient(circle_at_20%_20%,rgba(255,255,255,0.45),transparent_60%)]" />
-        <span className="relative font-heading text-lg font-semibold text-white">G</span>
-      </span>
       <span className="flex flex-col leading-none">
-        <span
-          className={cn(
-            "font-heading text-xl tracking-tight",
-            light ? "text-white" : "text-foreground"
-          )}
-        >
-          Groxy
-        </span>
-        <span className={cn("text-xs uppercase tracking-[0.22em]", light ? "text-white/60" : "text-muted-foreground")}>
-          Books
-        </span>
+        <Image
+          key={resolvedTheme}
+          src={logoSrc}
+          alt="App Logo"
+          width={80}
+          height={80}
+          className="drop-shadow-xl rounded-full object-cover"
+          priority
+        />
       </span>
     </Link>
   );

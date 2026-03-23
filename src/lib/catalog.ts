@@ -11,7 +11,7 @@ export async function listPublishedBooks(limit?: number) {
     .select("*")
     .eq("status", "published")
     .order("is_featured", { ascending: false })
-    .order("created_at", { ascending: false });
+    .order("created_at", { ascending: true });
 
   if (limit) {
     query = query.limit(limit);

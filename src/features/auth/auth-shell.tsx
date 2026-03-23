@@ -24,7 +24,7 @@ export function AuthShell({
         <section className="relative overflow-hidden border-b border-border/70 bg-[linear-gradient(180deg,rgba(33,37,48,0.96),rgba(18,18,24,0.96))] p-8 text-white lg:border-b-0 lg:border-r lg:p-10">
           <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_right,rgba(90,115,255,0.35),transparent_34%),radial-gradient(circle_at_bottom_left,rgba(212,167,98,0.22),transparent_30%)]" />
           <div className="relative space-y-8">
-            <GroxyLogo light />
+            <GroxyLogo />
             <div className="space-y-4">
               <p className="text-xs font-medium uppercase tracking-[0.24em] text-white/70">
                 {eyebrow}
