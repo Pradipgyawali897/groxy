@@ -3,8 +3,8 @@ import { redirect } from "next/navigation";
 import { FinishOnboardingButton } from "@/features/onboarding/onboarding-forms";
 import { OnboardingShell } from "@/features/onboarding/onboarding-shell";
 import { getViewerContext } from "@/lib/profile";
-import { APP_ROUTES, getRoleConfig, getRoleHome } from "@/lib/roles";
-
+import { APP_ROUTES,  getRoleHome } from "@/lib/roles";
+import { getRoleConfig } from "@/lib/roles";
 export default async function OnboardingCompletePage() {
   const viewer = await getViewerContext();
 

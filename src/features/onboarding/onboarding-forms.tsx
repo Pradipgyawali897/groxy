@@ -20,6 +20,7 @@ type MutationState = {
   loading: boolean;
   error: string;
 };
+const DEBUG=process.env.DEBUG?true:false;
 
 async function submitOnboarding(payload: unknown) {
   const res = await fetch("/api/onboarding", {

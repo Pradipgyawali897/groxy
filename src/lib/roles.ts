@@ -167,3 +167,6 @@ export function getRoleFromPath(pathname: string): AppRole | null {
   }
   return null;
 }
+export function getRoleConfig(role: AppRole) {
+  return ROLE_CONFIG[role];
+}
