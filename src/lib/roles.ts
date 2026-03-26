@@ -40,7 +40,7 @@ export const APP_ROUTES = {
   account: "/account",
 } as const;
 
-export const PUBLIC_PORTAL_ROLES = ["customer", "merchant"] as const;
+
 
 type RoleConfig = {
   role: AppRole;
@@ -52,7 +52,7 @@ type RoleConfig = {
   homePath: string;
 };
 
-export const ROLE_CONFIG: Record<AppRole, RoleConfig> = {
+const ROLE_CONFIG: Record<AppRole, RoleConfig> = {
   customer: {
     role: "customer",
     label: "Customer",
@@ -124,9 +124,6 @@ export function isAppRole(value: string | null | undefined): value is AppRole {
   return value === "customer" || value === "merchant" || value === "admin";
 }
 
-export function getRoleConfig(role: AppRole) {
-  return ROLE_CONFIG[role];
-}
 
 export function getRoleHome(role: AppRole | null | undefined) {
   if (!role) return APP_ROUTES.onboardingStep1;
@@ -169,17 +166,4 @@ export function getRoleFromPath(pathname: string): AppRole | null {
     return "customer";
   }
   return null;
-}
-
-export function getPortalSignInPath(pathname: string) {
-  if (pathname.startsWith(APP_ROUTES.adminHome) || pathname.startsWith("/api/admin")) {
-    return `${APP_ROUTES.signIn}?next=${encodeURIComponent(APP_ROUTES.adminHome)}`;
-  }
-  if (pathname.startsWith(APP_ROUTES.merchantHome) || pathname.startsWith("/api/merchant")) {
-    return `${APP_ROUTES.signIn}?next=${encodeURIComponent(APP_ROUTES.merchantHome)}`;
-  }
-  if (pathname.startsWith(APP_ROUTES.customerHome)) {
-    return `${APP_ROUTES.signIn}?next=${encodeURIComponent(APP_ROUTES.customerHome)}`;
-  }
-  return APP_ROUTES.signIn;
 }
