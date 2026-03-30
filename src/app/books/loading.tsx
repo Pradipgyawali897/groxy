@@ -1,0 +1,5 @@
+import { CatalogListSkeleton } from "@/features/fallback/page-loading";
+
+export default function Loading() {
+  return <CatalogListSkeleton />;
+}
