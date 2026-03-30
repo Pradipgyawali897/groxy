@@ -6,6 +6,7 @@ import { BookGrid } from "@/features/catalog/book-grid";
 import { ProgressiveBookCover } from "@/features/catalog/progressive-book-cover";
 import { AddToCartButton } from "@/features/cart/add-to-cart-button";
 import { BookViewTracker } from "@/features/reco/book-view-tracker";
+import { BookReviewsSection } from "@/features/reviews/book-reviews-section";
 import { WishlistButton } from "@/features/wishlist/wishlist-button";
 import { getPublishedBookBySlug, listPublishedBooks } from "@/lib/catalog";
 import { normalizeCloudinaryUrl } from "@/lib/books";
@@ -141,6 +142,8 @@ export default async function BookDetailPage({
           <BookGrid books={related} compact />
         </section>
       ) : null}
+
+      <BookReviewsSection bookId={book.id} />
     </main>
   );
 }

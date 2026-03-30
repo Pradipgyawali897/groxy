@@ -1,4 +1,5 @@
 import { getMerchantDashboardData } from "@/lib/dashboard-data";
+import { MerchantWorkspaceForm } from "@/features/merchant/merchant-workspace-form";
 
 export default async function MerchantStoreSettingsPage() {
   const { workspace } = await getMerchantDashboardData();
@@ -19,9 +20,18 @@ export default async function MerchantStoreSettingsPage() {
           <p className="mt-2 font-medium">{workspace?.support_email ?? "Not set"}</p>
         </div>
       </div>
-      <p className="mt-6 text-sm leading-7 text-muted-foreground">
-        This page is ready for merchant branding, payout, and notification controls in the next iteration.
-      </p>
+      <div className="mt-6 grid gap-6 lg:grid-cols-[0.9fr_1.1fr]">
+        <div className="rounded-[1.75rem] border border-border/70 bg-background/75 p-5 text-sm leading-7 text-muted-foreground">
+          Keep the store name, slug, and visual identity consistent so listings, cover images, and seller trust signals feel aligned across the storefront.
+        </div>
+        <MerchantWorkspaceForm
+          initialName={workspace?.store_name}
+          initialSlug={workspace?.store_slug}
+          initialDescription={workspace?.description}
+          initialLogo={workspace?.logo_url}
+          initialBanner={workspace?.banner_url}
+        />
+      </div>
     </section>
   );
 }
