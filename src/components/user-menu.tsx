@@ -1,8 +1,8 @@
 "use client";
 
 import * as React from "react";
-import { useRouter } from "next/navigation";
-import { LogOutIcon, User, LayoutDashboard, Heart, Sparkles, BookOpenText, ChartNoAxesColumn, Users } from "lucide-react";
+import { usePathname, useRouter } from "next/navigation";
+import { LogOutIcon, User, LayoutDashboard, Heart, Sparkles, BookOpenText, ChartNoAxesColumn, Users, ShoppingCart } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import {
@@ -13,6 +13,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import { isActivePath } from "@/lib/navigation";
 import { createSupabaseBrowserClient } from "@/lib/supabase/browser";
 import { APP_ROUTES, type AppRole, getAuthedPath } from "@/lib/roles";
 
@@ -33,6 +34,7 @@ export function UserMenu({
   isOnboarded: boolean;
   canAccessAdmin: boolean;
 }) {
+  const pathname = usePathname();
   const router = useRouter();
 
   const onSignOut = async () => {
@@ -57,21 +59,20 @@ export function UserMenu({
         : [
             { label: "Wishlist", href: APP_ROUTES.customerWishlist, icon: Heart },
             { label: "For you", href: APP_ROUTES.customerRecommendations, icon: Sparkles },
+            { label: "Cart", href: APP_ROUTES.customerCart, icon: ShoppingCart },
           ];
 
   return (
     <DropdownMenu>
-      <DropdownMenuTrigger
-        render={
-          <Button variant="outline" className="h-10 rounded-xl px-3">
-            <span className="mr-2 inline-flex h-7 w-7 items-center justify-center rounded-lg bg-primary/10 text-sm text-primary">
-              {initials(email)}
-            </span>
-            <span className="hidden text-sm sm:inline">Menu</span>
-          </Button>
-        }
-      />
-      <DropdownMenuContent className="w-64">
+      <DropdownMenuTrigger>
+        <Button variant="outline" className="h-10 rounded-xl px-3">
+          <span className="mr-2 inline-flex h-7 w-7 items-center justify-center rounded-lg bg-primary/10 text-sm text-primary">
+            {initials(email)}
+          </span>
+          <span className="hidden text-sm sm:inline">Menu</span>
+        </Button>
+      </DropdownMenuTrigger>
+      <DropdownMenuContent className="w-64" align="end">
         <DropdownMenuLabel>
           <div className="px-1">
             <p className="text-xs uppercase tracking-[0.22em] text-muted-foreground">Signed in</p>
@@ -81,18 +82,25 @@ export function UserMenu({
         <DropdownMenuSeparator />
         <DropdownMenuItem
           onClick={() => router.push(dashboardHref)}
-          className="cursor-pointer"
+          className={isActivePath(pathname, dashboardHref) ? "cursor-pointer bg-muted" : "cursor-pointer"}
         >
           <LayoutDashboard />
           Dashboard
         </DropdownMenuItem>
-        <DropdownMenuItem onClick={() => router.push(APP_ROUTES.account)} className="cursor-pointer">
+        <DropdownMenuItem
+          onClick={() => router.push(APP_ROUTES.account)}
+          className={isActivePath(pathname, APP_ROUTES.account) ? "cursor-pointer bg-muted" : "cursor-pointer"}
+        >
           <User />
           Account
         </DropdownMenuItem>
         <DropdownMenuSeparator />
         {quickLinks.map((item) => (
-          <DropdownMenuItem key={item.href} onClick={() => router.push(item.href)} className="cursor-pointer">
+          <DropdownMenuItem
+            key={item.href}
+            onClick={() => router.push(item.href)}
+            className={isActivePath(pathname, item.href) ? "cursor-pointer bg-muted" : "cursor-pointer"}
+          >
             <item.icon />
             {item.label}
           </DropdownMenuItem>
@@ -100,7 +108,10 @@ export function UserMenu({
         {canAccessAdmin ? (
           <>
             <DropdownMenuSeparator />
-            <DropdownMenuItem onClick={() => router.push(APP_ROUTES.adminHome)} className="cursor-pointer">
+            <DropdownMenuItem
+              onClick={() => router.push(APP_ROUTES.adminHome)}
+              className={isActivePath(pathname, APP_ROUTES.adminHome) ? "cursor-pointer bg-muted" : "cursor-pointer"}
+            >
               <LayoutDashboard />
               Admin
             </DropdownMenuItem>

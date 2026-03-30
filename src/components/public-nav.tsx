@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 
+import { isActivePath } from "@/lib/navigation";
 import { cn } from "@/lib/utils";
 import { PUBLIC_NAV } from "@/lib/roles";
 
@@ -12,7 +13,7 @@ export function PublicNav() {
   return (
     <nav className="hidden items-center gap-2 text-sm lg:flex">
       {PUBLIC_NAV.map((item) => {
-        const active = pathname === item.href || pathname.startsWith(`${item.href}/`);
+        const active = isActivePath(pathname, item.href);
         return (
           <Link
             key={item.href}

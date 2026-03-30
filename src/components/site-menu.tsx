@@ -13,6 +13,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { labelForPath } from "@/components/route-badge";
+import { isActivePath } from "@/lib/navigation";
 import { APP_ROUTES, PUBLIC_NAV, type AppRole, getAuthedPath } from "@/lib/roles";
 import { cn } from "@/lib/utils";
 
@@ -51,18 +52,17 @@ export function SiteMenu({
             { href: APP_ROUTES.customerHome, label: "Overview", icon: LayoutDashboard },
             { href: APP_ROUTES.customerRecommendations, label: "For you", icon: Sparkles },
             { href: APP_ROUTES.customerWishlist, label: "Wishlist", icon: Heart },
+            { href: APP_ROUTES.customerCart, label: "Cart", icon: BookOpenText },
           ];
 
   return (
     <div className="lg:hidden">
       <DropdownMenu>
-        <DropdownMenuTrigger
-          render={
-            <Button variant="outline" size="icon-lg" className="rounded-xl">
-              <Menu className="size-4" />
-            </Button>
-          }
-        />
+        <DropdownMenuTrigger>
+          <Button variant="outline" size="icon-lg" className="rounded-xl">
+            <Menu className="size-4" />
+          </Button>
+        </DropdownMenuTrigger>
         <DropdownMenuContent className="w-72">
           <DropdownMenuLabel>
             <div className="space-y-2 px-1">
@@ -81,7 +81,7 @@ export function SiteMenu({
               onClick={() => router.push(item.href)}
               className={cn(
                 "cursor-pointer",
-                (pathname === item.href || pathname.startsWith(`${item.href}/`)) && "bg-muted"
+                isActivePath(pathname, item.href) && "bg-muted"
               )}
             >
               {item.label}
@@ -108,7 +108,7 @@ export function SiteMenu({
                   onClick={() => router.push(item.href)}
                   className={cn(
                     "cursor-pointer",
-                    (pathname === item.href || pathname.startsWith(`${item.href}/`)) && "bg-muted"
+                    isActivePath(pathname, item.href) && "bg-muted"
                   )}
                 >
                   <item.icon />

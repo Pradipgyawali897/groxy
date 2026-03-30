@@ -5,6 +5,7 @@ import { usePathname } from "next/navigation";
 
 import { SignOutButton } from "@/components/auth-controls";
 import { GroxyLogo } from "@/components/groxy-logo";
+import { isActivePath } from "@/lib/navigation";
 import { cn } from "@/lib/utils";
 
 export function DashboardShell({
@@ -41,7 +42,7 @@ export function DashboardShell({
 
           <nav className="mt-6 grid gap-2">
             {nav.map((item) => {
-              const active = pathname === item.href || pathname.startsWith(`${item.href}/`);
+              const active = isActivePath(pathname, item.href);
               return (
                 <Link
                   key={item.href}
