@@ -20,6 +20,8 @@ export const APP_ROUTES = {
   customerHome: "/customer",
   customerBooks: "/customer/books",
   customerWishlist: "/customer/wishlist",
+  customerRecentlyViewed: "/customer/recently-viewed",
+  customerRecommendations: "/customer/recommendations",
   customerCart: "/customer/cart",
   customerOrders: "/customer/orders",
   customerProfile: "/customer/profile",
@@ -94,6 +96,8 @@ export const PUBLIC_NAV = [
 export const CUSTOMER_NAV = [
   { label: "Overview", href: APP_ROUTES.customerHome },
   { label: "Books", href: APP_ROUTES.customerBooks },
+  { label: "For you", href: APP_ROUTES.customerRecommendations },
+  { label: "Recently viewed", href: APP_ROUTES.customerRecentlyViewed },
   { label: "Wishlist", href: APP_ROUTES.customerWishlist },
   { label: "Cart", href: APP_ROUTES.customerCart },
   { label: "Orders", href: APP_ROUTES.customerOrders },

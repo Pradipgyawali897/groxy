@@ -24,7 +24,12 @@ export function AuthShell({
         <section className="relative overflow-hidden border-b border-border/70 bg-[linear-gradient(180deg,rgba(33,37,48,0.96),rgba(18,18,24,0.96))] p-8 text-white lg:border-b-0 lg:border-r lg:p-10">
           <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_right,rgba(90,115,255,0.35),transparent_34%),radial-gradient(circle_at_bottom_left,rgba(212,167,98,0.22),transparent_30%)]" />
           <div className="relative space-y-8">
-            <GroxyLogo />
+            <div className="flex items-center justify-between gap-4">
+              <GroxyLogo mybackground="different" />
+              <span className="inline-flex rounded-full border border-white/15 bg-white/10 px-3 py-1 text-[11px] uppercase tracking-[0.22em] text-white/80">
+                Secure access
+              </span>
+            </div>
             <div className="space-y-4">
               <p className="text-xs font-medium uppercase tracking-[0.24em] text-white/70">
                 {eyebrow}
@@ -36,13 +41,13 @@ export function AuthShell({
             </div>
             <div className="grid gap-3 text-sm text-white/75">
               <div className="rounded-2xl border border-white/10 bg-white/5 p-4">
+                Google, magic-link, and password login all land in the same callback and continue into the correct workspace.
+              </div>
+              <div className="rounded-2xl border border-white/10 bg-white/5 p-4">
                 Identity is created first. Role and preferences are collected in onboarding.
               </div>
               <div className="rounded-2xl border border-white/10 bg-white/5 p-4">
                 Middleware routes readers, merchants, and admins without redirect loops.
-              </div>
-              <div className="rounded-2xl border border-white/10 bg-white/5 p-4">
-                Built for a premium bookstore experience with future-ready data structure.
               </div>
             </div>
           </div>
@@ -55,6 +60,17 @@ export function AuthShell({
               </p>
               <h2 className="font-heading text-4xl tracking-tight">{title}</h2>
               <p className="text-sm leading-7 text-muted-foreground">{description}</p>
+            </div>
+            <div className="flex flex-wrap gap-2 text-xs uppercase tracking-[0.22em] text-muted-foreground">
+              <span className="rounded-full border border-border/70 bg-background/75 px-3 py-1">
+                Callback-safe
+              </span>
+              <span className="rounded-full border border-border/70 bg-background/75 px-3 py-1">
+                Role-aware
+              </span>
+              <span className="rounded-full border border-border/70 bg-background/75 px-3 py-1">
+                Production flow
+              </span>
             </div>
             {children}
             {footer ? <div className="text-sm text-muted-foreground">{footer}</div> : null}

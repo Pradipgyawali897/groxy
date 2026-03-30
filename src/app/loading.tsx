@@ -1,6 +1,5 @@
-import SpinnerLoading from "@/components/skeleton_loader/spinner";
-
+import { RouteLoading } from "@/features/fallback/route-loading";
 
 export default function Loading() {
-  return <SpinnerLoading />;
+  return <RouteLoading />;
 }

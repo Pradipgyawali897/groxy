@@ -5,7 +5,7 @@ import { Select } from "@/components/ui/select";
 import { EmptyPanel } from "@/features/dashboard/empty-panel";
 import { SectionHeading } from "@/features/shared/section-heading";
 import { BOOK_STATUSES } from "@/lib/books";
-import { getBookHref } from "@/lib/catalog";
+import { getBookHref } from "@/lib/catalog-shared";
 import { getMerchantDashboardData } from "@/lib/dashboard-data";
 
 export default async function MerchantBooksPage({

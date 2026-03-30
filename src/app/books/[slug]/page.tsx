@@ -1,12 +1,15 @@
 import { Image } from "@/components/ui/image";
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { Heart, ShoppingBag } from "lucide-react";
+import { ShoppingBag } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { BookGrid } from "@/features/catalog/book-grid";
+import { BookViewTracker } from "@/features/reco/book-view-tracker";
+import { WishlistButton } from "@/features/wishlist/wishlist-button";
 import { getPublishedBookBySlug, listPublishedBooks } from "@/lib/catalog";
 import { normalizeCloudinaryUrl } from "@/lib/books";
+import { getFrequentlyBoughtTogether } from "@/lib/reco/fbt";
 import { slugify } from "@/lib/utils";
 
 export default async function BookDetailPage({
@@ -19,11 +22,13 @@ export default async function BookDetailPage({
   if (!book) {
     notFound();
   }
+  const fbt = await getFrequentlyBoughtTogether(book.id, 4);
   const authorSlug = slugify(book.author);
 
   const related = allBooks.filter((candidate) => candidate.id !== book.id).slice(0, 4);
   return (
     <main className="mx-auto w-full max-w-7xl space-y-12 px-4 py-12 sm:px-6 lg:px-8">
+      <BookViewTracker bookId={book.id} />
       <div className="flex items-center justify-between">
         <Link href="/books" className="text-sm text-muted-foreground hover:text-foreground">
           Back to catalog
@@ -81,10 +86,10 @@ export default async function BookDetailPage({
               <ShoppingBag className="size-4" />
               Add to cart
             </Button>
-            <Button variant="outline" className="h-12 rounded-2xl px-6">
-              <Heart className="size-4" />
-              Save to wishlist
-            </Button>
+            <div className="flex items-center gap-3 rounded-2xl border border-border bg-background/60 px-4 py-2">
+              <WishlistButton bookId={book.id} size="icon" />
+              <span className="text-sm text-muted-foreground">Save</span>
+            </div>
             <a
               href={`mailto:${book.seller_email}?subject=${encodeURIComponent(`Interested in ${book.title}`)}`}
               className="inline-flex h-12 items-center justify-center rounded-2xl border border-border px-6 text-sm font-medium text-foreground hover:bg-muted"
@@ -94,6 +99,18 @@ export default async function BookDetailPage({
           </div>
         </div>
       </section>
+
+      {fbt.length > 0 ? (
+        <section className="space-y-6">
+          <div className="flex items-center justify-between">
+            <h2 className="font-heading text-4xl tracking-tight">Frequently bought together</h2>
+            <Link href="/books" className="text-sm text-muted-foreground hover:text-foreground">
+              Explore all books
+            </Link>
+          </div>
+          <BookGrid books={fbt} compact />
+        </section>
+      ) : null}
 
       {related.length > 0 ? (
         <section className="space-y-6">

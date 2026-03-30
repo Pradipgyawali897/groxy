@@ -41,7 +41,7 @@ export function DashboardShell({
 
           <nav className="mt-6 grid gap-2">
             {nav.map((item) => {
-              const active = pathname === item.href;
+              const active = pathname === item.href || pathname.startsWith(`${item.href}/`);
               return (
                 <Link
                   key={item.href}

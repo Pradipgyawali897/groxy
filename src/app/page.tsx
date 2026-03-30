@@ -3,6 +3,9 @@ import Link from "next/link";
 import { ArrowRight, BookOpenText, PackageCheck, Quote, Sparkles, Store } from "lucide-react";
 
 import { BookGrid } from "@/features/catalog/book-grid";
+import { RecommendationShelf } from "@/features/reco/recommendation-shelf";
+import { RecentlyViewedShelf } from "@/features/reco/recently-viewed-shelf";
+import { TrendingShelf } from "@/features/reco/trending-shelf";
 import { SectionHeading } from "@/features/shared/section-heading";
 import { normalizeCloudinaryUrl } from "@/lib/books";
 import { groupCatalogBooks, listPublishedBooks } from "@/lib/catalog";
@@ -144,6 +147,12 @@ export default async function HomePage() {
           description="Book-first cards, quiet typography, and consistent product presentation make the catalog feel premium from the first scroll."
         />
         <BookGrid books={featuredBooks} />
+      </section>
+
+      <section className="mx-auto w-full max-w-7xl space-y-12 px-4 py-16 sm:px-6 lg:px-8">
+        <TrendingShelf />
+        <RecommendationShelf />
+        <RecentlyViewedShelf />
       </section>
 
       <section className="mx-auto grid w-full max-w-7xl gap-6 px-4 py-16 sm:px-6 lg:grid-cols-[1fr_1fr_1fr] lg:px-8">

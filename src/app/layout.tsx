@@ -3,10 +3,14 @@ import type { Metadata } from "next";
 
 import { GroxyLogo } from "@/components/groxy-logo";
 import { ModeToggle } from "@/components/mode-toggle";
+import { PublicNav } from "@/components/public-nav";
+import { SiteMenu } from "@/components/site-menu";
+import { UserMenu } from "@/components/user-menu";
+import { RouteBadge } from "@/components/route-badge";
 import { ThemeProvider } from "@/components/theme-provider";
 import { Toaster } from "@/components/ui/sonner";
 import { getViewerContext } from "@/lib/profile";
-import { APP_ROUTES, PUBLIC_NAV, getRoleHome } from "@/lib/roles";
+import { APP_ROUTES, getRoleHome } from "@/lib/roles";
 
 import "./globals.css";
 
@@ -20,7 +24,7 @@ export default async function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
-  const { user, role, isOnboarded } = await getViewerContext();
+  const { user, role, isOnboarded, canAccessAdmin } = await getViewerContext();
 
   return (
     <html
@@ -34,26 +38,19 @@ export default async function RootLayout({
             <header className="sticky top-0 z-40 border-b border-border/70 bg-background/85 backdrop-blur-xl">
               <div className="border-b border-border/60 bg-foreground text-background">
                 <div className="mx-auto flex w-full max-w-7xl items-center justify-between gap-4 px-4 py-2 text-xs uppercase tracking-[0.22em] text-background/70 sm:px-6 lg:px-8">
-                  <p>Rusoxy literary commerce system</p>
-                  <div className="hidden items-center gap-4 sm:flex">
-                    <span>Curated storefront</span>
-                    <span>Seller marketplace</span>
-                    <span>Structured operations</span>
+                  <p className="truncate">Rusoxy literary commerce system</p>
+                  <div className="flex items-center gap-3">
+                    <RouteBadge />
                   </div>
                 </div>
               </div>
               <div className="mx-auto flex w-full max-w-7xl flex-wrap items-center justify-between gap-4 px-4 py-4 sm:px-6 lg:px-8">
                 <div className="flex items-left gap-8">
                   <GroxyLogo />
-                  <nav className="hidden items-center gap-6 text-sm text-muted-foreground lg:flex">
-                    {PUBLIC_NAV.map((item) => (
-                      <Link key={item.href} href={item.href} className="hover:text-foreground">
-                        {item.label}
-                      </Link>
-                    ))}
-                  </nav>
+                  <PublicNav />
                 </div>
                 <div className="flex items-center gap-3">
+                  <SiteMenu user={Boolean(user)} role={role} isOnboarded={isOnboarded} />
                   <Link
                     href={APP_ROUTES.books}
                     className="hidden h-10 items-center rounded-xl border border-border px-4 text-sm text-foreground hover:bg-muted sm:inline-flex"
@@ -72,6 +69,14 @@ export default async function RootLayout({
                   >
                     {user ? (isOnboarded ? "Open dashboard" : "Continue onboarding") : "Sign in"}
                   </Link>
+                  {user ? (
+                    <UserMenu
+                      email={user.email}
+                      role={role}
+                      isOnboarded={isOnboarded}
+                      canAccessAdmin={canAccessAdmin}
+                    />
+                  ) : null}
                   <ModeToggle />
                 </div>
               </div>

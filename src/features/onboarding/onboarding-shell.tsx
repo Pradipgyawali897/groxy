@@ -1,3 +1,4 @@
+import { GroxyLogo } from "@/components/groxy-logo";
 import { cn } from "@/lib/utils";
 
 const STEPS = [
@@ -28,7 +29,13 @@ export function OnboardingShell({
       <div className="mx-auto grid w-full max-w-6xl overflow-hidden rounded-[2rem] border border-border/70 bg-card/90 shadow-[0_30px_120px_-50px_rgba(15,23,42,0.45)] lg:grid-cols-[0.82fr_1.18fr]">
         <section className="border-b border-border/70 bg-foreground px-8 py-8 text-background lg:border-b-0 lg:border-r lg:px-10 lg:py-10">
           <div className="space-y-8">
-            <div>
+            <div className="space-y-4">
+              <div className="flex items-center justify-between gap-4">
+                <GroxyLogo mybackground="different" />
+                <span className="inline-flex rounded-full border border-white/15 bg-white/10 px-3 py-1 text-[11px] uppercase tracking-[0.22em] text-white/80">
+                  Step {step} of 4
+                </span>
+              </div>
               <p className="text-xs font-medium uppercase tracking-[0.22em] text-background/70">
                 Onboarding
               </p>
@@ -60,6 +67,14 @@ export function OnboardingShell({
                 </div>
               ))}
             </div>
+            <div className="grid gap-3 text-sm text-background/72">
+              <div className="rounded-2xl border border-white/10 bg-white/5 p-4">
+                Profile data and role routing are separated so the auth layer stays stable.
+              </div>
+              <div className="rounded-2xl border border-white/10 bg-white/5 p-4">
+                Each step writes directly into the production data model instead of temporary client-only state.
+              </div>
+            </div>
           </div>
         </section>
         <section className="p-6 sm:p-8 lg:p-10">
@@ -70,6 +85,12 @@ export function OnboardingShell({
               </p>
               <h2 className="font-heading text-4xl tracking-tight">{title}</h2>
               <p className="text-sm leading-7 text-muted-foreground">{description}</p>
+            </div>
+            <div className="h-2 overflow-hidden rounded-full bg-muted">
+              <div
+                className="h-full rounded-full bg-primary transition-all"
+                style={{ width: `${step * 25}%` }}
+              />
             </div>
             {children}
           </div>

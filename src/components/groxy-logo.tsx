@@ -2,8 +2,7 @@
 
 import Link from "next/link";
 import Image from "next/image";
-import { useTheme } from "next-themes";
-import { useEffect, useState } from "react";
+
 type dimenssion={
   width?:number;
   height?:number;
@@ -14,28 +13,27 @@ type prop={
 }
 
 export function GroxyLogo({mybackground="same",dimenssion={width:80,height:80}}: prop) {
-  const { resolvedTheme } = useTheme();
-  const [mounted, setMounted] = useState(false);
+  const darkOnLight = mybackground === "same";
+  const lightSrc = darkOnLight ? "/logod.png" : "/logol.png";
+  const darkSrc = darkOnLight ? "/logol.png" : "/logod.png";
 
-  useEffect(() => {
-    setMounted(true);
-  }, [resolvedTheme]);
-
-  if (!mounted) return null;
-  let logoSrc = resolvedTheme === "dark" ? "/logol.png" : "/logod.png";
-  if(mybackground=="different"){
-    logoSrc = resolvedTheme === "dark" ? "/logod.png" : "/logol.png";
-  }
   return (
-    <Link href="/" className="inline-flex items-center gap-3">
-      <span className="flex flex-col leading-none">
+    <Link href="/" className="inline-flex items-center gap-3 rounded-2xl">
+      <span className="relative flex flex-col leading-none">
         <Image
-          key={resolvedTheme}
-          src={logoSrc}
-          alt="App Logo"
+          src={lightSrc}
+          alt="Groxy Books"
           width={dimenssion.width}
           height={dimenssion.height}
-          className="drop-shadow-xl rounded-full object-cover"
+          className="rounded-full object-cover drop-shadow-xl dark:hidden"
+          priority
+        />
+        <Image
+          src={darkSrc}
+          alt="Groxy Books"
+          width={dimenssion.width}
+          height={dimenssion.height}
+          className="hidden rounded-full object-cover drop-shadow-xl dark:block"
           priority
         />
       </span>

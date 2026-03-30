@@ -1,11 +1,11 @@
 import { Image } from "@/components/ui/image";
 import Link from "next/link";
-import { Heart, Star } from "lucide-react";
+import { Star } from "lucide-react";
 
-import { Button } from "@/components/ui/button";
 import { normalizeCloudinaryUrl } from "@/lib/books";
-import { getBookHref } from "@/lib/catalog";
+import { getBookHref } from "@/lib/catalog-shared";
 import type { CatalogBook } from "@/types/platform";
+import { WishlistButton } from "@/features/wishlist/wishlist-button";
 
 export function BookCard({
   book,
@@ -72,9 +72,7 @@ export function BookCard({
           >
             View details
           </Link>
-          <Button variant="outline" size="icon-lg" className="rounded-xl">
-            <Heart className="size-4" />
-          </Button>
+          <WishlistButton bookId={book.id} size="icon-lg" />
         </div>
       </div>
     </article>

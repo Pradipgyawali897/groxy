@@ -10,12 +10,16 @@ import { normalizeNextPath } from "@/lib/redirects";
 import { createSupabaseBrowserClient } from "@/lib/supabase/browser";
 import { APP_ROUTES } from "@/lib/roles";
 
+function getBrowserAppOrigin() {
+  if (typeof window !== "undefined" && window.location.origin) {
+    return window.location.origin;
+  }
+  return process.env.NEXT_PUBLIC_APP_URL ?? "";
+}
+
 function getAuthRedirectPath(nextPath?: string) {
   const next = normalizeNextPath(nextPath) ?? APP_ROUTES.onboardingStep1;
-  const appUrl =
-    process.env.NEXT_PUBLIC_APP_URL ??
-    (typeof window !== "undefined" ? window.location.origin : "");
-  return `${appUrl}/auth/callback?next=${encodeURIComponent(next)}`;
+  return `${getBrowserAppOrigin()}/auth/callback?next=${encodeURIComponent(next)}`;
 }
 
 export function OAuthButtons({ nextPath }: { nextPath?: string }) {
@@ -27,17 +31,30 @@ export function OAuthButtons({ nextPath }: { nextPath?: string }) {
     setLoadingProvider(provider);
     const supabase = createSupabaseBrowserClient();
 
-    const { error: oauthError } = await supabase.auth.signInWithOAuth({
+    const { data, error: oauthError } = await supabase.auth.signInWithOAuth({
       provider,
       options: {
         redirectTo: getAuthRedirectPath(nextPath),
+        queryParams: {
+          prompt: "select_account",
+        },
+        skipBrowserRedirect: true,
       },
     });
 
-    setLoadingProvider("");
     if (oauthError) {
+      setLoadingProvider("");
       setError(oauthError.message);
+      return;
     }
+
+    if (!data?.url) {
+      setLoadingProvider("");
+      setError("Google sign-in could not start. Check your Supabase OAuth redirect settings.");
+      return;
+    }
+
+    window.location.assign(data.url);
   };
 
   return (
@@ -234,9 +251,7 @@ export function ForgotPasswordForm() {
     setMessage("");
     const supabase = createSupabaseBrowserClient();
     const { error: resetError } = await supabase.auth.resetPasswordForEmail(email, {
-      redirectTo: `${
-        process.env.NEXT_PUBLIC_APP_URL ?? window.location.origin
-      }${APP_ROUTES.resetPassword}`,
+      redirectTo: `${getBrowserAppOrigin()}${APP_ROUTES.resetPassword}`,
     });
 
     setLoading(false);

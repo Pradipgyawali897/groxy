@@ -50,11 +50,12 @@ npm install
 
 2. Copy `.env.example` to `.env.local`
 3. Run [`supabase/schema.sql`](./supabase/schema.sql) in Supabase
-4. In Supabase Auth:
+4. Run [`supabase/recommendations.sql`](./supabase/recommendations.sql) in Supabase (hybrid recommender + events + materialized views)
+5. In Supabase Auth:
    - enable Email provider
    - enable Google provider if needed
    - add `http://localhost:3000/auth/callback`
-5. Start the app:
+6. Start the app:
 
 ```bash
 npm run dev
@@ -83,6 +84,8 @@ npm run dev
 - Customer:
   - `/customer`
   - `/customer/books`
+  - `/customer/recommendations`
+  - `/customer/recently-viewed`
   - `/customer/wishlist`
   - `/customer/cart`
   - `/customer/orders`

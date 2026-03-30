@@ -1,5 +1,7 @@
 import { BookGrid } from "@/features/catalog/book-grid";
 import { MetricGrid } from "@/features/dashboard/metric-grid";
+import { RecommendationShelf } from "@/features/reco/recommendation-shelf";
+import { RecentlyViewedShelf } from "@/features/reco/recently-viewed-shelf";
 import { SectionHeading } from "@/features/shared/section-heading";
 import { getCustomerDashboardData } from "@/lib/dashboard-data";
 
@@ -49,6 +51,13 @@ export default async function CustomerDashboardPage() {
         />
         <BookGrid books={books.slice(0, 4)} compact />
       </section>
+
+      <RecommendationShelf
+        title="Recommended for you"
+        description="Updated as you view books, save wishlist items, and place orders."
+        limit={8}
+      />
+      <RecentlyViewedShelf limit={8} />
     </div>
   );
 }

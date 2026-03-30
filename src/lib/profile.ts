@@ -40,9 +40,13 @@ export async function ensureProfileRecord(user: User) {
 
 export async function getViewerContext(): Promise<ViewerContext> {
   const supabase = await createSupabaseServerClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
+  let user: User | null = null;
+  try {
+    const res = await supabase.auth.getUser();
+    user = res.data.user;
+  } catch {
+    user = null;
+  }
 
   if (!user) {
     return {
@@ -55,13 +59,23 @@ export async function getViewerContext(): Promise<ViewerContext> {
     };
   }
 
-  await ensureProfileRecord(user);
+  try {
+    await ensureProfileRecord(user);
+  } catch {
+    // If DB is temporarily unavailable, still allow the app shell to render.
+  }
 
-  const { data: profile } = await supabase
-    .from("profiles")
-    .select("id,email,full_name,avatar_url,role,is_onboarded,onboarding_step,created_at,updated_at")
-    .eq("id", user.id)
-    .maybeSingle();
+  let profile: any = null;
+  try {
+    const res = await supabase
+      .from("profiles")
+      .select("id,email,full_name,avatar_url,role,is_onboarded,onboarding_step,created_at,updated_at")
+      .eq("id", user.id)
+      .maybeSingle();
+    profile = res.data ?? null;
+  } catch {
+    profile = null;
+  }
 
   const normalizedProfile = profile
     ? {
