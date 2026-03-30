@@ -1,7 +1,6 @@
-"use client";
-
-import Link from "next/link";
 import Image from "next/image";
+
+import { InteractiveLink } from "@/components/interactive-link";
 
 type dimenssion={
   width?:number;
@@ -18,7 +17,7 @@ export function GroxyLogo({mybackground="same",dimenssion={width:80,height:80}}:
   const darkSrc = darkOnLight ? "/logol.png" : "/logod.png";
 
   return (
-    <Link href="/" className="inline-flex items-center gap-3 rounded-2xl">
+    <InteractiveLink href="/" className="inline-flex items-center gap-3 rounded-2xl">
       <span className="relative flex flex-col leading-none">
         <Image
           src={lightSrc}
@@ -37,6 +36,6 @@ export function GroxyLogo({mybackground="same",dimenssion={width:80,height:80}}:
           priority
         />
       </span>
-    </Link>
+    </InteractiveLink>
   );
 }

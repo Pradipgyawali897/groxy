@@ -2,9 +2,9 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { Clock3, ShoppingBag, Sparkles, TrendingUp } from "lucide-react";
 
-import { Button } from "@/components/ui/button";
 import { BookGrid } from "@/features/catalog/book-grid";
 import { ProgressiveBookCover } from "@/features/catalog/progressive-book-cover";
+import { AddToCartButton } from "@/features/cart/add-to-cart-button";
 import { BookViewTracker } from "@/features/reco/book-view-tracker";
 import { WishlistButton } from "@/features/wishlist/wishlist-button";
 import { getPublishedBookBySlug, listPublishedBooks } from "@/lib/catalog";
@@ -87,10 +87,12 @@ export default async function BookDetailPage({
           </div>
 
           <div className="flex flex-col gap-3 sm:flex-row">
-            <Button className="h-12 rounded-2xl px-6">
-              <ShoppingBag className="size-4" />
-              Add to cart
-            </Button>
+            <AddToCartButton
+              bookId={book.id}
+              stock={book.stock}
+              className="h-12 rounded-2xl px-6"
+              label="Add to cart"
+            />
             <div className="flex items-center gap-3 rounded-2xl border border-border bg-background/60 px-4 py-2">
               <WishlistButton bookId={book.id} size="icon" />
               <span className="text-sm text-muted-foreground">Save</span>

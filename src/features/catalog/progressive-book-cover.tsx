@@ -33,6 +33,7 @@ export function ProgressiveBookCover({
   className,
 }: ProgressiveBookCoverProps) {
   const [loaded, setLoaded] = React.useState(false);
+  const [failed, setFailed] = React.useState(false);
 
   return (
     <div className={cn("relative overflow-hidden bg-muted", wrapperClassName)}>
@@ -54,9 +55,15 @@ export function ProgressiveBookCover({
         loading={loading}
         quality={quality}
         onLoad={() => setLoaded(true)}
+        onError={() => {
+          setFailed(true);
+          setLoaded(true);
+        }}
+        fallbackText="Cover unavailable"
         className={cn(
           "transition duration-700",
           loaded ? "scale-100 opacity-100" : "scale-[1.025] opacity-0",
+          failed && "bg-muted/90 object-contain p-6",
           className
         )}
       />

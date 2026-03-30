@@ -1,6 +1,6 @@
 "use client";
 
-import { Menu, BookOpenText, House, LayoutDashboard, Sparkles, Heart, User2 } from "lucide-react";
+import { Menu, BookOpenText, House, LayoutDashboard, Sparkles, Heart, User2, ShoppingCart } from "lucide-react";
 import { usePathname, useRouter } from "next/navigation";
 
 import { Button } from "@/components/ui/button";
@@ -52,7 +52,7 @@ export function SiteMenu({
             { href: APP_ROUTES.customerHome, label: "Overview", icon: LayoutDashboard },
             { href: APP_ROUTES.customerRecommendations, label: "For you", icon: Sparkles },
             { href: APP_ROUTES.customerWishlist, label: "Wishlist", icon: Heart },
-            { href: APP_ROUTES.customerCart, label: "Cart", icon: BookOpenText },
+            { href: APP_ROUTES.customerCart, label: "Cart", icon: ShoppingCart },
           ];
 
   return (

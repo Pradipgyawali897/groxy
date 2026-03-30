@@ -1,7 +1,7 @@
 "use client";
 
 import NextImage, { ImageProps as NextImageProps } from "next/image";
-import { useState } from "react";
+import { SyntheticEvent, useState } from "react";
 import { ImageOff } from "lucide-react";
 
 interface ImageProps extends NextImageProps {
@@ -9,8 +9,25 @@ interface ImageProps extends NextImageProps {
   fallbackText?: string;
 }
 
-export function Image({ src, fallbackSrc, fallbackText = "Image unavailable", alt, className, ...rest }: ImageProps) {
+export function Image({
+  src,
+  fallbackSrc,
+  fallbackText = "Image unavailable",
+  alt,
+  className,
+  onError,
+  onLoad,
+  ...rest
+}: ImageProps) {
   const [error, setError] = useState(false);
+  const handleError = (event: SyntheticEvent<HTMLImageElement, Event>) => {
+    setError(true);
+    onError?.(event);
+  };
+
+  const handleLoad = (event: SyntheticEvent<HTMLImageElement, Event>) => {
+    onLoad?.(event);
+  };
 
   if (error || !src) {
     if (fallbackSrc) {
@@ -40,9 +57,8 @@ export function Image({ src, fallbackSrc, fallbackText = "Image unavailable", al
       src={src}
       alt={alt}
       className={className}
-      onError={(e) => {
-        setError(true);
-      }}
+      onError={handleError}
+      onLoad={handleLoad}
       {...rest}
     />
   );

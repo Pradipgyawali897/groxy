@@ -20,7 +20,6 @@ type MutationState = {
   loading: boolean;
   error: string;
 };
-const DEBUG=process.env.DEBUG?true:false;
 
 async function submitOnboarding(payload: unknown) {
   const res = await fetch("/api/onboarding", {
@@ -39,6 +38,22 @@ function splitValues(value: string) {
     .filter(Boolean);
 }
 
+function normalizeText(value: string) {
+  return value.trim().replace(/\s+/g, " ");
+}
+
+function normalizeUrl(value: string) {
+  return value.trim();
+}
+
+function slugifyStoreName(value: string) {
+  return normalizeText(value)
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/^-+|-+$/g, "")
+    .slice(0, 60);
+}
+
 export function BasicProfileForm({
   defaultName,
   defaultAvatar,
@@ -54,8 +69,8 @@ export function BasicProfileForm({
   const onSubmit = async (event: React.FormEvent) => {
     event.preventDefault();
     const parsed = basicProfileSchema.safeParse({
-      full_name: fullName,
-      avatar_url: avatarUrl,
+      full_name: normalizeText(fullName),
+      avatar_url: normalizeUrl(avatarUrl),
     });
 
     if (!parsed.success) {
@@ -249,15 +264,21 @@ export function MerchantSetupForm({
   const [description, setDescription] = React.useState(initialDescription ?? "");
   const [logoUrl, setLogoUrl] = React.useState(initialLogo ?? "");
   const [bannerUrl, setBannerUrl] = React.useState(initialBanner ?? "");
+  const [slugTouched, setSlugTouched] = React.useState(Boolean(initialSlug));
+
+  React.useEffect(() => {
+    if (slugTouched) return;
+    setStoreSlug(slugifyStoreName(storeName));
+  }, [storeName, slugTouched]);
 
   const onSubmit = async (event: React.FormEvent) => {
     event.preventDefault();
     const parsed = merchantSetupSchema.safeParse({
-      store_name: storeName,
-      store_slug: storeSlug,
-      description,
-      logo_url: logoUrl,
-      banner_url: bannerUrl,
+      store_name: normalizeText(storeName),
+      store_slug: slugifyStoreName(storeSlug),
+      description: normalizeText(description),
+      logo_url: normalizeUrl(logoUrl),
+      banner_url: normalizeUrl(bannerUrl),
     });
 
     if (!parsed.success) {
@@ -285,10 +306,16 @@ export function MerchantSetupForm({
       />
       <Input
         value={storeSlug}
-        onChange={(event) => setStoreSlug(event.target.value.toLowerCase())}
+        onChange={(event) => {
+          setSlugTouched(true);
+          setStoreSlug(event.target.value.toLowerCase());
+        }}
         placeholder="store-slug"
         className="h-12 rounded-2xl px-4"
       />
+      <p className="text-xs text-muted-foreground">
+        This becomes your storefront path and will stay clean if you rename the shop later.
+      </p>
       <Textarea
         value={description}
         onChange={(event) => setDescription(event.target.value)}

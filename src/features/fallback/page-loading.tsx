@@ -8,7 +8,7 @@ function SkeletonBlock({ className }: { className: string }) {
 
 function FloatingLogoMark({ darkSurface = false }: { darkSurface?: boolean }) {
   return (
-    <div className="relative inline-flex items-center gap-4">
+    <div className="relative inline-flex items-center justify-center">
       <div
         className={cn(
           "relative h-20 w-20 overflow-hidden rounded-full ring-1 shadow-[0_26px_80px_-40px_rgba(15,23,42,0.55)] animate-float",

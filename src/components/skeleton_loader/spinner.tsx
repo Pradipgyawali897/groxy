@@ -5,7 +5,7 @@ export default function SpinnerLoading() {
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-background/80 backdrop-blur-sm transition-opacity duration-300">
       <div className="flex w-full max-w-sm flex-col items-center gap-6 px-6 text-center animate-fade-in">
-        <div className="relative">
+        <div className="relative flex h-32 w-32 items-center justify-center">
           <div className="relative h-24 w-24 overflow-hidden rounded-full ring-1 ring-border/60 shadow-[0_26px_80px_-40px_rgba(15,23,42,0.55)] animate-float">
             <Image
               src="/logod.png"
@@ -23,7 +23,7 @@ export default function SpinnerLoading() {
             />
           </div>
 
-          <div className="absolute inset-[-16px] rounded-full border-4 border-primary/60 border-t-transparent animate-spin"></div>
+          <div className="absolute h-32 w-32 rounded-full border-4 border-primary/60 border-t-transparent animate-spin"></div>
         </div>
 
         <div className="space-y-2">

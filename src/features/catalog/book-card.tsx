@@ -1,6 +1,6 @@
-import Link from "next/link";
 import { Star } from "lucide-react";
 
+import { InteractiveLink } from "@/components/interactive-link";
 import { ProgressiveBookCover } from "@/features/catalog/progressive-book-cover";
 import { normalizeCloudinaryUrl } from "@/lib/books";
 import { getBookHref } from "@/lib/catalog-shared";
@@ -14,9 +14,11 @@ export function BookCard({
   book: CatalogBook;
   compact?: boolean;
 }) {
+  const href = getBookHref(book);
+
   return (
     <article className="group overflow-hidden rounded-[1.75rem] border border-border/70 bg-card/90 shadow-[0_24px_60px_-40px_rgba(15,23,42,0.35)] transition duration-300 hover:-translate-y-1 hover:shadow-[0_28px_80px_-40px_rgba(15,23,42,0.5)]">
-      <Link href={getBookHref(book)} className="block">
+      <InteractiveLink href={href} className="block" pendingClassName="scale-[0.995] opacity-90">
         <div className="relative aspect-[4/5] overflow-hidden bg-muted">
           <ProgressiveBookCover
             src={normalizeCloudinaryUrl(book.cover_image_url, 900)}
@@ -35,15 +37,15 @@ export function BookCard({
             </span>
           </div>
         </div>
-      </Link>
+      </InteractiveLink>
       <div className="space-y-4 p-5">
         <div className="space-y-2">
           <p className="text-sm text-muted-foreground">{book.author}</p>
-          <Link href={getBookHref(book)} className="block">
+          <InteractiveLink href={href} className="block" pendingClassName="translate-x-0.5 opacity-85">
             <h3 className="line-clamp-2 font-heading text-2xl leading-tight tracking-tight text-foreground">
               {book.title}
             </h3>
-          </Link>
+          </InteractiveLink>
           {book.recommendation_reason ? (
             <p className="inline-flex rounded-full border border-primary/20 bg-primary/8 px-3 py-1 text-xs font-medium text-primary">
               {book.recommendation_reason}
@@ -72,12 +74,13 @@ export function BookCard({
           </div>
         </div>
         <div className="flex items-center gap-2">
-          <Link
-            href={getBookHref(book)}
+          <InteractiveLink
+            href={href}
+            pendingClassName="scale-[0.985]"
             className="inline-flex h-11 flex-1 items-center justify-center rounded-xl bg-primary px-4 text-sm font-medium text-primary-foreground"
           >
             View details
-          </Link>
+          </InteractiveLink>
           <WishlistButton bookId={book.id} size="icon-lg" />
         </div>
       </div>

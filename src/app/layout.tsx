@@ -2,6 +2,8 @@ import Link from "next/link";
 import type { Metadata } from "next";
 
 import { GroxyLogo } from "@/components/groxy-logo";
+import { CustomerQuickLinks } from "@/components/customer-quick-links";
+import { InteractiveLink } from "@/components/interactive-link";
 import { ModeToggle } from "@/components/mode-toggle";
 import { PublicNav } from "@/components/public-nav";
 import { RouteTitleSync } from "@/components/route-title-sync";
@@ -87,18 +89,21 @@ export default async function RootLayout({
                     isOnboarded={isOnboarded}
                     canAccessAdmin={canAccessAdmin}
                   />
-                  <Link
+                  {user && role === "customer" && isOnboarded ? <CustomerQuickLinks /> : null}
+                  <InteractiveLink
                     href={APP_ROUTES.books}
                     className="hidden h-10 items-center rounded-xl border border-border px-4 text-sm text-foreground hover:bg-muted sm:inline-flex"
+                    pendingClassName="scale-[0.98]"
                   >
                     Browse books
-                  </Link>
-                  <Link
+                  </InteractiveLink>
+                  <InteractiveLink
                     href={dashboardHref}
                     className="inline-flex h-10 items-center rounded-xl bg-primary px-4 text-sm text-primary-foreground"
+                    pendingClassName="scale-[0.98]"
                   >
                     {user ? (isOnboarded ? "Open dashboard" : "Continue onboarding") : "Sign in"}
-                  </Link>
+                  </InteractiveLink>
                   {user ? (
                     <UserMenu
                       email={user.email}
@@ -125,22 +130,27 @@ export default async function RootLayout({
                 </div>
                 <div className="space-y-3 text-sm text-background/72">
                   <p className="font-medium text-background">Explore</p>
-                  <Link href={APP_ROUTES.books} className="block hover:text-background">
+                  <InteractiveLink href={APP_ROUTES.books} className="block hover:text-background" pendingClassName="opacity-80">
                     Catalog
-                  </Link>
-                  <Link href={APP_ROUTES.about} className="block hover:text-background">
+                  </InteractiveLink>
+                  <InteractiveLink href={APP_ROUTES.about} className="block hover:text-background" pendingClassName="opacity-80">
                     About
-                  </Link>
-                  <Link href={APP_ROUTES.contact} className="block hover:text-background">
+                  </InteractiveLink>
+                  <InteractiveLink href={APP_ROUTES.contact} className="block hover:text-background" pendingClassName="opacity-80">
                     Contact
-                  </Link>
+                  </InteractiveLink>
                 </div>
                 <div className="space-y-3 text-sm text-background/72">
                   <p className="font-medium text-background">{user ? "Workspace" : "Access"}</p>
                   {footerAccessLinks.map((item) => (
-                    <Link key={item.href} href={item.href} className="block hover:text-background">
+                    <InteractiveLink
+                      key={item.href}
+                      href={item.href}
+                      className="block hover:text-background"
+                      pendingClassName="opacity-80"
+                    >
                       {item.label}
-                    </Link>
+                    </InteractiveLink>
                   ))}
                 </div>
               </div>
