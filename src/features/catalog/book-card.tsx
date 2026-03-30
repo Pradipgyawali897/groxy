@@ -26,6 +26,7 @@ export function BookCard({
             fill
             sizes={compact ? "(max-width: 768px) 50vw, 20vw" : "(max-width: 768px) 100vw, 25vw"}
             loading="lazy"
+            wrapperClassName="h-full w-full"
             className="object-cover transition duration-700 group-hover:scale-[1.04]"
           />
           <div className="absolute inset-x-4 top-4 flex items-center justify-between">

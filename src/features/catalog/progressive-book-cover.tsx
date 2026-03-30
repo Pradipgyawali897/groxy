@@ -36,7 +36,7 @@ export function ProgressiveBookCover({
   const [failed, setFailed] = React.useState(false);
 
   return (
-    <div className={cn("relative overflow-hidden bg-muted", wrapperClassName)}>
+    <div className={cn("relative overflow-hidden bg-muted", fill && "h-full w-full", wrapperClassName)}>
       <div
         aria-hidden
         className={cn(

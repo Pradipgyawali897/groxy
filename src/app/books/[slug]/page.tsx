@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { Clock3, ShoppingBag, Sparkles, TrendingUp } from "lucide-react";
+import { Clock3, Sparkles, TrendingUp, Star, Globe2, ShieldCheck, Mail, Package } from "lucide-react";
 
 import { BookGrid } from "@/features/catalog/book-grid";
 import { ProgressiveBookCover } from "@/features/catalog/progressive-book-cover";
@@ -25,6 +25,7 @@ export default async function BookDetailPage({
   }
   const fbt = await getFrequentlyBoughtTogether(book.id, 4);
   const authorSlug = slugify(book.author);
+  const hasRatings = book.rating_count > 0;
 
   const related = allBooks.filter((candidate) => candidate.id !== book.id).slice(0, 4);
   return (
@@ -41,10 +42,18 @@ export default async function BookDetailPage({
         )}
       </div>
 
-      <section className="grid gap-8 rounded-[2rem] border border-border/70 bg-card/90 p-6 shadow-sm lg:grid-cols-[0.8fr_1.2fr] lg:p-8">
+      <section className="grid gap-8 rounded-[2rem] border border-border/70 bg-card/90 p-6 shadow-sm lg:grid-cols-[1.05fr_0.95fr] lg:p-8">
         <div className="space-y-6">
           <div className="space-y-3">
-            <p className="text-sm uppercase tracking-[0.22em] text-primary/75">{book.genre}</p>
+            <div className="flex flex-wrap items-center gap-3">
+              <p className="rounded-full border border-primary/20 bg-primary/8 px-3 py-1 text-sm uppercase tracking-[0.22em] text-primary/75">
+                {book.genre}
+              </p>
+              <span className="inline-flex items-center gap-2 rounded-full border border-border/70 bg-background/80 px-3 py-1 text-xs font-medium text-muted-foreground">
+                <Clock3 className="size-3.5 text-primary" />
+                Fast-moving shelf
+              </span>
+            </div>
             <h1 className="font-heading text-5xl tracking-tight">{book.title}</h1>
             <p className="text-lg text-muted-foreground">{book.author}</p>
           </div>
@@ -62,60 +71,143 @@ export default async function BookDetailPage({
               Details first, image loads softly
             </span>
           </div>
-          <div className="flex items-end gap-3">
-            <p className="text-3xl font-semibold text-foreground">${Number(book.price).toFixed(2)}</p>
-            {book.original_price ? (
-              <p className="text-lg text-muted-foreground line-through">
-                ${Number(book.original_price).toFixed(2)}
-              </p>
-            ) : null}
+          <div className="flex flex-wrap items-center gap-4">
+            <div className="flex items-end gap-3">
+              <p className="text-3xl font-semibold text-foreground">${Number(book.price).toFixed(2)}</p>
+              {book.original_price ? (
+                <p className="text-lg text-muted-foreground line-through">
+                  ${Number(book.original_price).toFixed(2)}
+                </p>
+              ) : null}
+            </div>
+            <span className="inline-flex items-center gap-2 rounded-full bg-amber-100/90 px-3 py-1 text-sm font-medium text-amber-700 dark:bg-amber-500/10 dark:text-amber-300">
+              <Star className="size-4 fill-current" />
+              {hasRatings ? `${book.average_rating.toFixed(1)} from ${book.rating_count} reviews` : "Fresh listing"}
+            </span>
           </div>
-          <p className="max-w-2xl text-sm leading-8 text-muted-foreground">{book.description}</p>
 
-          <div className="grid gap-3 sm:grid-cols-3">
+          <div className="rounded-[1.5rem] border border-border/70 bg-background/70 p-5">
+            <p className="text-xs uppercase tracking-[0.22em] text-primary/75">About this book</p>
+            <p className="mt-3 max-w-3xl text-sm leading-8 text-muted-foreground">{book.description}</p>
+          </div>
+
+          <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
             <div className="rounded-2xl border border-border/70 bg-background/75 p-4">
-              <p className="text-sm text-muted-foreground">Availability</p>
+              <p className="inline-flex items-center gap-2 text-sm text-muted-foreground">
+                <Package className="size-4 text-primary" />
+                Availability
+              </p>
               <p className="mt-2 font-medium">{book.stock > 0 ? `${book.stock} available` : "Out of stock"}</p>
             </div>
             <div className="rounded-2xl border border-border/70 bg-background/75 p-4">
-              <p className="text-sm text-muted-foreground">Language</p>
-              <p className="mt-2 font-medium">English</p>
+              <p className="inline-flex items-center gap-2 text-sm text-muted-foreground">
+                <Globe2 className="size-4 text-primary" />
+                Language
+              </p>
+              <p className="mt-2 font-medium">{book.language}</p>
             </div>
             <div className="rounded-2xl border border-border/70 bg-background/75 p-4">
-              <p className="text-sm text-muted-foreground">Seller</p>
-              <p className="mt-2 font-medium">{book.seller_email}</p>
+              <p className="inline-flex items-center gap-2 text-sm text-muted-foreground">
+                <ShieldCheck className="size-4 text-primary" />
+                Condition
+              </p>
+              <p className="mt-2 font-medium">{book.book_condition.replaceAll("_", " ")}</p>
+            </div>
+            <div className="rounded-2xl border border-border/70 bg-background/75 p-4">
+              <p className="inline-flex items-center gap-2 text-sm text-muted-foreground">
+                <Mail className="size-4 text-primary" />
+                Seller
+              </p>
+              <p className="mt-2 truncate font-medium">{book.seller_email}</p>
             </div>
           </div>
 
-          <div className="flex flex-col gap-3 sm:flex-row">
-            <AddToCartButton
-              bookId={book.id}
-              stock={book.stock}
-              className="h-12 rounded-2xl px-6"
-              label="Add to cart"
-            />
-            <div className="flex items-center gap-3 rounded-2xl border border-border bg-background/60 px-4 py-2">
-              <WishlistButton bookId={book.id} size="icon" />
-              <span className="text-sm text-muted-foreground">Save</span>
+          <div className="rounded-[1.5rem] border border-border/70 bg-background/70 p-5">
+            <p className="text-xs uppercase tracking-[0.22em] text-primary/75">Why it fits the shelf</p>
+            <div className="mt-4 grid gap-3 sm:grid-cols-3">
+              <div className="rounded-2xl border border-border/70 bg-card/90 p-4">
+                <p className="text-sm font-medium">Reader relevance</p>
+                <p className="mt-2 text-sm leading-6 text-muted-foreground">
+                  This title is positioned for discovery surfaces, saved shelves, and repeat browsing behavior.
+                </p>
+              </div>
+              <div className="rounded-2xl border border-border/70 bg-card/90 p-4">
+                <p className="text-sm font-medium">Quality signals</p>
+                <p className="mt-2 text-sm leading-6 text-muted-foreground">
+                  Ratings, editorial placement, and stock health shape where this book appears next.
+                </p>
+              </div>
+              <div className="rounded-2xl border border-border/70 bg-card/90 p-4">
+                <p className="text-sm font-medium">Easy follow-up</p>
+                <p className="mt-2 text-sm leading-6 text-muted-foreground">
+                  Save it, add it to cart, or contact the seller directly from the purchase panel.
+                </p>
+              </div>
             </div>
-            <a
-              href={`mailto:${book.seller_email}?subject=${encodeURIComponent(`Interested in ${book.title}`)}`}
-              className="inline-flex h-12 items-center justify-center rounded-2xl border border-border px-6 text-sm font-medium text-foreground hover:bg-muted"
-            >
-              Contact seller
-            </a>
           </div>
         </div>
-        <div className="relative overflow-hidden rounded-[1.75rem] bg-muted lg:sticky lg:top-28 lg:self-start">
-          <ProgressiveBookCover
-            src={normalizeCloudinaryUrl(book.cover_image_url, 1400)}
-            alt={book.title}
-            width={1400}
-            height={1800}
-            loading="lazy"
-            wrapperClassName="h-full min-h-[420px] w-full"
-            className="h-full w-full object-cover"
-          />
+        <div className="space-y-4 lg:sticky lg:top-28 lg:self-start">
+          <div className="relative overflow-hidden rounded-[1.75rem] bg-muted shadow-[0_24px_60px_-40px_rgba(15,23,42,0.45)]">
+            <ProgressiveBookCover
+              src={normalizeCloudinaryUrl(book.cover_image_url, 1400)}
+              alt={book.title}
+              width={1400}
+              height={1800}
+              loading="lazy"
+              wrapperClassName="h-full min-h-[420px] w-full"
+              className="h-full w-full object-cover"
+            />
+          </div>
+          <div className="rounded-[1.75rem] border border-border/70 bg-background/80 p-5 shadow-sm">
+            <div className="flex items-end justify-between gap-4">
+              <div>
+                <p className="text-xs uppercase tracking-[0.22em] text-primary/75">Purchase panel</p>
+                <p className="mt-2 text-3xl font-semibold">${Number(book.price).toFixed(2)}</p>
+              </div>
+              {book.original_price ? (
+                <p className="text-sm text-muted-foreground line-through">
+                  ${Number(book.original_price).toFixed(2)}
+                </p>
+              ) : null}
+            </div>
+
+            <div className="mt-5 space-y-3">
+              <AddToCartButton
+                bookId={book.id}
+                stock={book.stock}
+                className="h-12 w-full rounded-2xl px-6"
+                label="Add to cart"
+              />
+              <div className="flex items-center gap-3 rounded-2xl border border-border bg-background/60 px-4 py-3">
+                <WishlistButton bookId={book.id} size="icon" />
+                <div>
+                  <p className="text-sm font-medium">Save for later</p>
+                  <p className="text-xs text-muted-foreground">Keep it on your shelf for recommendations.</p>
+                </div>
+              </div>
+              <a
+                href={`mailto:${book.seller_email}?subject=${encodeURIComponent(`Interested in ${book.title}`)}`}
+                className="inline-flex h-12 w-full items-center justify-center rounded-2xl border border-border px-6 text-sm font-medium text-foreground hover:bg-muted"
+              >
+                Contact seller
+              </a>
+            </div>
+
+            <div className="mt-5 space-y-3 rounded-[1.25rem] border border-border/70 bg-card/85 p-4 text-sm text-muted-foreground">
+              <div className="flex items-center justify-between">
+                <span>Genre</span>
+                <span className="font-medium text-foreground">{book.genre}</span>
+              </div>
+              <div className="flex items-center justify-between">
+                <span>Condition</span>
+                <span className="font-medium capitalize text-foreground">{book.book_condition.replaceAll("_", " ")}</span>
+              </div>
+              <div className="flex items-center justify-between">
+                <span>Language</span>
+                <span className="font-medium text-foreground">{book.language}</span>
+              </div>
+            </div>
+          </div>
         </div>
       </section>
 

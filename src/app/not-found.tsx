@@ -1,7 +1,6 @@
 import Link from "next/link";
 
 import { GroxyLogo } from "@/components/groxy-logo";
-import { buttonVariants } from "@/components/ui/button";
 import { APP_ROUTES } from "@/lib/roles";
 
 export default function NotFound() {
@@ -23,13 +22,13 @@ export default function NotFound() {
       <div className="flex flex-wrap items-center justify-center gap-3">
         <Link
           href={APP_ROUTES.books}
-          className={buttonVariants({ variant: "default", size: "lg", className: "h-11 rounded-2xl px-5" })}
+          className="inline-flex h-11 items-center justify-center rounded-2xl bg-primary px-5 text-sm font-medium text-primary-foreground transition hover:opacity-95"
         >
           Browse books
         </Link>
         <Link
           href={APP_ROUTES.landing}
-          className={buttonVariants({ variant: "outline", size: "lg", className: "h-11 rounded-2xl px-5" })}
+          className="inline-flex h-11 items-center justify-center rounded-2xl border border-border bg-background px-5 text-sm font-medium text-foreground transition hover:bg-muted"
         >
           Home
         </Link>

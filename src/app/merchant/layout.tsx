@@ -4,6 +4,8 @@ import { DashboardShell } from "@/features/dashboard/dashboard-shell";
 import { getViewerContext } from "@/lib/profile";
 import { APP_ROUTES, MERCHANT_NAV, getOnboardingPath } from "@/lib/roles";
 
+export const dynamic = "force-dynamic";
+
 export default async function MerchantLayout({
   children,
 }: {

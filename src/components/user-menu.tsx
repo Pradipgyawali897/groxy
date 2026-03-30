@@ -2,18 +2,13 @@
 
 import * as React from "react";
 import { usePathname, useRouter } from "next/navigation";
-import { LogOutIcon, User, LayoutDashboard, Heart, Sparkles, BookOpenText, ChartNoAxesColumn, Users, ShoppingCart } from "lucide-react";
+import { LogOutIcon, User, LayoutDashboard, Heart, Sparkles, BookOpenText, ChartNoAxesColumn, Users, ShoppingCart, ArrowRight } from "lucide-react";
 
+import { HeaderDropdown } from "@/components/header-dropdown";
+import { InteractiveLink } from "@/components/interactive-link";
 import { Button } from "@/components/ui/button";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuLabel,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
 import { isActivePath } from "@/lib/navigation";
+import { cn } from "@/lib/utils";
 import { createSupabaseBrowserClient } from "@/lib/supabase/browser";
 import { APP_ROUTES, type AppRole, getAuthedPath } from "@/lib/roles";
 
@@ -48,81 +43,136 @@ export function UserMenu({
   const quickLinks =
     role === "merchant"
       ? [
-          { label: "Listings", href: APP_ROUTES.merchantBooks, icon: BookOpenText },
-          { label: "Analytics", href: APP_ROUTES.merchantAnalytics, icon: ChartNoAxesColumn },
+          { label: "Listings", href: APP_ROUTES.merchantBooks, icon: BookOpenText, caption: "Manage inventory" },
+          { label: "Analytics", href: APP_ROUTES.merchantAnalytics, icon: ChartNoAxesColumn, caption: "Performance signals" },
         ]
       : role === "admin" || canAccessAdmin
         ? [
-            { label: "Users", href: APP_ROUTES.adminUsers, icon: Users },
-            { label: "Books", href: APP_ROUTES.adminBooks, icon: BookOpenText },
+            { label: "Users", href: APP_ROUTES.adminUsers, icon: Users, caption: "Roles and access" },
+            { label: "Books", href: APP_ROUTES.adminBooks, icon: BookOpenText, caption: "Catalog controls" },
           ]
         : [
-            { label: "Wishlist", href: APP_ROUTES.customerWishlist, icon: Heart },
-            { label: "For you", href: APP_ROUTES.customerRecommendations, icon: Sparkles },
-            { label: "Cart", href: APP_ROUTES.customerCart, icon: ShoppingCart },
+            { label: "Wishlist", href: APP_ROUTES.customerWishlist, icon: Heart, caption: "Saved books" },
+            { label: "For you", href: APP_ROUTES.customerRecommendations, icon: Sparkles, caption: "Personalized picks" },
+            { label: "Cart", href: APP_ROUTES.customerCart, icon: ShoppingCart, caption: "Current basket" },
           ];
 
   return (
-    <DropdownMenu>
-      <DropdownMenuTrigger>
-        <Button variant="outline" className="h-10 rounded-xl px-3">
+    <HeaderDropdown
+      align="end"
+      panelClassName="w-[min(22rem,calc(100vw-2rem))]"
+      trigger={({ open, toggle }) => (
+        <Button
+          variant="outline"
+          className={isActivePath(pathname, APP_ROUTES.account) || open ? "h-10 rounded-xl px-3 bg-muted text-foreground" : "h-10 rounded-xl px-3"}
+          onClick={toggle}
+          aria-expanded={open}
+          aria-haspopup="menu"
+        >
           <span className="mr-2 inline-flex h-7 w-7 items-center justify-center rounded-lg bg-primary/10 text-sm text-primary">
             {initials(email)}
           </span>
-          <span className="hidden text-sm sm:inline">Menu</span>
+          <span className="hidden text-sm sm:inline">Account</span>
         </Button>
-      </DropdownMenuTrigger>
-      <DropdownMenuContent className="w-64" align="end">
-        <DropdownMenuLabel>
-          <div className="px-1">
+      )}
+    >
+      {({ close }) => (
+        <div className="space-y-2">
+          <div className="rounded-[1.25rem] border border-border/70 bg-background/80 p-4">
             <p className="text-xs uppercase tracking-[0.22em] text-muted-foreground">Signed in</p>
-            <p className="mt-1 truncate text-sm font-medium">{email ?? "Account"}</p>
-          </div>
-        </DropdownMenuLabel>
-        <DropdownMenuSeparator />
-        <DropdownMenuItem
-          onClick={() => router.push(dashboardHref)}
-          className={isActivePath(pathname, dashboardHref) ? "cursor-pointer bg-muted" : "cursor-pointer"}
-        >
-          <LayoutDashboard />
-          Dashboard
-        </DropdownMenuItem>
-        <DropdownMenuItem
-          onClick={() => router.push(APP_ROUTES.account)}
-          className={isActivePath(pathname, APP_ROUTES.account) ? "cursor-pointer bg-muted" : "cursor-pointer"}
-        >
-          <User />
-          Account
-        </DropdownMenuItem>
-        <DropdownMenuSeparator />
-        {quickLinks.map((item) => (
-          <DropdownMenuItem
-            key={item.href}
-            onClick={() => router.push(item.href)}
-            className={isActivePath(pathname, item.href) ? "cursor-pointer bg-muted" : "cursor-pointer"}
-          >
-            <item.icon />
-            {item.label}
-          </DropdownMenuItem>
-        ))}
-        {canAccessAdmin ? (
-          <>
-            <DropdownMenuSeparator />
-            <DropdownMenuItem
-              onClick={() => router.push(APP_ROUTES.adminHome)}
-              className={isActivePath(pathname, APP_ROUTES.adminHome) ? "cursor-pointer bg-muted" : "cursor-pointer"}
+            <p className="mt-2 truncate text-sm font-medium">{email ?? "Account"}</p>
+            <InteractiveLink
+              href={dashboardHref}
+              onClick={() => close()}
+              className="mt-4 flex items-center justify-between rounded-[1rem] bg-primary px-4 py-3 text-sm font-medium text-primary-foreground"
             >
-              <LayoutDashboard />
-              Admin
-            </DropdownMenuItem>
-          </>
-        ) : null}
-        <DropdownMenuSeparator />
-        <DropdownMenuItem onClick={onSignOut} className="cursor-pointer">
-          <LogOutIcon />
-          Sign out
-        </DropdownMenuItem>
-      </DropdownMenuContent>
-    </DropdownMenu>
+              <span>Open workspace</span>
+              <ArrowRight className="size-4" />
+            </InteractiveLink>
+          </div>
+
+          <div className="space-y-1">
+            <p className="px-2 pt-1 text-[11px] uppercase tracking-[0.22em] text-muted-foreground">Account</p>
+            <InteractiveLink
+              href={dashboardHref}
+              onClick={() => close()}
+              className={cn(
+                "flex items-start gap-3 rounded-[1rem] px-3 py-3 hover:bg-muted",
+                isActivePath(pathname, dashboardHref) && "bg-muted"
+              )}
+            >
+              <LayoutDashboard className="size-4" />
+              <div>
+                <p className="text-sm font-medium">Dashboard</p>
+                <p className="text-xs text-muted-foreground">Your main workspace</p>
+              </div>
+            </InteractiveLink>
+            <InteractiveLink
+              href={APP_ROUTES.account}
+              onClick={() => close()}
+              className={cn(
+                "flex items-start gap-3 rounded-[1rem] px-3 py-3 hover:bg-muted",
+                isActivePath(pathname, APP_ROUTES.account) && "bg-muted"
+              )}
+            >
+              <User className="size-4" />
+              <div>
+                <p className="text-sm font-medium">Account center</p>
+                <p className="text-xs text-muted-foreground">Profile and security</p>
+              </div>
+            </InteractiveLink>
+          </div>
+
+          <div className="space-y-1">
+            <p className="px-2 pt-1 text-[11px] uppercase tracking-[0.22em] text-muted-foreground">Quick access</p>
+            {quickLinks.map((item) => (
+              <InteractiveLink
+                key={item.href}
+                href={item.href}
+                onClick={() => close()}
+                className={cn(
+                  "flex items-start gap-3 rounded-[1rem] px-3 py-3 hover:bg-muted",
+                  isActivePath(pathname, item.href) && "bg-muted"
+                )}
+              >
+                <item.icon className="size-4" />
+                <div>
+                  <p className="text-sm font-medium">{item.label}</p>
+                  <p className="text-xs text-muted-foreground">{item.caption}</p>
+                </div>
+              </InteractiveLink>
+            ))}
+            {canAccessAdmin ? (
+              <InteractiveLink
+                href={APP_ROUTES.adminHome}
+                onClick={() => close()}
+                className={cn(
+                  "flex items-start gap-3 rounded-[1rem] px-3 py-3 hover:bg-muted",
+                  isActivePath(pathname, APP_ROUTES.adminHome) && "bg-muted"
+                )}
+              >
+                <LayoutDashboard className="size-4" />
+                <div>
+                  <p className="text-sm font-medium">Admin</p>
+                  <p className="text-xs text-muted-foreground">Marketplace controls</p>
+                </div>
+              </InteractiveLink>
+            ) : null}
+          </div>
+
+          <button
+            type="button"
+            onClick={async () => {
+              close();
+              await onSignOut();
+            }}
+            className="flex w-full items-center gap-3 rounded-[1rem] px-3 py-3 text-left text-sm font-medium text-destructive transition hover:bg-destructive/10"
+          >
+            <LogOutIcon className="size-4" />
+            <span>Sign out</span>
+          </button>
+        </div>
+      )}
+    </HeaderDropdown>
   );
 }
