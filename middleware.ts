@@ -9,12 +9,12 @@ import {
   getRoleHome,
   isAppRole,
 } from "@/lib/roles";
+import { isAdminEmail } from "@/lib/admin-allowlist";
 
 const authRoutes = [
   APP_ROUTES.signIn,
   APP_ROUTES.signUp,
   APP_ROUTES.forgotPassword,
-  APP_ROUTES.resetPassword,
 ];
 type CookieSet = {
   name: string;
@@ -55,7 +55,7 @@ function buildSignInRedirect(request: NextRequest) {
   const url = request.nextUrl.clone();
   url.pathname = APP_ROUTES.signIn;
   url.search = "";
-  url.searchParams.set("next", request.nextUrl.pathname);
+  url.searchParams.set("next", `${request.nextUrl.pathname}${request.nextUrl.search}`);
   return url;
 }
 
@@ -108,6 +108,7 @@ export async function middleware(request: NextRequest) {
     .maybeSingle();
 
   const role = isAppRole(profile?.role) ? profile.role : null;
+  const canAccessAdmin = role === "admin" || isAdminEmail(user.email);
   const isOnboarded = Boolean(profile?.is_onboarded);
   const onboardingStep = profile?.onboarding_step ?? 1;
   const requiredRole = getRoleFromPath(pathname);
@@ -148,6 +149,9 @@ export async function middleware(request: NextRequest) {
   }
 
   if (requiredRole && role !== requiredRole) {
+    if (requiredRole === "admin" && canAccessAdmin) {
+      return response;
+    }
     return NextResponse.redirect(buildRoleRedirect(request, pathname, role));
   }
 

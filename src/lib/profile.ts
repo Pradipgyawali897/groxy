@@ -3,6 +3,7 @@ import "server-only";
 import type { User } from "@supabase/supabase-js";
 
 import { createSupabaseServerClient } from "@/lib/supabase/server";
+import { isAdminEmail } from "@/lib/admin-allowlist";
 import { isAppRole, type AppRole } from "@/lib/roles";
 import type { ProfileRecord } from "@/types/platform";
 
@@ -12,6 +13,7 @@ type ViewerContext = {
   role: AppRole | null;
   isOnboarded: boolean;
   onboardingStep: number;
+  canAccessAdmin: boolean;
 };
 
 function getFallbackName(user: User) {
@@ -49,6 +51,7 @@ export async function getViewerContext(): Promise<ViewerContext> {
       role: null,
       isOnboarded: false,
       onboardingStep: 1,
+      canAccessAdmin: false,
     };
   }
 
@@ -69,11 +72,15 @@ export async function getViewerContext(): Promise<ViewerContext> {
       }
     : null;
 
+  const role = normalizedProfile?.role ?? null;
+  const canAccessAdmin = role === "admin" || isAdminEmail(user.email);
+
   return {
     user,
     profile: normalizedProfile,
-    role: normalizedProfile?.role ?? null,
+    role,
     isOnboarded: Boolean(normalizedProfile?.is_onboarded),
     onboardingStep: normalizedProfile?.onboarding_step ?? 1,
+    canAccessAdmin,
   };
 }

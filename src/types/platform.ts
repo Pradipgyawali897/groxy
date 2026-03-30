@@ -19,7 +19,8 @@ export type CatalogBook = {
   author: string;
   description: string;
   genre: string;
-  book_condition?: string;
+  book_condition: string;
+  language: string;
   price: number;
   original_price: number | null;
   stock: number;

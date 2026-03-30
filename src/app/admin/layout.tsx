@@ -19,7 +19,7 @@ export default async function AdminLayout({
     redirect(getOnboardingPath(viewer.onboardingStep));
   }
 
-  if (viewer.role !== "admin") {
+  if (viewer.role !== "admin" && !viewer.canAccessAdmin) {
     redirect(APP_ROUTES.account);
   }
 

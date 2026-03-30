@@ -6,12 +6,12 @@ import { useRouter } from "next/navigation";
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { normalizeNextPath } from "@/lib/redirects";
 import { createSupabaseBrowserClient } from "@/lib/supabase/browser";
 import { APP_ROUTES } from "@/lib/roles";
-const DEBUG=process.env.DEBUG?true:false;
 
 function getAuthRedirectPath(nextPath?: string) {
-  const next = nextPath ?? APP_ROUTES.onboardingStep1;
+  const next = normalizeNextPath(nextPath) ?? APP_ROUTES.onboardingStep1;
   const appUrl =
     process.env.NEXT_PUBLIC_APP_URL ??
     (typeof window !== "undefined" ? window.location.origin : "");
@@ -69,7 +69,7 @@ export function EmailSignInForm({ nextPath }: { nextPath?: string }) {
     setError("");
 
     const supabase = createSupabaseBrowserClient();
-    const { data,error } = await supabase.auth.signInWithPassword({
+    const { error } = await supabase.auth.signInWithPassword({
       email,
       password,
     });
@@ -80,8 +80,8 @@ export function EmailSignInForm({ nextPath }: { nextPath?: string }) {
       setError(error.message);
       return;
     }
-    console.log("data",data)
-    router.push(nextPath ?? APP_ROUTES.onboardingStep1);
+    const target = normalizeNextPath(nextPath) ?? APP_ROUTES.onboardingStep1;
+    router.push(target);
     router.refresh();
   };
 
@@ -112,6 +112,55 @@ export function EmailSignInForm({ nextPath }: { nextPath?: string }) {
   );
 }
 
+export function EmailMagicLinkForm({ nextPath }: { nextPath?: string }) {
+  const [email, setEmail] = React.useState("");
+  const [message, setMessage] = React.useState("");
+  const [error, setError] = React.useState("");
+  const [loading, setLoading] = React.useState(false);
+
+  const onSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+    setLoading(true);
+    setError("");
+    setMessage("");
+
+    const supabase = createSupabaseBrowserClient();
+    const { error: otpError } = await supabase.auth.signInWithOtp({
+      email,
+      options: {
+        emailRedirectTo: getAuthRedirectPath(nextPath),
+        shouldCreateUser: false,
+      },
+    });
+
+    setLoading(false);
+    if (otpError) {
+      setError(otpError.message);
+      return;
+    }
+
+    setMessage("Check your email for a secure sign-in link.");
+  };
+
+  return (
+    <form className="space-y-3" onSubmit={onSubmit}>
+      <Input
+        required
+        type="email"
+        value={email}
+        onChange={(event) => setEmail(event.target.value)}
+        placeholder="Email for a magic link"
+        className="h-12 rounded-2xl px-4"
+      />
+      {error ? <p className="text-sm text-destructive">{error}</p> : null}
+      {message ? <p className="text-sm text-emerald-700 dark:text-emerald-300">{message}</p> : null}
+      <Button type="submit" variant="secondary" className="h-12 w-full rounded-2xl" disabled={loading}>
+        {loading ? "Sending link..." : "Email me a sign-in link"}
+      </Button>
+    </form>
+  );
+}
+
 export function EmailSignUpForm() {
   const [email, setEmail] = React.useState("");
   const [password, setPassword] = React.useState("");
@@ -126,7 +175,7 @@ export function EmailSignUpForm() {
   setMessage("");
 
   const supabase = createSupabaseBrowserClient();
-  const { data, error: signUpError } = await supabase.auth.signUp({
+  const { error: signUpError } = await supabase.auth.signUp({
     email,
     password,
     options: {
@@ -135,11 +184,6 @@ export function EmailSignUpForm() {
   });
 
   setLoading(false);
-  if(DEBUG){
-    console.log("data", data);
-    console.error("signUpError", signUpError);
-  }
-  
   if (signUpError) {
     setError(signUpError.message);
     return;

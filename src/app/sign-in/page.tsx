@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { redirect } from "next/navigation";
 
-import { EmailSignInForm, OAuthButtons } from "@/components/auth-controls";
+import { EmailMagicLinkForm, EmailSignInForm, OAuthButtons } from "@/components/auth-controls";
 import { AuthShell } from "@/features/auth/auth-shell";
 import { getViewerContext } from "@/lib/profile";
 import { APP_ROUTES, getRoleHome } from "@/lib/roles";
@@ -9,9 +9,9 @@ import { APP_ROUTES, getRoleHome } from "@/lib/roles";
 export default async function SignInPage({
   searchParams,
 }: {
-  searchParams: Promise<{ next?: string }>;
+  searchParams: Promise<{ next?: string; error?: string }>;
 }) {
-  const [{ next }, viewer] = await Promise.all([searchParams, getViewerContext()]);
+  const [{ next, error }, viewer] = await Promise.all([searchParams, getViewerContext()]);
 
   if (viewer.user) {
     redirect(viewer.isOnboarded ? getRoleHome(viewer.role) : APP_ROUTES.onboardingStep1);
@@ -39,6 +39,11 @@ export default async function SignInPage({
       }
     >
       <div className="space-y-4">
+        {error ? (
+          <div className="rounded-2xl border border-destructive/30 bg-destructive/10 px-4 py-3 text-sm text-destructive">
+            {error}
+          </div>
+        ) : null}
         <OAuthButtons nextPath={next} />
         <div className="relative py-2">
           <div className="absolute inset-0 flex items-center">
@@ -49,6 +54,15 @@ export default async function SignInPage({
           </div>
         </div>
         <EmailSignInForm nextPath={next} />
+        <div className="relative py-2">
+          <div className="absolute inset-0 flex items-center">
+            <span className="w-full border-t border-border/70" />
+          </div>
+          <div className="relative flex justify-center text-xs uppercase tracking-[0.22em] text-muted-foreground">
+            <span className="bg-card px-4">Or email a link</span>
+          </div>
+        </div>
+        <EmailMagicLinkForm nextPath={next} />
       </div>
     </AuthShell>
   );

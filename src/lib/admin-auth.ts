@@ -1,18 +1,7 @@
 import "server-only";
 
 import { createSupabaseServerClient } from "@/lib/supabase/server";
-
-function getAdminAllowlist() {
-  return (process.env.ADMIN_EMAILS ?? "")
-    .split(",")
-    .map((item) => item.trim().toLowerCase())
-    .filter(Boolean);
-}
-
-export function isAdminEmail(email?: string | null) {
-  if (!email) return false;
-  return getAdminAllowlist().includes(email.toLowerCase());
-}
+import { isAdminEmail } from "@/lib/admin-allowlist";
 
 export async function isSessionAdmin() {
   const supabase = await createSupabaseServerClient();

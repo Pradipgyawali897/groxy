@@ -1,4 +1,5 @@
 import { Search } from "lucide-react";
+import Link from "next/link";
 
 import { Input } from "@/components/ui/input";
 import { BookGrid } from "@/features/catalog/book-grid";
@@ -71,13 +72,13 @@ export default async function BooksPage({
             <p className="text-xs uppercase tracking-[0.22em] text-primary/75">Popular categories</p>
             <div className="mt-4 grid gap-2">
               {categories.slice(0, 8).map((category) => (
-                <a
+                <Link
                   key={category.slug}
                   href={`/books?category=${category.slug}`}
                   className="rounded-xl px-3 py-2 text-sm text-muted-foreground hover:bg-muted hover:text-foreground"
                 >
                   {category.name} ({category.count})
-                </a>
+                </Link>
               ))}
             </div>
           </div>
@@ -85,13 +86,13 @@ export default async function BooksPage({
             <p className="text-xs uppercase tracking-[0.22em] text-primary/75">Trending authors</p>
             <div className="mt-4 grid gap-2">
               {authors.slice(0, 8).map((author) => (
-                <a
+                <Link
                   key={author.slug}
                   href={`/books?author=${author.slug}`}
                   className="rounded-xl px-3 py-2 text-sm text-muted-foreground hover:bg-muted hover:text-foreground"
                 >
                   {author.name}
-                </a>
+                </Link>
               ))}
             </div>
           </div>

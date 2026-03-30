@@ -101,3 +101,81 @@ export async function getAdminDashboardData() {
     reviewCount: reviewsRes.data?.length ?? 0,
   };
 }
+
+export async function listAdminBooks({
+  limit = 80,
+  q,
+  status,
+}: {
+  limit?: number;
+  q?: string;
+  status?: string;
+}) {
+  const admin = createSupabaseAdminClient();
+  let query = admin
+    .from("books")
+    .select("*")
+    .order("updated_at", { ascending: false })
+    .limit(limit);
+
+  const trimmedQ = q?.trim();
+  if (trimmedQ) {
+    query = query.or(
+      `title.ilike.%${trimmedQ}%,author.ilike.%${trimmedQ}%,genre.ilike.%${trimmedQ}%`
+    );
+  }
+  if (status?.trim()) {
+    query = query.eq("status", status.trim());
+  }
+
+  const { data } = await query;
+  return (data as CatalogBook[] | null) ?? [];
+}
+
+export async function listAdminMerchants({
+  limit = 80,
+  q,
+}: {
+  limit?: number;
+  q?: string;
+}) {
+  const admin = createSupabaseAdminClient();
+  let query = admin
+    .from("merchant_workspaces")
+    .select("user_id,store_name,store_slug,description,logo_url,banner_url,approved,support_email")
+    .order("store_name", { ascending: true })
+    .limit(limit);
+
+  const trimmedQ = q?.trim();
+  if (trimmedQ) {
+    query = query.or(
+      `store_name.ilike.%${trimmedQ}%,store_slug.ilike.%${trimmedQ}%,support_email.ilike.%${trimmedQ}%`
+    );
+  }
+
+  const { data } = await query;
+  return (data as MerchantWorkspaceRecord[] | null) ?? [];
+}
+
+export async function listAdminProfiles({
+  limit = 80,
+  q,
+}: {
+  limit?: number;
+  q?: string;
+}) {
+  const admin = createSupabaseAdminClient();
+  let query = admin
+    .from("profiles")
+    .select("id,email,full_name,role,is_onboarded,onboarding_step")
+    .order("updated_at", { ascending: false })
+    .limit(limit);
+
+  const trimmedQ = q?.trim();
+  if (trimmedQ) {
+    query = query.or(`email.ilike.%${trimmedQ}%,full_name.ilike.%${trimmedQ}%`);
+  }
+
+  const { data } = await query;
+  return (data as ProfileRecord[] | null) ?? [];
+}
