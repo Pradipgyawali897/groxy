@@ -1,6 +1,7 @@
 "use client";
 
 import * as React from "react";
+import { usePathname } from "next/navigation";
 
 import { cn } from "@/lib/utils";
 
@@ -15,6 +16,7 @@ export function HeaderDropdown({
   trigger: (args: { open: boolean; toggle: () => void; close: () => void }) => React.ReactNode;
   children: (args: { close: () => void }) => React.ReactNode;
 }) {
+  const pathname = usePathname();
   const [open, setOpen] = React.useState(false);
   const rootRef = React.useRef<HTMLDivElement | null>(null);
 
@@ -52,10 +54,15 @@ export function HeaderDropdown({
     };
   }, [open]);
 
+  React.useEffect(() => {
+    setOpen(false);
+  }, [pathname]);
+
   return (
     <div ref={rootRef} className="relative">
       {trigger({ open, toggle, close })}
       <div
+        aria-hidden={!open}
         className={cn(
           "absolute top-[calc(100%+0.75rem)] z-50 transition duration-200",
           align === "end" ? "right-0" : "left-0",

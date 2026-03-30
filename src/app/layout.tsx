@@ -1,4 +1,3 @@
-import Link from "next/link";
 import type { Metadata } from "next";
 
 import { GroxyLogo } from "@/components/groxy-logo";
@@ -68,42 +67,38 @@ export default async function RootLayout({
         <ThemeProvider>
           <RouteTitleSync />
           <div className="flex min-h-full flex-col">
-            <header className="sticky top-0 z-40 border-b border-border/70 bg-background/85 backdrop-blur-xl">
-              <div className="border-b border-border/60 bg-foreground text-background">
-                <div className="mx-auto flex w-full max-w-7xl items-center justify-between gap-4 px-4 py-2 text-xs uppercase tracking-[0.22em] text-background/70 sm:px-6 lg:px-8">
-                  <p className="truncate">Rusoxy literary commerce system</p>
+            <header className="sticky top-0 z-40 w-full border-b border-border/40 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
+              <div className="mx-auto flex h-16 max-w-7xl items-center justify-between px-4 sm:px-6 lg:px-8">
+                <div className="flex items-center gap-6 md:gap-8">
                   <div className="flex items-center gap-3">
-                    <RouteBadge />
+                    <SiteMenu
+                      user={Boolean(user)}
+                      role={role}
+                      isOnboarded={isOnboarded}
+                      canAccessAdmin={canAccessAdmin}
+                    />
+                    <GroxyLogo />
                   </div>
+                  <PublicNav className="hidden md:flex" />
                 </div>
-              </div>
-              <div className="mx-auto flex w-full max-w-7xl flex-wrap items-center justify-between gap-4 px-4 py-4 sm:px-6 lg:px-8">
-                <div className="flex items-left gap-8">
-                  <GroxyLogo />
-                  <PublicNav />
-                </div>
-                <div className="flex items-center gap-3">
-                  <SiteMenu
-                    user={Boolean(user)}
-                    role={role}
-                    isOnboarded={isOnboarded}
-                    canAccessAdmin={canAccessAdmin}
-                  />
-                  {user && role === "customer" && isOnboarded ? <CustomerQuickLinks /> : null}
-                  <InteractiveLink
-                    href={APP_ROUTES.books}
-                    className="hidden h-10 items-center rounded-xl border border-border px-4 text-sm text-foreground hover:bg-muted sm:inline-flex"
-                    pendingClassName="scale-[0.98]"
-                  >
-                    Browse books
-                  </InteractiveLink>
+                
+                <div className="flex items-center justify-end gap-2 sm:gap-4">
+                  {user && role === "customer" && isOnboarded ? (
+                    <CustomerQuickLinks className="hidden xl:flex" />
+                  ) : null}
+                  
+                  <div className="hidden items-center sm:flex">
+                    <ModeToggle />
+                  </div>
+                  
                   <InteractiveLink
                     href={dashboardHref}
-                    className="inline-flex h-10 items-center rounded-xl bg-primary px-4 text-sm text-primary-foreground"
-                    pendingClassName="scale-[0.98]"
+                    className="inline-flex h-9 items-center justify-center rounded-md bg-primary px-4 text-sm font-medium text-primary-foreground shadow transition-colors hover:bg-primary/90"
+                    pendingClassName="opacity-80"
                   >
-                    {user ? (isOnboarded ? "Open dashboard" : "Continue onboarding") : "Sign in"}
+                    {user ? (isOnboarded ? "Dashboard" : "Onboarding") : "Sign In"}
                   </InteractiveLink>
+
                   {user ? (
                     <UserMenu
                       email={user.email}
@@ -112,7 +107,6 @@ export default async function RootLayout({
                       canAccessAdmin={canAccessAdmin}
                     />
                   ) : null}
-                  <ModeToggle />
                 </div>
               </div>
             </header>
@@ -120,8 +114,8 @@ export default async function RootLayout({
             <footer className="border-t border-border/70 bg-foreground text-background">
               <div className="mx-auto grid w-full max-w-7xl gap-8 px-4 py-12 sm:px-6 lg:grid-cols-[1.25fr_0.8fr_0.8fr] lg:px-8">
                 <div className="space-y-4">
-                  <div className="flex ">
-                  <GroxyLogo mybackground={"different"} dimenssion={{width:120,height:120}}/>
+                  <div className="flex">
+                    <GroxyLogo mybackground="different" dimenssion={{ width: 120, height: 120 }} />
                   </div>
                   <p className="max-w-md text-sm leading-7 text-background/70">
                     Groxy combines a premium bookstore front end, a clean merchant studio,

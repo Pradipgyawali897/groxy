@@ -1,6 +1,6 @@
 "use client";
 
-import { Menu, BookOpenText, House, LayoutDashboard, Sparkles, Heart, User2, ShoppingCart, Info, Mail, ArrowRight } from "lucide-react";
+import { Menu, BookOpenText, House, LayoutDashboard, Sparkles, Heart, User2, ShoppingCart, Info, Mail, ArrowRight, Compass, PanelsTopLeft } from "lucide-react";
 import { usePathname } from "next/navigation";
 
 import { HeaderDropdown } from "@/components/header-dropdown";
@@ -56,92 +56,68 @@ export function SiteMenu({
           ];
 
   return (
-    <div className="lg:hidden">
-      <HeaderDropdown
-        align="start"
-        panelClassName="w-[min(22rem,calc(100vw-2rem))]"
-        trigger={({ open, toggle }) => (
-          <Button
-            variant="outline"
-            className={cn(
-              "h-10 rounded-xl px-3",
-              open && "bg-muted text-foreground"
-            )}
-            onClick={toggle}
-            aria-expanded={open}
-            aria-haspopup="menu"
-          >
-            <Menu className="size-4" />
-            <span className="text-sm">Menu</span>
-          </Button>
-        )}
-      >
-        {({ close }) => (
-          <div className="space-y-2">
-            <div className="rounded-[1.25rem] border border-border/70 bg-background/80 p-4">
-              <div className="inline-flex items-center gap-2 rounded-full border border-border/70 bg-background/90 px-3 py-1 text-[11px] uppercase tracking-[0.22em] text-muted-foreground">
-                <House className="size-3.5" />
-                {currentLabel}
-              </div>
-              <p className="mt-3 text-xs uppercase tracking-[0.22em] text-muted-foreground">Navigation</p>
-              <p className="mt-2 text-sm font-medium">Move through the storefront and workspace without guessing where to go.</p>
-            </div>
-
-            <div className="space-y-1">
-              <p className="px-2 pt-1 text-[11px] uppercase tracking-[0.22em] text-muted-foreground">Storefront</p>
-              {publicLinks.map((item) => (
-                <InteractiveLink
-                  key={item.href}
-                  href={item.href}
-                  onClick={() => close()}
-                  className={cn(
-                    "flex items-start gap-3 rounded-[1rem] px-3 py-3 hover:bg-muted",
-                    isActivePath(pathname, item.href) && "bg-muted"
-                  )}
-                >
-                  <item.icon />
-                  <div className="min-w-0">
-                    <p className="text-sm font-medium">{item.label}</p>
-                    <p className="text-xs text-muted-foreground">{item.caption}</p>
-                  </div>
-                </InteractiveLink>
-              ))}
-            </div>
-
-            {user ? (
-              <div className="space-y-1">
-                <p className="px-2 pt-1 text-[11px] uppercase tracking-[0.22em] text-muted-foreground">Workspace</p>
+    <HeaderDropdown
+      align="start"
+      panelClassName="w-[min(24rem,calc(100vw-1.5rem))]"
+      trigger={({ open, toggle }) => (
+        <Button
+          variant="ghost"
+          size="icon"
+          className={cn("md:hidden", open && "bg-muted")}
+          onClick={toggle}
+          aria-expanded={open}
+          aria-haspopup="menu"
+        >
+          <Menu className="size-5" />
+          <span className="sr-only">Toggle menu</span>
+        </Button>
+      )}
+    >
+      {({ close }) => (
+        <div className="flex flex-col gap-1 p-2">
+          {user ? (
+            <div className="mb-2 px-2 pb-2 border-b border-border/40">
+              <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-2">Workspace</p>
+              <div className="grid gap-1">
                 {quickLinks.map((item) => (
                   <InteractiveLink
                     key={item.href}
                     href={item.href}
                     onClick={() => close()}
                     className={cn(
-                      "flex items-start gap-3 rounded-[1rem] px-3 py-3 hover:bg-muted",
-                      isActivePath(pathname, item.href) && "bg-muted"
+                      "flex items-center gap-2 rounded-md px-3 py-2 text-sm font-medium transition-colors hover:bg-muted hover:text-foreground",
+                      isActivePath(pathname, item.href) ? "bg-muted text-foreground" : "text-muted-foreground"
                     )}
                   >
-                    <item.icon />
-                    <div className="min-w-0">
-                      <p className="text-sm font-medium">{item.label}</p>
-                      <p className="text-xs text-muted-foreground">{item.caption}</p>
-                    </div>
+                    <item.icon className="size-4" />
+                    {item.label}
                   </InteractiveLink>
                 ))}
               </div>
-            ) : null}
+            </div>
+          ) : null}
 
-            <InteractiveLink
-              href={dashboardHref}
-              onClick={() => close()}
-              className="mt-2 flex items-center justify-between rounded-[1rem] bg-primary px-4 py-3 text-sm font-medium text-primary-foreground"
-            >
-              <span>{user ? "Open dashboard" : "Sign in to continue"}</span>
-              <ArrowRight className="size-4" />
-            </InteractiveLink>
+          <div className="px-2">
+            <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-2">Storefront</p>
+            <div className="grid gap-1">
+              {publicLinks.map((item) => (
+                <InteractiveLink
+                  key={item.href}
+                  href={item.href}
+                  onClick={() => close()}
+                  className={cn(
+                    "flex items-center gap-2 rounded-md px-3 py-2 text-sm font-medium transition-colors hover:bg-muted hover:text-foreground",
+                    isActivePath(pathname, item.href) ? "bg-muted text-foreground" : "text-muted-foreground"
+                  )}
+                >
+                  <item.icon className="size-4" />
+                  {item.label}
+                </InteractiveLink>
+              ))}
+            </div>
           </div>
-        )}
-      </HeaderDropdown>
-    </div>
+        </div>
+      )}
+    </HeaderDropdown>
   );
 }

@@ -7,21 +7,20 @@ import { isActivePath } from "@/lib/navigation";
 import { cn } from "@/lib/utils";
 import { PUBLIC_NAV } from "@/lib/roles";
 
-export function PublicNav() {
+export function PublicNav({ className }: { className?: string }) {
   const pathname = usePathname();
 
   return (
-    <nav className="hidden items-center gap-2 text-sm lg:flex">
+    <nav className={cn("hidden items-center gap-6 text-sm font-medium md:flex", className)}>
       {PUBLIC_NAV.map((item) => {
         const active = isActivePath(pathname, item.href);
         return (
           <InteractiveLink
             key={item.href}
             href={item.href}
-            pendingClassName="scale-[0.98]"
             className={cn(
-              "rounded-xl px-3 py-2 text-muted-foreground hover:bg-muted hover:text-foreground",
-              active && "bg-foreground text-background shadow-sm hover:bg-foreground hover:text-background"
+              "transition-colors hover:text-foreground/80",
+              active ? "text-foreground" : "text-foreground/60"
             )}
           >
             {item.label}

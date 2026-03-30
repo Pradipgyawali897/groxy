@@ -92,7 +92,7 @@ export default async function HomePage() {
               alt="Premium bookstore storefront"
               width={1800}
               height={1400}
-              priority
+              loading="lazy"
               className="h-[420px] w-full rounded-[1.5rem] object-cover"
             />
             <div className="absolute inset-x-8 bottom-8 rounded-[1.5rem] border border-white/15 bg-black/45 p-5 text-white backdrop-blur">

@@ -29,6 +29,9 @@ export function BookShelf({
     books: CatalogBook[];
   }>({ loading: true, error: "", books: [] });
 
+  const [inView, setInView] = React.useState(false);
+  const shelfRef = React.useRef<HTMLElement>(null);
+
   const load = React.useCallback(async () => {
     setState((s) => ({ ...s, loading: true, error: "" }));
     try {
@@ -58,11 +61,29 @@ export function BookShelf({
   }, [endpoint, limit]);
 
   React.useEffect(() => {
-    void load();
-  }, [load]);
+    const node = shelfRef.current;
+    if (!node || inView) return;
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        if (entries[0]?.isIntersecting) {
+          setInView(true);
+        }
+      },
+      { rootMargin: "300px 0px" }
+    );
+    observer.observe(node);
+    return () => observer.disconnect();
+  }, [inView]);
+
+  React.useEffect(() => {
+    if (inView) {
+      void load();
+    }
+  }, [inView, load]);
 
   return (
-    <section className="space-y-6">
+    <section ref={shelfRef} className="space-y-6">
       <SectionHeading eyebrow={eyebrow} title={title} description={description} />
       {state.loading ? (
         <div className="grid gap-5 sm:grid-cols-2 xl:grid-cols-4">

@@ -2,6 +2,7 @@ import { createServerClient } from "@supabase/ssr";
 import { NextResponse, type NextRequest } from "next/server";
 import { ResponseCookie } from 'next/dist/compiled/@edge-runtime/cookies';
 
+import { getEffectiveOnboardingStep } from "@/lib/onboarding-progress";
 import {
   APP_ROUTES,
   getAuthedPath,
@@ -111,14 +112,14 @@ export async function middleware(request: NextRequest) {
 
   const { data: profile } = await supabase
     .from("profiles")
-    .select("role,is_onboarded,onboarding_step")
+    .select("full_name,avatar_url,role,is_onboarded,onboarding_step")
     .eq("id", user.id)
     .maybeSingle();
 
   const role = isAppRole(profile?.role) ? profile.role : null;
   const canAccessAdmin = role === "admin" || isAdminEmail(user.email);
   const isOnboarded = Boolean(profile?.is_onboarded);
-  const onboardingStep = profile?.onboarding_step ?? 1;
+  const onboardingStep = getEffectiveOnboardingStep({ user, profile });
   const requiredRole = getRoleFromPath(pathname);
 
   if (isAuthRoute(pathname)) {

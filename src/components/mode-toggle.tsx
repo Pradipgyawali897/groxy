@@ -17,11 +17,11 @@ export function ModeToggle() {
   const selectedTheme = (mounted ? theme : "system") ?? "system";
 
   return (
-    <div className="flex items-center gap-1 rounded-lg border border-border/70 bg-background/80 p-1">
+    <div className="flex items-center gap-1 rounded-[1rem] border border-border/70 bg-background/80 p-1.5 shadow-sm">
       <Button
         variant={selectedTheme === "light" ? "secondary" : "ghost"}
         size="sm"
-        className="h-8 px-2"
+        className="h-8 rounded-xl px-2"
         onClick={() => setTheme("light")}
         type="button"
       >
@@ -30,7 +30,7 @@ export function ModeToggle() {
       <Button
         variant={selectedTheme === "dark" ? "secondary" : "ghost"}
         size="sm"
-        className="h-8 px-2"
+        className="h-8 rounded-xl px-2"
         onClick={() => setTheme("dark")}
         type="button"
       >
@@ -39,7 +39,7 @@ export function ModeToggle() {
       <Button
         variant={selectedTheme === "system" ? "secondary" : "ghost"}
         size="sm"
-        className="h-8 px-2"
+        className="h-8 rounded-xl px-2"
         onClick={() => setTheme("system")}
         type="button"
       >

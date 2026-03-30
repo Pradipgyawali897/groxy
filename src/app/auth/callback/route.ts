@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 
+import { getEffectiveOnboardingStep } from "@/lib/onboarding-progress";
 import { ensureProfileRecord } from "@/lib/profile";
 import { resolvePostAuthRedirect } from "@/lib/redirects";
 import { APP_ROUTES, isAppRole } from "@/lib/roles";
@@ -46,13 +47,13 @@ export async function GET(request: Request) {
 
   const { data: profile } = await supabase
     .from("profiles")
-    .select("role,is_onboarded,onboarding_step")
+    .select("full_name,avatar_url,role,is_onboarded,onboarding_step")
     .eq("id", user.id)
     .maybeSingle();
 
   const role = isAppRole(profile?.role) ? profile.role : null;
   const isOnboarded = Boolean(profile?.is_onboarded);
-  const onboardingStep = profile?.onboarding_step ?? 1;
+  const onboardingStep = getEffectiveOnboardingStep({ user, profile });
   const canAccessAdmin = role === "admin" || isAdminEmail(user.email);
 
   const target = resolvePostAuthRedirect({

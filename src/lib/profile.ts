@@ -2,6 +2,7 @@ import "server-only";
 
 import type { User } from "@supabase/supabase-js";
 
+import { getEffectiveOnboardingStep } from "@/lib/onboarding-progress";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 import { isAdminEmail } from "@/lib/admin-allowlist";
 import { isAppRole, type AppRole } from "@/lib/roles";
@@ -86,7 +87,7 @@ export async function getViewerContext(): Promise<ViewerContext> {
         ...profile,
         role: isAppRole(profile.role) ? profile.role : null,
         is_onboarded: Boolean(profile.is_onboarded),
-        onboarding_step: profile.onboarding_step ?? 1,
+        onboarding_step: getEffectiveOnboardingStep({ user, profile }),
       }
     : null;
 
@@ -98,7 +99,7 @@ export async function getViewerContext(): Promise<ViewerContext> {
     profile: normalizedProfile,
     role,
     isOnboarded: Boolean(normalizedProfile?.is_onboarded),
-    onboardingStep: normalizedProfile?.onboarding_step ?? 1,
+    onboardingStep: normalizedProfile?.onboarding_step ?? getEffectiveOnboardingStep({ user, profile: null }),
     canAccessAdmin,
   };
 }

@@ -1,9 +1,9 @@
 "use client";
 
 import * as React from "react";
-import Link from "next/link";
 import { Heart, ShoppingCart, Sparkles } from "lucide-react";
 
+import { InteractiveLink } from "@/components/interactive-link";
 import { APP_ROUTES } from "@/lib/roles";
 import { cn } from "@/lib/utils";
 
@@ -85,10 +85,10 @@ export function CustomerQuickLinks({
   return (
     <div className={cn("hidden items-center gap-2 xl:flex", className)}>
       {items.map((item) => (
-        <Link
+        <InteractiveLink
           key={item.href}
           href={item.href}
-          className="inline-flex h-10 items-center gap-2 rounded-xl border border-border/70 bg-background/70 px-3 text-sm text-muted-foreground transition hover:bg-muted hover:text-foreground"
+          className="inline-flex h-10 items-center gap-2 rounded-[1rem] border border-border/70 bg-background/70 px-3 text-sm text-muted-foreground transition hover:border-border hover:bg-muted hover:text-foreground"
         >
           <item.icon className="size-4" />
           <span>{item.label}</span>
@@ -97,7 +97,7 @@ export function CustomerQuickLinks({
               {item.count}
             </span>
           ) : null}
-        </Link>
+        </InteractiveLink>
       ))}
     </div>
   );
