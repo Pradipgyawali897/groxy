@@ -6,6 +6,8 @@ import { BOOK_STATUSES } from "@/lib/books";
 import { checkRateLimit, getClientIp } from "@/lib/rate-limit";
 import { createSupabaseAdminClient } from "@/lib/supabase/admin";
 
+export const dynamic = "force-dynamic";
+
 const adminBookPatchSchema = z.object({
   status: z.enum(BOOK_STATUSES).optional(),
   is_featured: z.boolean().optional(),

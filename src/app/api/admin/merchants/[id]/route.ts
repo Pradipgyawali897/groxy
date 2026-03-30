@@ -5,6 +5,8 @@ import { isSessionAdmin } from "@/lib/admin-auth";
 import { checkRateLimit, getClientIp } from "@/lib/rate-limit";
 import { createSupabaseAdminClient } from "@/lib/supabase/admin";
 
+export const dynamic = "force-dynamic";
+
 const merchantPatchSchema = z.object({
   approved: z.boolean().optional(),
   support_email: z.string().email().nullable().optional(),
@@ -57,4 +59,3 @@ export async function PATCH(
 
   return NextResponse.json({ merchant: data });
 }
-

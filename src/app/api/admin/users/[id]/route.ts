@@ -5,6 +5,8 @@ import { isSessionAdmin } from "@/lib/admin-auth";
 import { checkRateLimit, getClientIp } from "@/lib/rate-limit";
 import { createSupabaseAdminClient } from "@/lib/supabase/admin";
 
+export const dynamic = "force-dynamic";
+
 const profilePatchSchema = z.object({
   role: z.enum(["customer", "merchant", "admin"]).nullable().optional(),
 });
@@ -56,4 +58,3 @@ export async function PATCH(
 
   return NextResponse.json({ profile: data });
 }
-

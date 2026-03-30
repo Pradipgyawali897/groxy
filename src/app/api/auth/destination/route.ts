@@ -3,6 +3,8 @@ import { NextResponse } from "next/server";
 import { getViewerContext } from "@/lib/profile";
 import { resolvePostAuthRedirect } from "@/lib/redirects";
 
+export const dynamic = "force-dynamic";
+
 export async function GET(request: Request) {
   const viewer = await getViewerContext();
   if (!viewer.user) {
