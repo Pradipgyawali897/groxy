@@ -2,7 +2,7 @@ import { NextResponse } from "next/server";
 
 import { ensureProfileRecord } from "@/lib/profile";
 import { onboardingPayloadSchema } from "@/lib/onboarding";
-import { APP_ROUTES, getOnboardingPath, getRoleHome } from "@/lib/roles";
+import { APP_ROUTES, getAuthedPath, getOnboardingPath, isAppRole } from "@/lib/roles";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 
 export const dynamic = "force-dynamic";
@@ -36,7 +36,10 @@ export async function POST(request: Request) {
   if (currentProfile?.is_onboarded && parsed.data.step !== "complete") {
     return NextResponse.json({
       ok: true,
-      next: getRoleHome(currentProfile.role),
+      next: getAuthedPath({
+        role: isAppRole(currentProfile.role) ? currentProfile.role : null,
+        isOnboarded: true,
+      }),
     });
   }
 
@@ -166,7 +169,10 @@ export async function POST(request: Request) {
 
   return NextResponse.json({
     ok: true,
-    next: getRoleHome(profile.role),
+    next: getAuthedPath({
+      role: isAppRole(profile.role) ? profile.role : null,
+      isOnboarded: true,
+    }),
     onboardingNext: getOnboardingPath(profile.onboarding_step),
   });
 }

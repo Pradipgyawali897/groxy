@@ -14,7 +14,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { createSupabaseBrowserClient } from "@/lib/supabase/browser";
-import { APP_ROUTES, type AppRole, getRoleHome } from "@/lib/roles";
+import { APP_ROUTES, type AppRole, getAuthedPath } from "@/lib/roles";
 
 function initials(email?: string | null) {
   if (!email) return "U";
@@ -42,7 +42,7 @@ export function UserMenu({
     router.refresh();
   };
 
-  const dashboardHref = isOnboarded ? getRoleHome(role) : APP_ROUTES.onboardingStep1;
+  const dashboardHref = getAuthedPath({ role, isOnboarded, canAccessAdmin });
   const quickLinks =
     role === "merchant"
       ? [

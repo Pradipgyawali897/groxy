@@ -4,18 +4,22 @@ import type { Metadata } from "next";
 import { GroxyLogo } from "@/components/groxy-logo";
 import { ModeToggle } from "@/components/mode-toggle";
 import { PublicNav } from "@/components/public-nav";
+import { RouteTitleSync } from "@/components/route-title-sync";
 import { SiteMenu } from "@/components/site-menu";
 import { UserMenu } from "@/components/user-menu";
 import { RouteBadge } from "@/components/route-badge";
 import { ThemeProvider } from "@/components/theme-provider";
 import { Toaster } from "@/components/ui/sonner";
 import { getViewerContext } from "@/lib/profile";
-import { APP_ROUTES, getRoleHome } from "@/lib/roles";
+import { APP_ROUTES, getAuthedPath } from "@/lib/roles";
 
 import "./globals.css";
 
 export const metadata: Metadata = {
-  title: "Groxy Books",
+  title: {
+    default: "Groxy Books",
+    template: "%s | Groxy Books",
+  },
   description: "Premium online bookstore and marketplace built for readers, merchants, and operators.",
 };
 
@@ -25,6 +29,32 @@ export default async function RootLayout({
   children: React.ReactNode;
 }>) {
   const { user, role, isOnboarded, canAccessAdmin } = await getViewerContext();
+  const dashboardHref = user
+    ? getAuthedPath({ role, isOnboarded, canAccessAdmin })
+    : APP_ROUTES.signIn;
+  const footerAccessLinks = user
+    ? [
+        {
+          href: dashboardHref,
+          label: isOnboarded ? "Open dashboard" : "Continue onboarding",
+        },
+        {
+          href: APP_ROUTES.account,
+          label: "Account center",
+        },
+        canAccessAdmin
+          ? { href: APP_ROUTES.adminHome, label: "Admin control room" }
+          : role === "merchant"
+            ? { href: APP_ROUTES.merchantBooks, label: "Manage listings" }
+            : role === "customer"
+              ? { href: APP_ROUTES.customerWishlist, label: "Wishlist" }
+              : { href: APP_ROUTES.books, label: "Browse catalog" },
+      ]
+    : [
+        { href: APP_ROUTES.signIn, label: "Sign in" },
+        { href: APP_ROUTES.signUp, label: "Create account" },
+        { href: APP_ROUTES.merchantHome, label: "Merchant studio" },
+      ];
 
   return (
     <html
@@ -34,6 +64,7 @@ export default async function RootLayout({
     >
       <body className="theme min-h-full bg-background text-foreground">
         <ThemeProvider>
+          <RouteTitleSync />
           <div className="flex min-h-full flex-col">
             <header className="sticky top-0 z-40 border-b border-border/70 bg-background/85 backdrop-blur-xl">
               <div className="border-b border-border/60 bg-foreground text-background">
@@ -50,7 +81,12 @@ export default async function RootLayout({
                   <PublicNav />
                 </div>
                 <div className="flex items-center gap-3">
-                  <SiteMenu user={Boolean(user)} role={role} isOnboarded={isOnboarded} />
+                  <SiteMenu
+                    user={Boolean(user)}
+                    role={role}
+                    isOnboarded={isOnboarded}
+                    canAccessAdmin={canAccessAdmin}
+                  />
                   <Link
                     href={APP_ROUTES.books}
                     className="hidden h-10 items-center rounded-xl border border-border px-4 text-sm text-foreground hover:bg-muted sm:inline-flex"
@@ -58,13 +94,7 @@ export default async function RootLayout({
                     Browse books
                   </Link>
                   <Link
-                    href={
-                      user
-                        ? isOnboarded
-                          ? getRoleHome(role)
-                          : APP_ROUTES.onboardingStep1
-                        : APP_ROUTES.signIn
-                    }
+                    href={dashboardHref}
                     className="inline-flex h-10 items-center rounded-xl bg-primary px-4 text-sm text-primary-foreground"
                   >
                     {user ? (isOnboarded ? "Open dashboard" : "Continue onboarding") : "Sign in"}
@@ -106,16 +136,12 @@ export default async function RootLayout({
                   </Link>
                 </div>
                 <div className="space-y-3 text-sm text-background/72">
-                  <p className="font-medium text-background">Access</p>
-                  <Link href={APP_ROUTES.signIn} className="block hover:text-background">
-                    Sign in
-                  </Link>
-                  <Link href={APP_ROUTES.signUp} className="block hover:text-background">
-                    Create account
-                  </Link>
-                  <Link href={APP_ROUTES.merchantHome} className="block hover:text-background">
-                    Merchant studio
-                  </Link>
+                  <p className="font-medium text-background">{user ? "Workspace" : "Access"}</p>
+                  {footerAccessLinks.map((item) => (
+                    <Link key={item.href} href={item.href} className="block hover:text-background">
+                      {item.label}
+                    </Link>
+                  ))}
                 </div>
               </div>
               <div className="border-t border-white/10">

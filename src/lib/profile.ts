@@ -32,7 +32,11 @@ export async function ensureProfileRecord(user: User) {
       id: user.id,
       email: user.email ?? null,
       full_name: user.user_metadata?.full_name ?? getFallbackName(user),
-      avatar_url: user.user_metadata?.avatar_url ?? null,
+      avatar_url:
+        user.user_metadata?.avatar_url ??
+        user.user_metadata?.picture ??
+        user.user_metadata?.avatar ??
+        null,
     },
     { onConflict: "id" }
   );

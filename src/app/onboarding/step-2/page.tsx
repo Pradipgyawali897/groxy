@@ -3,7 +3,7 @@ import { redirect } from "next/navigation";
 import { RoleSelectionForm } from "@/features/onboarding/onboarding-forms";
 import { OnboardingShell } from "@/features/onboarding/onboarding-shell";
 import { getViewerContext } from "@/lib/profile";
-import { APP_ROUTES, getOnboardingPath, getRoleHome } from "@/lib/roles";
+import { APP_ROUTES, getAuthedPath, getOnboardingPath } from "@/lib/roles";
 
 export default async function OnboardingStep2Page() {
   const viewer = await getViewerContext();
@@ -13,7 +13,7 @@ export default async function OnboardingStep2Page() {
   }
 
   if (viewer.isOnboarded) {
-    redirect(getRoleHome(viewer.role));
+    redirect(getAuthedPath(viewer));
   }
 
   if (viewer.onboardingStep < 2) {

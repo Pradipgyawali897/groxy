@@ -8,15 +8,16 @@ import { createSupabaseServerClient } from "@/lib/supabase/server";
 
 export async function GET(request: Request) {
   const url = new URL(request.url);
+  const next = url.searchParams.get("next");
   const error = url.searchParams.get("error") ?? url.searchParams.get("error_description");
   if (error) {
     const redirectUrl = new URL(APP_ROUTES.signIn, url.origin);
+    if (next) redirectUrl.searchParams.set("next", next);
     redirectUrl.searchParams.set("error", error);
     return NextResponse.redirect(redirectUrl);
   }
 
   const code = url.searchParams.get("code");
-  const next = url.searchParams.get("next");
 
   if (!code) {
     const redirectUrl = new URL(APP_ROUTES.signIn, url.origin);
@@ -28,6 +29,7 @@ export async function GET(request: Request) {
   const { error: exchangeError } = await supabase.auth.exchangeCodeForSession(code);
   if (exchangeError) {
     const redirectUrl = new URL(APP_ROUTES.signIn, url.origin);
+    if (next) redirectUrl.searchParams.set("next", next);
     redirectUrl.searchParams.set("error", exchangeError.message);
     return NextResponse.redirect(redirectUrl);
   }

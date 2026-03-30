@@ -4,13 +4,13 @@ import { redirect } from "next/navigation";
 import { EmailSignUpForm, OAuthButtons } from "@/components/auth-controls";
 import { AuthShell } from "@/features/auth/auth-shell";
 import { getViewerContext } from "@/lib/profile";
-import { APP_ROUTES, getRoleHome } from "@/lib/roles";
+import { APP_ROUTES, getAuthedPath } from "@/lib/roles";
 
 export default async function SignUpPage() {
   const viewer = await getViewerContext();
 
   if (viewer.user) {
-    redirect(viewer.isOnboarded ? getRoleHome(viewer.role) : APP_ROUTES.onboardingStep1);
+    redirect(getAuthedPath(viewer));
   }
 
   return (

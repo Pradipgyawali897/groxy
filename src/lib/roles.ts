@@ -135,6 +135,21 @@ export function getRoleHome(role: AppRole | null | undefined) {
   return ROLE_CONFIG[role].homePath;
 }
 
+export function getAuthedPath({
+  role,
+  isOnboarded,
+  canAccessAdmin = false,
+}: {
+  role: AppRole | null | undefined;
+  isOnboarded: boolean;
+  canAccessAdmin?: boolean;
+}) {
+  if (!isOnboarded) return APP_ROUTES.onboardingStep1;
+  if (role) return getRoleHome(role);
+  if (canAccessAdmin) return APP_ROUTES.adminHome;
+  return APP_ROUTES.account;
+}
+
 export function getOnboardingPath(step: number | null | undefined) {
   switch (step) {
     case 2:

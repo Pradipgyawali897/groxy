@@ -1,4 +1,4 @@
-import { APP_ROUTES, type AppRole, getOnboardingPath, getRoleFromPath, getRoleHome } from "@/lib/roles";
+import { APP_ROUTES, type AppRole, getAuthedPath, getOnboardingPath, getRoleFromPath, getRoleHome } from "@/lib/roles";
 
 function isUnsafePrefix(pathname: string) {
   return (
@@ -52,7 +52,9 @@ export function resolvePostAuthRedirect({
   }
 
   const safeNext = normalizeNextPath(next);
-  if (!safeNext) return getRoleHome(role);
+  if (!safeNext) {
+    return getAuthedPath({ role, isOnboarded, canAccessAdmin });
+  }
 
   const pathname = safeNext.split("?")[0] ?? safeNext;
   const requiredRole = getRoleFromPath(pathname);
@@ -60,7 +62,7 @@ export function resolvePostAuthRedirect({
     return safeNext;
   }
   if (requiredRole && requiredRole !== role) {
-    return getRoleHome(role);
+    return getAuthedPath({ role, isOnboarded, canAccessAdmin });
   }
 
   return safeNext;

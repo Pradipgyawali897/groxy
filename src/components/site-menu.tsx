@@ -13,22 +13,26 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { labelForPath } from "@/components/route-badge";
-import { APP_ROUTES, PUBLIC_NAV, type AppRole, getRoleHome } from "@/lib/roles";
+import { APP_ROUTES, PUBLIC_NAV, type AppRole, getAuthedPath } from "@/lib/roles";
 import { cn } from "@/lib/utils";
 
 export function SiteMenu({
   user,
   role,
   isOnboarded,
+  canAccessAdmin = false,
 }: {
   user: boolean;
   role: AppRole | null;
   isOnboarded: boolean;
+  canAccessAdmin?: boolean;
 }) {
   const router = useRouter();
   const pathname = usePathname();
   const currentLabel = labelForPath(pathname);
-  const dashboardHref = user ? (isOnboarded ? getRoleHome(role) : APP_ROUTES.onboardingStep1) : APP_ROUTES.signIn;
+  const dashboardHref = user
+    ? getAuthedPath({ role, isOnboarded, canAccessAdmin })
+    : APP_ROUTES.signIn;
 
   const quickLinks =
     role === "merchant"

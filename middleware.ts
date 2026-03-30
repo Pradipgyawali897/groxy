@@ -4,6 +4,7 @@ import { ResponseCookie } from 'next/dist/compiled/@edge-runtime/cookies';
 
 import {
   APP_ROUTES,
+  getAuthedPath,
   getOnboardingPath,
   getRoleFromPath,
   getRoleHome,
@@ -59,10 +60,17 @@ function buildSignInRedirect(request: NextRequest) {
   return url;
 }
 
-function buildRoleRedirect(request: NextRequest, pathname: string, role: string | null) {
+function buildRoleRedirect(
+  request: NextRequest,
+  pathname: string,
+  role: string | null,
+  canAccessAdmin: boolean
+) {
   const url = request.nextUrl.clone();
-  const nextRole = isAppRole(role) ? role : getRoleFromPath(pathname);
-  url.pathname = nextRole ? getRoleHome(nextRole) : APP_ROUTES.landing;
+  const nextRole = isAppRole(role) ? role : null;
+  url.pathname = nextRole
+    ? getRoleHome(nextRole)
+    : getAuthedPath({ role: null, isOnboarded: true, canAccessAdmin });
   url.search = "";
   return url;
 }
@@ -115,7 +123,7 @@ export async function middleware(request: NextRequest) {
 
   if (isAuthRoute(pathname)) {
     const url = request.nextUrl.clone();
-    url.pathname = isOnboarded ? getRoleHome(role) : getOnboardingPath(onboardingStep);
+    url.pathname = getAuthedPath({ role, isOnboarded, canAccessAdmin });
     url.search = "";
     return NextResponse.redirect(url);
   }
@@ -143,7 +151,7 @@ export async function middleware(request: NextRequest) {
 
   if (isOnboardingRoute(pathname)) {
     const url = request.nextUrl.clone();
-    url.pathname = getRoleHome(role);
+    url.pathname = getAuthedPath({ role, isOnboarded, canAccessAdmin });
     url.search = "";
     return NextResponse.redirect(url);
   }
@@ -152,7 +160,7 @@ export async function middleware(request: NextRequest) {
     if (requiredRole === "admin" && canAccessAdmin) {
       return response;
     }
-    return NextResponse.redirect(buildRoleRedirect(request, pathname, role));
+    return NextResponse.redirect(buildRoleRedirect(request, pathname, role, canAccessAdmin));
   }
 
   return response;

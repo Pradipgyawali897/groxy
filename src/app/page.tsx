@@ -11,10 +11,10 @@ import { normalizeCloudinaryUrl } from "@/lib/books";
 import { groupCatalogBooks, listPublishedBooks } from "@/lib/catalog";
 import { getPortalImageUrls } from "@/lib/portal-images";
 import { getViewerContext } from "@/lib/profile";
-import { APP_ROUTES, getRoleHome } from "@/lib/roles";
+import { APP_ROUTES, getAuthedPath } from "@/lib/roles";
 
 export default async function HomePage() {
-  const [{ role, isOnboarded }, books, portalImages] = await Promise.all([
+  const [{ role, isOnboarded, canAccessAdmin }, books, portalImages] = await Promise.all([
     getViewerContext(),
     listPublishedBooks(8),
     getPortalImageUrls(),
@@ -44,7 +44,7 @@ export default async function HomePage() {
 
           <div className="flex flex-col gap-4 sm:flex-row">
             <Link
-              href={isOnboarded ? getRoleHome(role) : APP_ROUTES.signUp}
+              href={role || isOnboarded ? getAuthedPath({ role, isOnboarded, canAccessAdmin }) : APP_ROUTES.signUp}
               className="inline-flex h-12 items-center justify-center rounded-2xl bg-primary px-6 text-sm font-medium text-primary-foreground"
             >
               {isOnboarded ? "Open my workspace" : "Start your account"}

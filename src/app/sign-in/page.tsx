@@ -5,7 +5,7 @@ import { EmailMagicLinkForm, EmailSignInForm, OAuthButtons } from "@/components/
 import { AuthShell } from "@/features/auth/auth-shell";
 import { normalizeNextPath } from "@/lib/redirects";
 import { getViewerContext } from "@/lib/profile";
-import { APP_ROUTES, getRoleHome } from "@/lib/roles";
+import { APP_ROUTES, getAuthedPath } from "@/lib/roles";
 
 export default async function SignInPage({
   searchParams,
@@ -16,7 +16,7 @@ export default async function SignInPage({
   const safeNext = normalizeNextPath(next);
 
   if (viewer.user) {
-    redirect(viewer.isOnboarded ? getRoleHome(viewer.role) : APP_ROUTES.onboardingStep1);
+    redirect(getAuthedPath(viewer));
   }
 
   return (

@@ -6,7 +6,7 @@ import {
 } from "@/features/onboarding/onboarding-forms";
 import { OnboardingShell } from "@/features/onboarding/onboarding-shell";
 import { getViewerContext } from "@/lib/profile";
-import { APP_ROUTES, getRoleHome } from "@/lib/roles";
+import { APP_ROUTES, getAuthedPath } from "@/lib/roles";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 
 export default async function OnboardingStep3Page() {
@@ -17,7 +17,7 @@ export default async function OnboardingStep3Page() {
   }
 
   if (viewer.isOnboarded) {
-    redirect(getRoleHome(viewer.role));
+    redirect(getAuthedPath(viewer));
   }
 
   if (viewer.onboardingStep < 3) {
