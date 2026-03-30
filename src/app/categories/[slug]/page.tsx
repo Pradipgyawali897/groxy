@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
 
-import { BookGrid } from "@/features/catalog/book-grid";
+import { BookFeed } from "@/features/catalog/book-feed";
 import { SectionHeading } from "@/features/shared/section-heading";
 import { filterBooksByCategory, groupCatalogBooks, listPublishedBooks } from "@/lib/catalog";
 
@@ -11,7 +11,7 @@ export default async function CategoryPage({
   params: Promise<{ slug: string }>;
 }) {
   const { slug } = await params;
-  const books = await listPublishedBooks(24);
+  const books = await listPublishedBooks(48);
   const { categories } = groupCatalogBooks(books);
   const currentCategory = categories.find((category) => category.slug === slug);
 
@@ -31,7 +31,7 @@ export default async function CategoryPage({
         title={currentCategory.name}
         description={`${currentCategory.count} books in this shelf.`}
       />
-      <BookGrid books={filtered} compact />
+      <BookFeed books={filtered} compact batchSize={8} label="Category shelf" />
     </main>
   );
 }

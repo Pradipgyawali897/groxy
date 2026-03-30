@@ -31,6 +31,25 @@ function getDestinationCopy(nextPath?: string) {
   return `You will return to ${next} after authentication.`;
 }
 
+async function resolveClientPostAuthPath(nextPath?: string) {
+  const fallback = normalizeNextPath(nextPath) ?? APP_ROUTES.onboardingStep1;
+
+  try {
+    const search = normalizeNextPath(nextPath)
+      ? `?next=${encodeURIComponent(normalizeNextPath(nextPath) as string)}`
+      : "";
+    const res = await fetch(`/api/auth/destination${search}`, {
+      method: "GET",
+      cache: "no-store",
+    });
+    if (!res.ok) return fallback;
+    const json = (await res.json().catch(() => null)) as { next?: string } | null;
+    return typeof json?.next === "string" ? json.next : fallback;
+  } catch {
+    return fallback;
+  }
+}
+
 export function OAuthButtons({ nextPath }: { nextPath?: string }) {
   const [loadingProvider, setLoadingProvider] = React.useState("");
   const [error, setError] = React.useState("");
@@ -108,7 +127,7 @@ export function EmailSignInForm({ nextPath }: { nextPath?: string }) {
       setError(error.message);
       return;
     }
-    const target = normalizeNextPath(nextPath) ?? APP_ROUTES.onboardingStep1;
+    const target = await resolveClientPostAuthPath(nextPath);
     router.push(target);
     router.refresh();
   };
@@ -192,6 +211,7 @@ export function EmailMagicLinkForm({ nextPath }: { nextPath?: string }) {
 }
 
 export function EmailSignUpForm() {
+  const router = useRouter();
   const [email, setEmail] = React.useState("");
   const [password, setPassword] = React.useState("");
   const [message, setMessage] = React.useState("");
@@ -205,7 +225,7 @@ export function EmailSignUpForm() {
     setMessage("");
 
     const supabase = createSupabaseBrowserClient();
-    const { error: signUpError } = await supabase.auth.signUp({
+    const { data, error: signUpError } = await supabase.auth.signUp({
       email,
       password,
       options: {
@@ -216,6 +236,13 @@ export function EmailSignUpForm() {
     setLoading(false);
     if (signUpError) {
       setError(signUpError.message);
+      return;
+    }
+
+    if (data.session) {
+      const target = await resolveClientPostAuthPath(APP_ROUTES.onboardingStep1);
+      router.push(target);
+      router.refresh();
       return;
     }
 

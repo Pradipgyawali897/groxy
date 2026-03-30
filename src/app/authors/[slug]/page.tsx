@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
 
-import { BookGrid } from "@/features/catalog/book-grid";
+import { BookFeed } from "@/features/catalog/book-feed";
 import { SectionHeading } from "@/features/shared/section-heading";
 import { filterBooksByAuthor, groupCatalogBooks, listPublishedBooks } from "@/lib/catalog";
 
@@ -11,7 +11,7 @@ export default async function AuthorPage({
   params: Promise<{ slug: string }>;
 }) {
   const { slug } = await params;
-  const books = await listPublishedBooks(24);
+  const books = await listPublishedBooks(48);
   const { authors } = groupCatalogBooks(books);
   const currentAuthor = authors.find((author) => author.slug === slug);
 
@@ -31,7 +31,7 @@ export default async function AuthorPage({
         title={currentAuthor.name}
         description={`${currentAuthor.count} books currently available from this author in the catalog.`}
       />
-      <BookGrid books={filtered} compact />
+      <BookFeed books={filtered} compact batchSize={8} label="Author shelf" />
     </main>
   );
 }

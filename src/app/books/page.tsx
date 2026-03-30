@@ -2,7 +2,7 @@ import { Search } from "lucide-react";
 import Link from "next/link";
 
 import { Input } from "@/components/ui/input";
-import { BookGrid } from "@/features/catalog/book-grid";
+import { BookFeed } from "@/features/catalog/book-feed";
 import { SectionHeading } from "@/features/shared/section-heading";
 import { filterBooksByAuthor, filterBooksByCategory, groupCatalogBooks, listPublishedBooks } from "@/lib/catalog";
 
@@ -12,7 +12,7 @@ export default async function BooksPage({
   searchParams: Promise<{ q?: string; category?: string; author?: string }>;
 }) {
   const params = await searchParams;
-  const books = await listPublishedBooks(24);
+  const books = await listPublishedBooks(60);
   const { categories, authors } = groupCatalogBooks(books);
 
   let filtered = books;
@@ -99,7 +99,7 @@ export default async function BooksPage({
         </aside>
         <div className="space-y-6">
           {filtered.length > 0 ? (
-            <BookGrid books={filtered} compact />
+            <BookFeed books={filtered} compact batchSize={8} label="Catalog stream" />
           ) : (
             <div className="rounded-[1.75rem] border border-dashed border-border bg-card/70 p-8 text-center">
               <h2 className="font-heading text-3xl tracking-tight">No books matched this search</h2>

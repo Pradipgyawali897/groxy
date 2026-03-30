@@ -34,6 +34,18 @@ export default async function SignUpPage() {
         <div className="rounded-2xl border border-border/70 bg-background/75 px-4 py-3 text-sm text-muted-foreground">
           Account creation only handles identity. Profile, role, and workspace setup continue in guided onboarding right after verification.
         </div>
+        <div className="grid gap-3 sm:grid-cols-3">
+          {[
+            { title: "Create identity", body: "Start with Google or email without mixing role setup into sign-up." },
+            { title: "Choose role", body: "Customer or merchant routing happens in onboarding, not in a fragile auth step." },
+            { title: "Enter workspace", body: "The platform hands off into the right dashboard once setup is complete." },
+          ].map((item) => (
+            <div key={item.title} className="rounded-2xl border border-border/70 bg-background/75 p-4">
+              <p className="text-sm font-medium text-foreground">{item.title}</p>
+              <p className="mt-2 text-xs leading-6 text-muted-foreground">{item.body}</p>
+            </div>
+          ))}
+        </div>
         <OAuthButtons nextPath={APP_ROUTES.onboardingStep1} />
         <div className="relative py-2">
           <div className="absolute inset-0 flex items-center">

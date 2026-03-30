@@ -72,6 +72,27 @@ export function AuthShell({
                 Production flow
               </span>
             </div>
+            <div className="grid gap-3 sm:grid-cols-3">
+              {[
+                {
+                  title: "Role-aware return",
+                  body: "Readers, merchants, and admins land in the right workspace after auth.",
+                },
+                {
+                  title: "Session continuity",
+                  body: "Password, Google, and magic-link flows all feed one post-auth redirect model.",
+                },
+                {
+                  title: "Recovery ready",
+                  body: "Reset and onboarding stay in the same secure route family instead of splitting the flow.",
+                },
+              ].map((item) => (
+                <div key={item.title} className="rounded-2xl border border-border/70 bg-background/75 p-4">
+                  <p className="text-sm font-medium text-foreground">{item.title}</p>
+                  <p className="mt-2 text-xs leading-6 text-muted-foreground">{item.body}</p>
+                </div>
+              ))}
+            </div>
             {children}
             {footer ? <div className="text-sm text-muted-foreground">{footer}</div> : null}
             <p className="text-xs leading-6 text-muted-foreground">

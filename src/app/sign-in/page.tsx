@@ -51,6 +51,18 @@ export default async function SignInPage({
             ? `After authentication you will continue to ${safeNext}.`
             : "After authentication you will continue into onboarding or your assigned workspace."}
         </div>
+        <div className="grid gap-3 sm:grid-cols-3">
+          {[
+            { title: "Google", body: "Fastest way back into the platform with account selection." },
+            { title: "Password", body: "Standard sign-in for existing email accounts." },
+            { title: "Magic link", body: "Email-based access when you do not want to type a password." },
+          ].map((item) => (
+            <div key={item.title} className="rounded-2xl border border-border/70 bg-background/75 p-4">
+              <p className="text-sm font-medium text-foreground">{item.title}</p>
+              <p className="mt-2 text-xs leading-6 text-muted-foreground">{item.body}</p>
+            </div>
+          ))}
+        </div>
         <OAuthButtons nextPath={next} />
         <div className="relative py-2">
           <div className="absolute inset-0 flex items-center">

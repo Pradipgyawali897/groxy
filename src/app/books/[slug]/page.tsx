@@ -1,10 +1,10 @@
-import { Image } from "@/components/ui/image";
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { ShoppingBag } from "lucide-react";
+import { Clock3, ShoppingBag, Sparkles, TrendingUp } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { BookGrid } from "@/features/catalog/book-grid";
+import { ProgressiveBookCover } from "@/features/catalog/progressive-book-cover";
 import { BookViewTracker } from "@/features/reco/book-view-tracker";
 import { WishlistButton } from "@/features/wishlist/wishlist-button";
 import { getPublishedBookBySlug, listPublishedBooks } from "@/lib/catalog";
@@ -41,20 +41,25 @@ export default async function BookDetailPage({
       </div>
 
       <section className="grid gap-8 rounded-[2rem] border border-border/70 bg-card/90 p-6 shadow-sm lg:grid-cols-[0.8fr_1.2fr] lg:p-8">
-        <div className="relative overflow-hidden rounded-[1.75rem] bg-muted">
-          <Image
-            src={normalizeCloudinaryUrl(book.cover_image_url, 1400)}
-            alt={book.title}
-            width={1400}
-            height={1800}
-            className="h-full w-full object-cover"
-          />
-        </div>
         <div className="space-y-6">
           <div className="space-y-3">
             <p className="text-sm uppercase tracking-[0.22em] text-primary/75">{book.genre}</p>
             <h1 className="font-heading text-5xl tracking-tight">{book.title}</h1>
             <p className="text-lg text-muted-foreground">{book.author}</p>
+          </div>
+          <div className="flex flex-wrap gap-2">
+            <span className="inline-flex items-center gap-2 rounded-full border border-border/70 bg-background/80 px-3 py-1 text-xs font-medium text-muted-foreground">
+              <TrendingUp className="size-3.5 text-primary" />
+              Reader momentum
+            </span>
+            <span className="inline-flex items-center gap-2 rounded-full border border-border/70 bg-background/80 px-3 py-1 text-xs font-medium text-muted-foreground">
+              <Sparkles className="size-3.5 text-primary" />
+              Editorial shelf
+            </span>
+            <span className="inline-flex items-center gap-2 rounded-full border border-border/70 bg-background/80 px-3 py-1 text-xs font-medium text-muted-foreground">
+              <Clock3 className="size-3.5 text-primary" />
+              Details first, image loads softly
+            </span>
           </div>
           <div className="flex items-end gap-3">
             <p className="text-3xl font-semibold text-foreground">${Number(book.price).toFixed(2)}</p>
@@ -97,6 +102,17 @@ export default async function BookDetailPage({
               Contact seller
             </a>
           </div>
+        </div>
+        <div className="relative overflow-hidden rounded-[1.75rem] bg-muted lg:sticky lg:top-28 lg:self-start">
+          <ProgressiveBookCover
+            src={normalizeCloudinaryUrl(book.cover_image_url, 1400)}
+            alt={book.title}
+            width={1400}
+            height={1800}
+            loading="lazy"
+            wrapperClassName="h-full min-h-[420px] w-full"
+            className="h-full w-full object-cover"
+          />
         </div>
       </section>
 

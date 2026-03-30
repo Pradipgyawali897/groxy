@@ -1,7 +1,7 @@
-import { Image } from "@/components/ui/image";
 import Link from "next/link";
 import { Star } from "lucide-react";
 
+import { ProgressiveBookCover } from "@/features/catalog/progressive-book-cover";
 import { normalizeCloudinaryUrl } from "@/lib/books";
 import { getBookHref } from "@/lib/catalog-shared";
 import type { CatalogBook } from "@/types/platform";
@@ -18,11 +18,12 @@ export function BookCard({
     <article className="group overflow-hidden rounded-[1.75rem] border border-border/70 bg-card/90 shadow-[0_24px_60px_-40px_rgba(15,23,42,0.35)] transition duration-300 hover:-translate-y-1 hover:shadow-[0_28px_80px_-40px_rgba(15,23,42,0.5)]">
       <Link href={getBookHref(book)} className="block">
         <div className="relative aspect-[4/5] overflow-hidden bg-muted">
-          <Image
+          <ProgressiveBookCover
             src={normalizeCloudinaryUrl(book.cover_image_url, 900)}
             alt={book.title}
             fill
             sizes={compact ? "(max-width: 768px) 50vw, 20vw" : "(max-width: 768px) 100vw, 25vw"}
+            loading="lazy"
             className="object-cover transition duration-700 group-hover:scale-[1.04]"
           />
           <div className="absolute inset-x-4 top-4 flex items-center justify-between">
