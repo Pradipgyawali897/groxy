@@ -9,6 +9,16 @@ type RecommendationFallbackInput = {
   userId?: string | null;
   sid?: string | null;
   limit?: number;
+  candidateBooks?: CatalogBook[];
+  excludeSeen?: boolean;
+  preserveOrder?: boolean;
+};
+
+type RecommendationSignalState = {
+  genreWeights: Map<string, number>;
+  authorWeights: Map<string, number>;
+  keywordWeights: Map<string, number>;
+  seenBookIds: Set<string>;
 };
 
 function addWeight(map: Map<string, number>, key: string | null | undefined, amount: number) {
@@ -43,32 +53,27 @@ function freshnessSignal(book: CatalogBook) {
   return Math.max(0, 1 - ageDays / 180);
 }
 
-export async function getFallbackRecommendations({
-  userId,
-  sid,
-  limit = 12,
-}: RecommendationFallbackInput) {
-  const books = await listPublishedBooks(80);
-  if (!books.length) return [] as CatalogBook[];
-
-  const genreWeights = new Map<string, number>();
-  const authorWeights = new Map<string, number>();
-  const keywordWeights = new Map<string, number>();
-  const seenBookIds = new Set<string>();
+async function collectSignals(userId?: string | null, sid?: string | null): Promise<RecommendationSignalState> {
+  const signals: RecommendationSignalState = {
+    genreWeights: new Map<string, number>(),
+    authorWeights: new Map<string, number>(),
+    keywordWeights: new Map<string, number>(),
+    seenBookIds: new Set<string>(),
+  };
 
   const absorbBookSignal = (book: Partial<CatalogBook> | null | undefined, weight: number) => {
     if (!book) return;
-    if (book.id) seenBookIds.add(book.id);
-    addWeight(genreWeights, book.genre, weight);
-    addWeight(authorWeights, book.author, weight * 1.15);
+    if (book.id) signals.seenBookIds.add(book.id);
+    addWeight(signals.genreWeights, book.genre, weight);
+    addWeight(signals.authorWeights, book.author, weight * 1.15);
     for (const token of tokenize(`${book.title ?? ""} ${book.description ?? ""}`)) {
-      addWeight(keywordWeights, token, weight * 0.18);
+      addWeight(signals.keywordWeights, token, weight * 0.18);
     }
   };
 
   const absorbInterestTokens = (values: string[] | null | undefined, weight: number) => {
     for (const token of (values ?? []).flatMap((value) => tokenize(value))) {
-      addWeight(keywordWeights, token, weight);
+      addWeight(signals.keywordWeights, token, weight);
     }
   };
 
@@ -83,10 +88,10 @@ export async function getFallbackRecommendations({
           .eq("user_id", userId)
           .maybeSingle(),
         supabase
-          .from("wishlist_items")
-          .select("book_id,books(id,title,description,genre,author)")
-          .order("created_at", { ascending: false })
-          .limit(24),
+          .from("wishlists")
+          .select("id")
+          .eq("user_id", userId)
+          .maybeSingle(),
         supabase
           .from("orders")
           .select("id")
@@ -96,19 +101,28 @@ export async function getFallbackRecommendations({
       ]);
 
       for (const genre of preferences?.favorite_genres ?? []) {
-        addWeight(genreWeights, genre, 2.2);
+        addWeight(signals.genreWeights, genre, 2.2);
       }
       absorbInterestTokens(preferences?.reading_interests ?? [], 1.1);
 
-      for (const row of wishlist ?? []) {
-        absorbBookSignal((row as any).books, 2.4);
+      if (wishlist?.id) {
+        const { data: wishlistItems } = await supabase
+          .from("wishlist_items")
+          .select("book_id,books(id,title,description,genre,author)")
+          .eq("wishlist_id", wishlist.id)
+          .order("created_at", { ascending: false })
+          .limit(24);
+
+        for (const row of wishlistItems ?? []) {
+          absorbBookSignal((row as any).books, 2.4);
+        }
       }
 
       const orderIds = (orders ?? []).map((row: any) => row.id).filter(Boolean);
       if (orderIds.length) {
         const { data: orderItems } = await supabase
           .from("order_items")
-          .select("book_id,title_snapshot,author_snapshot,books(id,title,description,genre,author)")
+          .select("book_id,books(id,title,description,genre,author)")
           .in("order_id", orderIds)
           .limit(48);
 
@@ -158,13 +172,69 @@ export async function getFallbackRecommendations({
     }
   }
 
-  const scored = books
-    .filter((book) => book.stock > 0 && !seenBookIds.has(book.id))
+  return signals;
+}
+
+function buildRecommendationReason({
+  book,
+  genreScore,
+  authorScore,
+  matchedKeyword,
+  hasPersonalSignals,
+}: {
+  book: CatalogBook;
+  genreScore: number;
+  authorScore: number;
+  matchedKeyword?: string;
+  hasPersonalSignals: boolean;
+}) {
+  if (hasPersonalSignals && authorScore >= 0.82) {
+    return `Because you keep engaging with ${book.author}`;
+  }
+  if (hasPersonalSignals && genreScore >= 0.76) {
+    return `Because you read ${book.genre.toLowerCase()} books`;
+  }
+  if (hasPersonalSignals && matchedKeyword) {
+    return `Because it matches your interest in ${matchedKeyword}`;
+  }
+  if (book.is_featured) {
+    return "Featured in the bookstore right now";
+  }
+  if (freshnessSignal(book) >= 0.65) {
+    return "Freshly added to the catalog";
+  }
+  return "Trending with bookstore readers";
+}
+
+export async function getFallbackRecommendations({
+  userId,
+  sid,
+  limit = 12,
+  candidateBooks,
+  excludeSeen = true,
+  preserveOrder = false,
+}: RecommendationFallbackInput) {
+  const books = candidateBooks?.length ? candidateBooks : await listPublishedBooks(80);
+  if (!books.length) return [] as CatalogBook[];
+
+  const { genreWeights, authorWeights, keywordWeights, seenBookIds } = await collectSignals(userId, sid);
+  const hasPersonalSignals = Boolean(genreWeights.size || authorWeights.size || keywordWeights.size);
+
+  const candidates = books.filter(
+    (book) => book.stock > 0 && (!excludeSeen || !seenBookIds.has(book.id))
+  );
+  const pool = candidates.length ? candidates : books.filter((book) => book.stock > 0);
+
+  const scored = pool
     .map((book) => {
       const haystack = `${book.title} ${book.description}`.toLowerCase();
       let keywordScore = 0;
+      let matchedKeyword = "";
       for (const [token, weight] of keywordWeights) {
-        if (haystack.includes(token)) keywordScore += weight;
+        if (haystack.includes(token)) {
+          keywordScore += weight;
+          if (!matchedKeyword) matchedKeyword = token;
+        }
       }
 
       const popularityScore =
@@ -173,21 +243,36 @@ export async function getFallbackRecommendations({
         Number(book.average_rating ?? 0) * 0.22 +
         freshnessSignal(book) * 0.35 +
         priceSignal(book);
+      const genreScore = normalizeMapScore(genreWeights, book.genre);
+      const authorScore = normalizeMapScore(authorWeights, book.author);
 
       const score =
         popularityScore +
-        normalizeMapScore(genreWeights, book.genre) * 2.0 +
-        normalizeMapScore(authorWeights, book.author) * 2.4 +
+        genreScore * 2.0 +
+        authorScore * 2.4 +
         Math.min(keywordScore, 2.2);
 
-      return { book, score };
+      return {
+        book: {
+          ...book,
+          recommendation_reason: buildRecommendationReason({
+            book,
+            genreScore,
+            authorScore,
+            matchedKeyword,
+            hasPersonalSignals,
+          }),
+        },
+        score,
+      };
     })
-    .sort((a, b) => b.score - a.score);
+    .sort((a, b) => (preserveOrder ? 0 : b.score - a.score));
 
-  if (!genreWeights.size && !authorWeights.size && !keywordWeights.size) {
-    return books
-      .filter((book) => book.stock > 0)
-      .sort((a, b) => {
+  if (!hasPersonalSignals) {
+    const base = pool.filter((book) => book.stock > 0);
+    const ranked = preserveOrder
+      ? base
+      : [...base].sort((a, b) => {
         const aScore =
           (a.is_featured ? 1 : 0) +
           Math.log1p(Math.max(0, Number(a.rating_count ?? 0))) * 0.55 +
@@ -199,10 +284,19 @@ export async function getFallbackRecommendations({
           Number(b.average_rating ?? 0) * 0.2 +
           freshnessSignal(b) * 0.3;
         return bScore - aScore;
-      })
-      .slice(0, limit);
+      });
+    const popular = ranked
+      .slice(0, limit)
+      .map((book) => ({
+        ...book,
+        recommendation_reason: book.is_featured
+          ? "Featured in the bookstore right now"
+          : freshnessSignal(book) >= 0.65
+            ? "Freshly added to the catalog"
+            : "Trending with bookstore readers",
+      }));
+    return popular;
   }
 
   return scored.slice(0, limit).map((item) => item.book);
 }
-

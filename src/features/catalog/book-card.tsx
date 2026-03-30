@@ -43,6 +43,11 @@ export function BookCard({
               {book.title}
             </h3>
           </Link>
+          {book.recommendation_reason ? (
+            <p className="inline-flex rounded-full border border-primary/20 bg-primary/8 px-3 py-1 text-xs font-medium text-primary">
+              {book.recommendation_reason}
+            </p>
+          ) : null}
           <p className="line-clamp-2 text-sm leading-6 text-muted-foreground">
             {book.description}
           </p>

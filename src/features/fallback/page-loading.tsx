@@ -11,7 +11,7 @@ function FloatingLogoMark({ darkSurface = false }: { darkSurface?: boolean }) {
     <div className="relative inline-flex items-center gap-4">
       <div
         className={cn(
-          "relative h-18 w-18 overflow-hidden rounded-full ring-1 shadow-[0_26px_80px_-40px_rgba(15,23,42,0.55)] animate-float",
+          "relative h-20 w-20 overflow-hidden rounded-full ring-1 shadow-[0_26px_80px_-40px_rgba(15,23,42,0.55)] animate-float",
           darkSurface ? "bg-white/10 ring-white/15" : "bg-background/90 ring-border/60"
         )}
       >
@@ -42,7 +42,7 @@ function FloatingLogoMark({ darkSurface = false }: { darkSurface?: boolean }) {
 
 export function LandingPageSkeleton() {
   return (
-    <main className="mx-auto w-full max-w-7xl space-y-14 px-4 py-12 sm:px-6 lg:px-8 lg:py-18">
+    <main className="mx-auto w-full max-w-7xl space-y-14 px-4 py-12 sm:px-6 lg:px-8 lg:py-20">
       <section className="grid gap-10 lg:grid-cols-[1.05fr_0.95fr]">
         <div className="space-y-7">
           <FloatingLogoMark />

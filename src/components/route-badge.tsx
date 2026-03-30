@@ -3,7 +3,7 @@
 import * as React from "react";
 import { usePathname } from "next/navigation";
 
-function labelForPath(pathname: string) {
+export function labelForPath(pathname: string) {
   if (pathname === "/") return "Home";
   if (pathname.startsWith("/books/")) return "Book details";
   if (pathname.startsWith("/books")) return "Catalog";
@@ -40,6 +40,9 @@ function labelForPath(pathname: string) {
   if (pathname.startsWith("/forgot-password")) return "Password reset";
   if (pathname.startsWith("/reset-password")) return "New password";
   if (pathname.startsWith("/onboarding")) return "Onboarding";
+  if (pathname.startsWith("/about")) return "About";
+  if (pathname.startsWith("/contact")) return "Contact";
+  if (pathname.startsWith("/account")) return "Account";
 
   return "Page";
 }
@@ -54,4 +57,3 @@ export function RouteBadge() {
     </span>
   );
 }
-

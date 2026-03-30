@@ -2,7 +2,7 @@ import { NextResponse } from "next/server";
 import { z } from "zod";
 
 import { createSupabaseServerClient } from "@/lib/supabase/server";
-import { listPublishedBooks } from "@/lib/catalog";
+import { getFallbackRecommendations } from "@/lib/reco/recommend-fallback";
 
 const querySchema = z.object({
   limit: z.coerce.number().int().min(1).max(50).default(12),
@@ -68,8 +68,16 @@ export async function GET(request: Request) {
           .in("id", bookIds.slice(0, limit))
           .eq("status", "published");
         const ordered = reorderByIds((books as any[]) ?? [], bookIds);
+        const annotated = await getFallbackRecommendations({
+          userId: user.id,
+          sid,
+          limit,
+          candidateBooks: ordered.slice(0, limit),
+          excludeSeen: false,
+          preserveOrder: true,
+        });
         return NextResponse.json(
-          { books: ordered.slice(0, limit), sid, cached: true },
+          { books: annotated, sid, cached: true },
           { headers: { "Set-Cookie": buildSetSidCookie(sid, isSecure) } }
         );
       }
@@ -89,7 +97,11 @@ export async function GET(request: Request) {
 
     const ids = ((data as any[]) ?? []).map((row) => row.book_id as string);
     if (!ids.length) {
-      const fallback = await listPublishedBooks(limit);
+      const fallback = await getFallbackRecommendations({
+        userId: user?.id ?? null,
+        sid,
+        limit,
+      });
       return NextResponse.json(
         { books: fallback, sid, cached: false },
         { headers: { "Set-Cookie": buildSetSidCookie(sid, isSecure) } }
@@ -103,6 +115,14 @@ export async function GET(request: Request) {
       .eq("status", "published");
 
     const ordered = reorderByIds((books as any[]) ?? [], ids);
+    const annotated = await getFallbackRecommendations({
+      userId: user?.id ?? null,
+      sid,
+      limit,
+      candidateBooks: ordered.slice(0, limit),
+      excludeSeen: false,
+      preserveOrder: true,
+    });
 
     // Best-effort cache write for authed user (table + RLS must exist).
     if (user) {
@@ -123,11 +143,15 @@ export async function GET(request: Request) {
     }
 
     return NextResponse.json(
-      { books: ordered.slice(0, limit), sid, cached: false },
+      { books: annotated, sid, cached: false },
       { headers: { "Set-Cookie": buildSetSidCookie(sid, isSecure) } }
     );
   } catch {
-    const fallback = await listPublishedBooks(limit);
+    const fallback = await getFallbackRecommendations({
+      userId: user?.id ?? null,
+      sid,
+      limit,
+    });
     return NextResponse.json(
       { books: fallback, sid, cached: false },
       { headers: { "Set-Cookie": buildSetSidCookie(sid, isSecure) } }

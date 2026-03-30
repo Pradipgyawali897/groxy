@@ -3,6 +3,7 @@ import { redirect } from "next/navigation";
 
 import { EmailMagicLinkForm, EmailSignInForm, OAuthButtons } from "@/components/auth-controls";
 import { AuthShell } from "@/features/auth/auth-shell";
+import { normalizeNextPath } from "@/lib/redirects";
 import { getViewerContext } from "@/lib/profile";
 import { APP_ROUTES, getRoleHome } from "@/lib/roles";
 
@@ -12,6 +13,7 @@ export default async function SignInPage({
   searchParams: Promise<{ next?: string; error?: string }>;
 }) {
   const [{ next, error }, viewer] = await Promise.all([searchParams, getViewerContext()]);
+  const safeNext = normalizeNextPath(next);
 
   if (viewer.user) {
     redirect(viewer.isOnboarded ? getRoleHome(viewer.role) : APP_ROUTES.onboardingStep1);
@@ -44,6 +46,11 @@ export default async function SignInPage({
             {error}
           </div>
         ) : null}
+        <div className="rounded-2xl border border-border/70 bg-background/75 px-4 py-3 text-sm text-muted-foreground">
+          {safeNext
+            ? `After authentication you will continue to ${safeNext}.`
+            : "After authentication you will continue into onboarding or your assigned workspace."}
+        </div>
         <OAuthButtons nextPath={next} />
         <div className="relative py-2">
           <div className="absolute inset-0 flex items-center">

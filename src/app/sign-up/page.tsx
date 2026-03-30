@@ -31,6 +31,9 @@ export default async function SignUpPage() {
       }
     >
       <div className="space-y-4">
+        <div className="rounded-2xl border border-border/70 bg-background/75 px-4 py-3 text-sm text-muted-foreground">
+          Account creation only handles identity. Profile, role, and workspace setup continue in guided onboarding right after verification.
+        </div>
         <OAuthButtons nextPath={APP_ROUTES.onboardingStep1} />
         <div className="relative py-2">
           <div className="absolute inset-0 flex items-center">

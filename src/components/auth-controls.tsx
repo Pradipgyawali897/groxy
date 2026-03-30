@@ -22,9 +22,19 @@ function getAuthRedirectPath(nextPath?: string) {
   return `${getBrowserAppOrigin()}/auth/callback?next=${encodeURIComponent(next)}`;
 }
 
+function getDestinationCopy(nextPath?: string) {
+  const next = normalizeNextPath(nextPath) ?? APP_ROUTES.onboardingStep1;
+  if (next.startsWith("/customer")) return "You will return to your reader workspace after authentication.";
+  if (next.startsWith("/merchant")) return "You will return to your merchant studio after authentication.";
+  if (next.startsWith("/admin")) return "You will return to the admin control room after authentication.";
+  if (next.startsWith("/onboarding")) return "You will continue directly into onboarding after authentication.";
+  return `You will return to ${next} after authentication.`;
+}
+
 export function OAuthButtons({ nextPath }: { nextPath?: string }) {
   const [loadingProvider, setLoadingProvider] = React.useState("");
   const [error, setError] = React.useState("");
+  const destinationCopy = getDestinationCopy(nextPath);
 
   const signInWithOAuth = async (provider: "google") => {
     setError("");
@@ -68,6 +78,7 @@ export function OAuthButtons({ nextPath }: { nextPath?: string }) {
       >
         {loadingProvider === "google" ? "Connecting..." : "Continue with Google"}
       </Button>
+      <p className="text-xs leading-6 text-muted-foreground">{destinationCopy}</p>
       {error ? <p className="text-sm text-destructive">{error}</p> : null}
     </div>
   );
@@ -80,7 +91,7 @@ export function EmailSignInForm({ nextPath }: { nextPath?: string }) {
   const [error, setError] = React.useState("");
   const [loading, setLoading] = React.useState(false);
 
-  const onSubmit = async (event:React.SubmitEvent<HTMLFormElement>) => {
+  const onSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     setLoading(true);
     setError("");
@@ -134,6 +145,7 @@ export function EmailMagicLinkForm({ nextPath }: { nextPath?: string }) {
   const [message, setMessage] = React.useState("");
   const [error, setError] = React.useState("");
   const [loading, setLoading] = React.useState(false);
+  const destinationCopy = getDestinationCopy(nextPath);
 
   const onSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
@@ -169,6 +181,7 @@ export function EmailMagicLinkForm({ nextPath }: { nextPath?: string }) {
         placeholder="Email for a magic link"
         className="h-12 rounded-2xl px-4"
       />
+      <p className="text-xs leading-6 text-muted-foreground">{destinationCopy}</p>
       {error ? <p className="text-sm text-destructive">{error}</p> : null}
       {message ? <p className="text-sm text-emerald-700 dark:text-emerald-300">{message}</p> : null}
       <Button type="submit" variant="secondary" className="h-12 w-full rounded-2xl" disabled={loading}>
@@ -186,28 +199,28 @@ export function EmailSignUpForm() {
   const [loading, setLoading] = React.useState(false);
 
   const onSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
-  event.preventDefault();
-  setLoading(true);
-  setError("");
-  setMessage("");
+    event.preventDefault();
+    setLoading(true);
+    setError("");
+    setMessage("");
 
-  const supabase = createSupabaseBrowserClient();
-  const { error: signUpError } = await supabase.auth.signUp({
-    email,
-    password,
-    options: {
-      emailRedirectTo: getAuthRedirectPath(APP_ROUTES.onboardingStep1),
-    },
-  });
+    const supabase = createSupabaseBrowserClient();
+    const { error: signUpError } = await supabase.auth.signUp({
+      email,
+      password,
+      options: {
+        emailRedirectTo: getAuthRedirectPath(APP_ROUTES.onboardingStep1),
+      },
+    });
 
-  setLoading(false);
-  if (signUpError) {
-    setError(signUpError.message);
-    return;
-  }
+    setLoading(false);
+    if (signUpError) {
+      setError(signUpError.message);
+      return;
+    }
 
-  setMessage("Account created. Check your email, verify, and continue into onboarding.");
-};
+    setMessage("Account created. Check your email, verify, and continue into onboarding.");
+  };
 
   return (
     <form className="space-y-4" onSubmit={onSubmit}>

@@ -33,6 +33,7 @@ export type CatalogBook = {
   rating_count: number;
   created_at: string;
   updated_at: string;
+  recommendation_reason?: string | null;
 };
 
 export type MerchantWorkspaceRecord = {

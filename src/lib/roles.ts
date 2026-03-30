@@ -88,6 +88,7 @@ const ROLE_CONFIG: Record<AppRole, RoleConfig> = {
 };
 
 export const PUBLIC_NAV = [
+  { label: "Home", href: APP_ROUTES.landing },
   { label: "Books", href: APP_ROUTES.books },
   { label: "About", href: APP_ROUTES.about },
   { label: "Contact", href: APP_ROUTES.contact },

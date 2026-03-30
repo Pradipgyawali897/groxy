@@ -19,7 +19,7 @@ export function PublicNav() {
             href={item.href}
             className={cn(
               "rounded-xl px-3 py-2 text-muted-foreground hover:bg-muted hover:text-foreground",
-              active && "bg-foreground text-background hover:bg-foreground hover:text-background"
+              active && "bg-foreground text-background shadow-sm hover:bg-foreground hover:text-background"
             )}
           >
             {item.label}
@@ -29,4 +29,3 @@ export function PublicNav() {
     </nav>
   );
 }
-
