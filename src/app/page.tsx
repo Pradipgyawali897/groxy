@@ -1,7 +1,17 @@
 import { Image } from "@/components/ui/image";
 import Link from "next/link";
-import { ArrowRight, BookOpenText, PackageCheck, Quote, Sparkles, Store } from "lucide-react";
+import {
+  ArrowRight,
+  BookOpenText,
+  PackageCheck,
+  Quote,
+  Search,
+  ShieldCheck,
+  Sparkles,
+  Store,
+} from "lucide-react";
 
+import { Input } from "@/components/ui/input";
 import { BookGrid } from "@/features/catalog/book-grid";
 import { RecommendationShelf } from "@/features/reco/recommendation-shelf";
 import { RecentlyViewedShelf } from "@/features/reco/recently-viewed-shelf";
@@ -23,6 +33,11 @@ export default async function HomePage() {
   const heroImage = books[0]?.cover_image_url ?? portalImages.customer;
   const featuredBooks = books.slice(0, 4);
   const { categories, authors } = groupCatalogBooks(books);
+  const overviewStats = [
+    { label: "Titles live", value: String(books.length).padStart(2, "0"), meta: "Updated storefront mix" },
+    { label: "Top categories", value: String(categories.length).padStart(2, "0"), meta: "Broad discovery paths" },
+    { label: "Featured authors", value: String(authors.length).padStart(2, "0"), meta: "Editorial coverage" },
+  ];
 
   return (
     <main className="overflow-hidden">
@@ -58,6 +73,39 @@ export default async function HomePage() {
             </Link>
           </div>
 
+          <form
+            action={APP_ROUTES.books}
+            className="rounded-[1.75rem] border border-border/70 bg-card/85 p-4 shadow-sm"
+          >
+            <div className="flex flex-col gap-3 sm:flex-row">
+              <div className="relative flex-1">
+                <Search className="absolute left-4 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
+                <Input
+                  name="q"
+                  placeholder="Search by title, author, or genre"
+                  className="h-12 rounded-2xl border-border/70 bg-background/80 pl-11"
+                />
+              </div>
+              <button
+                type="submit"
+                className="inline-flex h-12 items-center justify-center rounded-2xl bg-foreground px-5 text-sm font-medium text-background"
+              >
+                Search books
+              </button>
+            </div>
+            <div className="mt-4 flex flex-wrap gap-2">
+              {categories.slice(0, 5).map((category) => (
+                <Link
+                  key={category.slug}
+                  href={`/books?category=${category.slug}`}
+                  className="rounded-full border border-border/70 bg-background/80 px-3 py-1.5 text-xs uppercase tracking-[0.18em] text-muted-foreground hover:text-foreground"
+                >
+                  {category.name}
+                </Link>
+              ))}
+            </div>
+          </form>
+
           <div className="grid gap-4 sm:grid-cols-3">
             {[
               {
@@ -80,6 +128,21 @@ export default async function HomePage() {
                 <item.icon className="size-5 text-primary" />
                 <h2 className="mt-4 font-heading text-2xl tracking-tight">{item.title}</h2>
                 <p className="mt-2 text-sm leading-6 text-muted-foreground">{item.copy}</p>
+              </article>
+            ))}
+          </div>
+
+          <div className="grid gap-3 sm:grid-cols-3">
+            {overviewStats.map((item) => (
+              <article
+                key={item.label}
+                className="rounded-[1.5rem] border border-border/70 bg-background/70 p-4"
+              >
+                <p className="text-xs uppercase tracking-[0.22em] text-muted-foreground">
+                  {item.label}
+                </p>
+                <p className="mt-3 font-heading text-4xl tracking-tight">{item.value}</p>
+                <p className="mt-2 text-sm text-muted-foreground">{item.meta}</p>
               </article>
             ))}
           </div>
@@ -135,6 +198,32 @@ export default async function HomePage() {
         ].map((item) => (
           <article key={item.title} className="rounded-[1.75rem] border border-border/70 bg-card/85 p-6 shadow-sm">
             <h2 className="font-heading text-3xl tracking-tight">{item.title}</h2>
+            <p className="mt-3 text-sm leading-7 text-muted-foreground">{item.body}</p>
+          </article>
+        ))}
+      </section>
+
+      <section className="mx-auto grid w-full max-w-7xl gap-6 px-4 py-16 sm:px-6 lg:grid-cols-3 lg:px-8">
+        {[
+          {
+            title: "Verified storefront signals",
+            body: "Ratings, stock visibility, seller contact, and cleaner product detail structure reduce hesitation.",
+            icon: ShieldCheck,
+          },
+          {
+            title: "Discovery without clutter",
+            body: "Search, category links, bestseller paths, and editorial shelves work together instead of competing.",
+            icon: Search,
+          },
+          {
+            title: "One clear path after sign-in",
+            body: "Identity, onboarding, and role-based workspaces stay separate so the app behaves predictably.",
+            icon: PackageCheck,
+          },
+        ].map((item) => (
+          <article key={item.title} className="rounded-[1.75rem] border border-border/70 bg-card/85 p-6 shadow-sm">
+            <item.icon className="size-5 text-primary" />
+            <h2 className="mt-4 font-heading text-3xl tracking-tight">{item.title}</h2>
             <p className="mt-3 text-sm leading-7 text-muted-foreground">{item.body}</p>
           </article>
         ))}
@@ -220,6 +309,37 @@ export default async function HomePage() {
               Explore merchant space
             </Link>
           </div>
+        </div>
+      </section>
+
+      <section className="mx-auto grid w-full max-w-7xl gap-6 px-4 py-16 sm:px-6 lg:grid-cols-[0.9fr_1.1fr] lg:px-8">
+        <div className="rounded-[1.75rem] border border-border/70 bg-card/85 p-6 shadow-sm">
+          <SectionHeading
+            eyebrow="Quick answers"
+            title="The standard questions shoppers and sellers ask first"
+            description="A calmer storefront still needs the basics surfaced early: what you sell, how to browse, how sellers operate, and where to get help."
+          />
+        </div>
+        <div className="grid gap-3">
+          {[
+            {
+              title: "What can I do here?",
+              body: "Browse the public catalog, save books, build a cart, and get recommendations once you sign in.",
+            },
+            {
+              title: "How do sellers fit in?",
+              body: "Merchants onboard separately, manage inventory in a dedicated studio, and publish listings into the same storefront.",
+            },
+            {
+              title: "Where do I go if I need help?",
+              body: "Use the contact page for merchant onboarding, support, partnerships, or platform operations questions.",
+            },
+          ].map((item) => (
+            <article key={item.title} className="rounded-[1.5rem] border border-border/70 bg-background/75 p-5 shadow-sm">
+              <h3 className="font-medium text-foreground">{item.title}</h3>
+              <p className="mt-2 text-sm leading-7 text-muted-foreground">{item.body}</p>
+            </article>
+          ))}
         </div>
       </section>
     </main>

@@ -6,8 +6,12 @@ import { AuthShell } from "@/features/auth/auth-shell";
 import { getViewerContext } from "@/lib/profile";
 import { APP_ROUTES, getAuthedPath } from "@/lib/roles";
 
-export default async function ForgotPasswordPage() {
-  const viewer = await getViewerContext();
+export default async function ForgotPasswordPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ error?: string }>;
+}) {
+  const [{ error }, viewer] = await Promise.all([searchParams, getViewerContext()]);
 
   if (viewer.user) {
     redirect(getAuthedPath(viewer));
@@ -30,7 +34,17 @@ export default async function ForgotPasswordPage() {
         </>
       }
     >
-      <ForgotPasswordForm />
+      <div className="space-y-4">
+        {error ? (
+          <div className="rounded-2xl border border-destructive/30 bg-destructive/10 px-4 py-3 text-sm text-destructive">
+            {error}
+          </div>
+        ) : null}
+        <div className="rounded-2xl border border-border/70 bg-background/75 px-4 py-3 text-sm text-muted-foreground">
+          Use the most recent reset email on this device. The link opens a short-lived secure session before you choose a new password.
+        </div>
+        <ForgotPasswordForm />
+      </div>
     </AuthShell>
   );
 }

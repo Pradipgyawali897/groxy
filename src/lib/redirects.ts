@@ -1,12 +1,17 @@
-import { APP_ROUTES, type AppRole, getAuthedPath, getOnboardingPath, getRoleFromPath, getRoleHome } from "@/lib/roles";
+import { APP_ROUTES, type AppRole, getAuthedPath, getOnboardingPath, getRoleFromPath } from "@/lib/roles";
 
-function isUnsafePrefix(pathname: string) {
+type NormalizeNextPathOptions = {
+  allowResetPassword?: boolean;
+};
+
+function isUnsafePrefix(pathname: string, options: NormalizeNextPathOptions = {}) {
   return (
     pathname.startsWith("/api/") ||
     pathname.startsWith("/_next/") ||
     pathname.startsWith(APP_ROUTES.signIn) ||
     pathname.startsWith(APP_ROUTES.signUp) ||
     pathname.startsWith(APP_ROUTES.forgotPassword) ||
+    (!options.allowResetPassword && pathname.startsWith(APP_ROUTES.resetPassword)) ||
     pathname.startsWith(APP_ROUTES.onboardingRoot)
   );
 }
@@ -17,7 +22,7 @@ function isUnsafePrefix(pathname: string) {
  * - Preserves querystring.
  * - Rejects protocol-relative or absolute URLs.
  */
-export function normalizeNextPath(next: string | null | undefined) {
+export function normalizeNextPath(next: string | null | undefined, options: NormalizeNextPathOptions = {}) {
   if (!next) return null;
   const trimmed = next.trim();
   if (!trimmed.startsWith("/")) return null;
@@ -27,7 +32,7 @@ export function normalizeNextPath(next: string | null | undefined) {
   try {
     const url = new URL(trimmed, "http://internal");
     const pathname = url.pathname;
-    if (isUnsafePrefix(pathname)) return null;
+    if (isUnsafePrefix(pathname, options)) return null;
     return `${pathname}${url.search}`;
   } catch {
     return null;
@@ -40,18 +45,28 @@ export function resolvePostAuthRedirect({
   isOnboarded,
   onboardingStep,
   canAccessAdmin = false,
+  flow = "default",
 }: {
   next: string | null | undefined;
   role: AppRole | null;
   isOnboarded: boolean;
   onboardingStep: number;
   canAccessAdmin?: boolean;
+  flow?: "default" | "recovery";
 }) {
+  const safeNext = normalizeNextPath(next, {
+    allowResetPassword: flow === "recovery",
+  });
+
+  if (flow === "recovery") {
+    const recoveryPath = safeNext?.split("?")[0] ?? safeNext;
+    return recoveryPath === APP_ROUTES.resetPassword && safeNext ? safeNext : APP_ROUTES.resetPassword;
+  }
+
   if (!isOnboarded) {
     return getOnboardingPath(onboardingStep);
   }
 
-  const safeNext = normalizeNextPath(next);
   if (!safeNext) {
     return getAuthedPath({ role, isOnboarded, canAccessAdmin });
   }

@@ -1,8 +1,23 @@
+import { timingSafeEqual } from "node:crypto";
+
 import { NextResponse } from "next/server";
 
 import { inquiryWebhookSchema } from "@/lib/books";
 import { checkRateLimit, getClientIp } from "@/lib/rate-limit";
 import { createSupabaseAdminClient } from "@/lib/supabase/admin";
+
+function hasValidWebhookSecret(expectedSecret: string, headerSecret: string | null) {
+  if (!headerSecret) return false;
+
+  const expected = Buffer.from(expectedSecret);
+  const received = Buffer.from(headerSecret);
+
+  if (expected.length !== received.length) {
+    return false;
+  }
+
+  return timingSafeEqual(expected, received);
+}
 
 export async function POST(request: Request) {
   const ip = getClientIp(new Headers(request.headers));
@@ -18,14 +33,19 @@ export async function POST(request: Request) {
   }
 
   const expectedSecret = process.env.GROXY_WEBHOOK_SECRET;
-  if (expectedSecret) {
-    const headerSecret = request.headers.get("x-groxy-webhook-secret");
-    if (headerSecret !== expectedSecret) {
-      return NextResponse.json({ error: "Invalid webhook secret" }, { status: 401 });
-    }
+  if (!expectedSecret) {
+    return NextResponse.json(
+      { error: "Webhook secret is not configured." },
+      { status: 503 }
+    );
   }
 
-  const payload = await request.json();
+  const headerSecret = request.headers.get("x-groxy-webhook-secret");
+  if (!hasValidWebhookSecret(expectedSecret, headerSecret)) {
+    return NextResponse.json({ error: "Invalid webhook secret" }, { status: 401 });
+  }
+
+  const payload = await request.json().catch(() => null);
   const parsed = inquiryWebhookSchema.safeParse(payload);
   if (!parsed.success) {
     return NextResponse.json(

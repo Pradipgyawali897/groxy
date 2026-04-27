@@ -9,9 +9,9 @@ export default function ResetPasswordPage() {
     <AuthShell
       eyebrow="New password"
       title="Choose a new password"
-      description="Set a strong password and continue back to your bookstore account."
+      description="Set a strong password after opening the secure recovery link from your email."
       sideTitle="Finish the reset with a single clear step."
-      sideBody="Once updated, you can sign in again and return to onboarding or your role-based dashboard."
+      sideBody="The recovery link signs you into a short-lived secure session first. Once you save the new password, you can sign in again and continue normally."
       footer={
         <>
           Back to{" "}

@@ -26,6 +26,9 @@ export default async function BookDetailPage({
   const fbt = await getFrequentlyBoughtTogether(book.id, 4);
   const authorSlug = slugify(book.author);
   const hasRatings = book.rating_count > 0;
+  const mediaGallery = Array.from(
+    new Set([book.cover_image_url, ...(book.gallery_urls ?? [])].filter(Boolean))
+  );
 
   const related = allBooks.filter((candidate) => candidate.id !== book.id).slice(0, 4);
   return (
@@ -158,6 +161,39 @@ export default async function BookDetailPage({
               className="h-full w-full object-cover"
             />
           </div>
+          {mediaGallery.length > 1 ? (
+            <div className="rounded-[1.5rem] border border-border/70 bg-background/80 p-4 shadow-sm">
+              <div className="flex items-center justify-between gap-3">
+                <div>
+                  <p className="text-xs uppercase tracking-[0.22em] text-primary/75">Gallery</p>
+                  <p className="mt-1 text-sm text-muted-foreground">
+                    More angles from this listing.
+                  </p>
+                </div>
+                <span className="text-xs text-muted-foreground">
+                  {mediaGallery.length - 1} extra image{mediaGallery.length === 2 ? "" : "s"}
+                </span>
+              </div>
+              <div className="mt-4 grid grid-cols-3 gap-3">
+                {mediaGallery.slice(1, 7).map((imageUrl, index) => (
+                  <div
+                    key={`${imageUrl}-${index}`}
+                    className="relative overflow-hidden rounded-[1.15rem] border border-border/70 bg-muted"
+                  >
+                    <ProgressiveBookCover
+                      src={normalizeCloudinaryUrl(imageUrl, 700)}
+                      alt={`${book.title} gallery image ${index + 1}`}
+                      width={700}
+                      height={900}
+                      loading="lazy"
+                      wrapperClassName="aspect-[4/5] w-full"
+                      className="h-full w-full object-cover"
+                    />
+                  </div>
+                ))}
+              </div>
+            </div>
+          ) : null}
           <div className="rounded-[1.75rem] border border-border/70 bg-background/80 p-5 shadow-sm">
             <div className="flex items-end justify-between gap-4">
               <div>

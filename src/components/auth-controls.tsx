@@ -17,8 +17,17 @@ function getBrowserAppOrigin() {
   return process.env.NEXT_PUBLIC_APP_URL ?? "";
 }
 
-function getAuthRedirectPath(nextPath?: string) {
-  const next = normalizeNextPath(nextPath) ?? APP_ROUTES.onboardingStep1;
+function getAuthRedirectPath(
+  nextPath?: string,
+  {
+    allowResetPassword = false,
+    fallbackPath = APP_ROUTES.onboardingStep1,
+  }: {
+    allowResetPassword?: boolean;
+    fallbackPath?: string;
+  } = {}
+) {
+  const next = normalizeNextPath(nextPath, { allowResetPassword }) ?? fallbackPath;
   return `${getBrowserAppOrigin()}/auth/callback?next=${encodeURIComponent(next)}`;
 }
 
@@ -187,7 +196,7 @@ export function EmailMagicLinkForm({ nextPath }: { nextPath?: string }) {
       return;
     }
 
-    setMessage("Check your email for a secure sign-in link.");
+    setMessage("Check your email for a secure sign-in link. It will bring you back and continue automatically.");
   };
 
   return (
@@ -246,7 +255,7 @@ export function EmailSignUpForm() {
       return;
     }
 
-    setMessage("Account created. Check your email, verify, and continue into onboarding.");
+    setMessage("Account created. Check your email to verify your address, then continue directly into onboarding.");
   };
 
   return (
@@ -291,7 +300,10 @@ export function ForgotPasswordForm() {
     setMessage("");
     const supabase = createSupabaseBrowserClient();
     const { error: resetError } = await supabase.auth.resetPasswordForEmail(email, {
-      redirectTo: `${getBrowserAppOrigin()}${APP_ROUTES.resetPassword}`,
+      redirectTo: getAuthRedirectPath(APP_ROUTES.resetPassword, {
+        allowResetPassword: true,
+        fallbackPath: APP_ROUTES.resetPassword,
+      }),
     });
 
     setLoading(false);
@@ -301,7 +313,7 @@ export function ForgotPasswordForm() {
       return;
     }
 
-    setMessage("Password reset email sent. Check your inbox.");
+    setMessage("Password reset email sent. Use the latest link to open the secure reset screen.");
   };
 
   return (

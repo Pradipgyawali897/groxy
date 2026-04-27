@@ -8,6 +8,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Select } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
+import { CloudinaryImageUploadField } from "@/features/merchant/cloudinary-image-upload-field";
 import { BOOK_CONDITIONS, BOOK_STATUSES, merchantBookSchema } from "@/lib/books";
 import { APP_ROUTES } from "@/lib/roles";
 import type { CatalogBook } from "@/types/platform";
@@ -64,7 +65,7 @@ export function MerchantBookEditor({
       price: Number(price),
       original_price: originalPrice.length ? Number(originalPrice) : null,
       stock: Number(stock),
-      cover_image_url: coverImageUrl,
+      cover_image_url: coverImageUrl.trim(),
       gallery_urls: splitUrlList(galleryUrls),
       status,
       is_featured: featured,
@@ -194,22 +195,53 @@ export function MerchantBookEditor({
           />
         </div>
 
-        <Input
+        <CloudinaryImageUploadField
+          kind="cover"
+          label="Cover image"
+          description="Upload one cover image. The secure Cloudinary URL fills the field below automatically."
+          values={coverImageUrl ? [coverImageUrl] : []}
+          onChange={(nextValues) => setCoverImageUrl(nextValues[0] ?? "")}
+          disabled={pending}
           required
-          value={coverImageUrl}
-          onChange={(e) => setCoverImageUrl(e.target.value)}
-          placeholder="Cover image URL"
-          className="h-12 rounded-2xl px-4"
+        />
+
+        <div className="space-y-2">
+          <Input
+            required
+            value={coverImageUrl}
+            onChange={(e) => setCoverImageUrl(e.target.value)}
+            placeholder="Cover image URL"
+            className="h-12 rounded-2xl px-4"
+            disabled={pending}
+          />
+          <p className="px-1 text-xs text-muted-foreground">
+            Uploaded cover images populate this URL automatically. You can still paste an
+            existing image URL if needed.
+          </p>
+        </div>
+
+        <CloudinaryImageUploadField
+          kind="gallery"
+          label="Gallery images"
+          description="Upload optional detail shots or alternate covers. New uploads are appended below."
+          values={splitUrlList(galleryUrls)}
+          onChange={(nextValues) => setGalleryUrls(nextValues.join("\n"))}
           disabled={pending}
         />
 
-        <Textarea
-          value={galleryUrls}
-          onChange={(e) => setGalleryUrls(e.target.value)}
-          placeholder="Gallery image URLs (one per line, optional)"
-          className="rounded-2xl"
-          disabled={pending}
-        />
+        <div className="space-y-2">
+          <Textarea
+            value={galleryUrls}
+            onChange={(e) => setGalleryUrls(e.target.value)}
+            placeholder="Gallery image URLs (one per line, optional)"
+            className="rounded-2xl"
+            disabled={pending}
+          />
+          <p className="px-1 text-xs text-muted-foreground">
+            Uploaded gallery images are listed here one per line. Manual URL edits are still
+            allowed.
+          </p>
+        </div>
 
         <div className="grid gap-4 sm:grid-cols-3">
           <Select value={status} onChange={(e) => setStatus(e.target.value)} disabled={pending}>
