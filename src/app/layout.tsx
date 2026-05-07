@@ -7,7 +7,7 @@ import { Toaster } from "@/components/ui/sonner";
 import { getViewerContext } from "@/lib/profile";
 import { APP_ROUTES, getAuthedPath } from "@/lib/roles";
 
-import "./globals.css";
+import "@/design-system/core/index.css";
 
 export const metadata: Metadata = {
   title: {
