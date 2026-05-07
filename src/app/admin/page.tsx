@@ -11,7 +11,7 @@ export default async function AdminDashboardPage() {
         <SectionHeading
           eyebrow="Operations overview"
           title="Platform control center"
-          description="Manage the supply side, moderation layers, and overall marketplace health from one clear workspace."
+          description="Current account, seller, catalog, and review signals."
         />
       </section>
       <MetricGrid
@@ -19,22 +19,22 @@ export default async function AdminDashboardPage() {
           {
             label: "Users",
             value: String(profiles.length),
-            meta: "Recently loaded user records",
+            meta: "Loaded accounts",
           },
           {
             label: "Merchants",
             value: String(merchants.length),
-            meta: "Store workspaces loaded",
+            meta: "Seller workspaces",
           },
           {
             label: "Books",
             value: String(books.length),
-            meta: "Catalog records in snapshot",
+            meta: "Catalog records",
           },
           {
             label: "Reviews",
             value: String(reviewCount),
-            meta: "Loaded moderation sample",
+            meta: "Moderation records",
           },
         ]}
       />

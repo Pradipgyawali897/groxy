@@ -5,8 +5,7 @@ import { APP_ROUTES } from "@/lib/roles";
 
 export default function NotFound() {
   return (
-    <main className="relative mx-auto flex w-full max-w-6xl flex-1 flex-col items-center justify-center gap-8 px-6 py-14 text-center">
-      <div className="absolute inset-0 -z-10 bg-[radial-gradient(circle_at_50%_0%,rgba(37,99,235,0.12),transparent_40%),radial-gradient(circle_at_0%_80%,rgba(212,167,98,0.12),transparent_45%)]" />
+    <main className="mx-auto flex w-full max-w-6xl flex-1 flex-col items-center justify-center gap-8 px-6 py-14 text-center">
       <div className="animate-fade-in">
         <GroxyLogo />
       </div>

@@ -31,28 +31,26 @@ export function AdminUserCard({ profile }: { profile: ProfileRecord }) {
   };
 
   return (
-    <article className="rounded-[1.5rem] border border-border/70 bg-card/85 p-5 shadow-sm">
-      <div className="flex flex-wrap items-start justify-between gap-4">
-        <div>
-          <p className="font-medium">{profile.full_name ?? "Unnamed user"}</p>
-          <p className="mt-1 text-sm text-muted-foreground">
-            {profile.email} • {profile.is_onboarded ? "onboarded" : "onboarding"}
-          </p>
-        </div>
-        <div className="grid min-w-[220px] gap-2">
-          <Select value={role} onChange={(e) => setRole(e.target.value)} disabled={pending}>
-            <option value="">unassigned</option>
-            <option value="customer">customer</option>
-            <option value="merchant">merchant</option>
-            <option value="admin">admin</option>
-          </Select>
-          <Button onClick={onSave} disabled={pending} className="h-10 rounded-xl">
-            {pending ? "Saving..." : "Save role"}
-          </Button>
-          {error ? <p className="text-sm text-destructive">{error}</p> : null}
-        </div>
+    <article className="grid gap-3 border-b border-border px-4 py-4 last:border-b-0 lg:grid-cols-[1fr_140px_260px] lg:items-center">
+      <div className="min-w-0">
+        <p className="truncate font-medium">{profile.full_name ?? "Unnamed user"}</p>
+        <p className="mt-1 truncate text-sm text-muted-foreground">{profile.email}</p>
+      </div>
+      <span className="text-sm text-muted-foreground">
+        {profile.is_onboarded ? "Onboarded" : "Onboarding"}
+      </span>
+      <div className="grid gap-2 sm:grid-cols-[1fr_104px]">
+        <Select value={role} onChange={(e) => setRole(e.target.value)} disabled={pending}>
+          <option value="">unassigned</option>
+          <option value="customer">customer</option>
+          <option value="merchant">merchant</option>
+          <option value="admin">admin</option>
+        </Select>
+        <Button onClick={onSave} disabled={pending} className="h-10 rounded-md">
+          {pending ? "Saving" : "Save"}
+        </Button>
+        {error ? <p className="text-sm text-destructive sm:col-span-2">{error}</p> : null}
       </div>
     </article>
   );
 }
-

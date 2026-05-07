@@ -24,10 +24,9 @@ export function OnboardingShell({
   children: React.ReactNode;
 }) {
   return (
-    <main className="relative flex min-h-[calc(100vh-6rem)] items-center overflow-hidden px-4 py-8 sm:px-6 lg:px-8">
-      <div className="absolute inset-0 -z-10 bg-[radial-gradient(circle_at_top_left,rgba(43,91,235,0.12),transparent_30%),radial-gradient(circle_at_bottom_right,rgba(212,167,98,0.14),transparent_30%),linear-gradient(to_bottom,rgba(250,248,243,0.98),rgba(244,240,233,1))] dark:bg-[radial-gradient(circle_at_top_left,rgba(43,91,235,0.16),transparent_30%),radial-gradient(circle_at_bottom_right,rgba(212,167,98,0.12),transparent_30%),linear-gradient(to_bottom,rgba(18,16,13,0.98),rgba(16,14,12,1))]" />
-      <div className="mx-auto grid w-full max-w-6xl overflow-hidden rounded-[2rem] border border-border/70 bg-card/90 shadow-[0_30px_120px_-50px_rgba(15,23,42,0.45)] lg:grid-cols-[0.82fr_1.18fr]">
-        <section className="border-b border-border/70 bg-foreground px-8 py-8 text-background lg:border-b-0 lg:border-r lg:px-10 lg:py-10">
+    <main className="flex min-h-[calc(100vh-6rem)] items-center px-4 py-8 sm:px-6 lg:px-8">
+      <div className="mx-auto grid w-full max-w-5xl overflow-hidden rounded-lg border border-border bg-card shadow-sm lg:grid-cols-[0.82fr_1.18fr]">
+        <section className="border-b border-border bg-foreground px-8 py-8 text-background lg:border-b-0 lg:border-r lg:px-10 lg:py-10">
           <div className="space-y-8">
             <div className="space-y-4">
               <div className="flex items-center justify-between gap-4">
@@ -47,7 +46,7 @@ export function OnboardingShell({
                 <div
                   key={item.id}
                   className={cn(
-                    "flex items-center gap-3 rounded-2xl px-4 py-3 transition",
+                    "flex items-center gap-3 rounded-md px-4 py-3 transition",
                     item.id === step
                       ? "bg-background text-foreground shadow-sm"
                       : item.id < step
@@ -66,14 +65,6 @@ export function OnboardingShell({
                   <span className="text-sm font-medium">{item.label}</span>
                 </div>
               ))}
-            </div>
-            <div className="grid gap-3 text-sm text-background/72">
-              <div className="rounded-2xl border border-white/10 bg-white/5 p-4">
-                Profile data and role routing are separated so the auth layer stays stable.
-              </div>
-              <div className="rounded-2xl border border-white/10 bg-white/5 p-4">
-                Each step writes directly into the production data model instead of temporary client-only state.
-              </div>
             </div>
           </div>
         </section>

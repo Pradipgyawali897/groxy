@@ -90,7 +90,9 @@ export function DashboardShell({
           <div className="mt-auto space-y-4">
             <div className={cn("rounded-lg border p-3 text-sm", tone === "admin" ? "border-background/15 bg-background/10" : "border-border/70 bg-background")}>
               <p className={tone === "admin" ? "text-background/60" : "text-muted-foreground"}>Signed in</p>
-              <p className="mt-1 truncate font-medium text-foreground">{userEmail ?? "Guest"}</p>
+              <p className={cn("mt-1 truncate font-medium", tone === "admin" ? "text-background" : "text-foreground")}>
+                {userEmail ?? "Guest"}
+              </p>
             </div>
             <SignOutButton />
           </div>

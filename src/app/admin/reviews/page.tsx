@@ -46,7 +46,7 @@ export default async function AdminReviewsPage() {
         <SectionHeading
           eyebrow="Moderation"
           title="Review queue"
-          description="Publish strong reviews, hide low-quality ones, and keep the storefront trustworthy while preserving feedback flow."
+          description="Review status, rating, author reference, and publication controls."
         />
       </section>
       <div className="grid gap-4">

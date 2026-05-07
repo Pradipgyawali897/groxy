@@ -15,8 +15,7 @@ export default function GlobalError({
   return (
     <html lang="en">
       <body className="theme min-h-full bg-background text-foreground">
-        <main className="relative mx-auto flex min-h-screen w-full max-w-6xl flex-col items-center justify-center gap-8 px-6 py-14 text-center">
-          <div className="absolute inset-0 -z-10 bg-[radial-gradient(circle_at_50%_0%,rgba(37,99,235,0.12),transparent_40%),radial-gradient(circle_at_0%_80%,rgba(212,167,98,0.12),transparent_45%)]" />
+        <main className="mx-auto flex min-h-screen w-full max-w-6xl flex-col items-center justify-center gap-8 px-6 py-14 text-center">
           <div className="space-y-3">
             <p className="text-xs font-medium uppercase tracking-[0.24em] text-primary/75">
               System error
@@ -45,4 +44,3 @@ export default function GlobalError({
     </html>
   );
 }
-

@@ -29,8 +29,7 @@ export default async function AccountPage() {
   const config = getRoleConfig(role);
 
   return (
-    <main className="relative flex-1 overflow-hidden px-6 py-8 md:px-10 lg:py-10">
-      <div className="absolute inset-0 -z-10 bg-[radial-gradient(circle_at_0%_0%,rgba(37,99,235,0.14),transparent_32%),radial-gradient(circle_at_100%_0%,rgba(14,165,233,0.12),transparent_32%),linear-gradient(to_bottom,rgba(247,250,255,0.98),rgba(241,246,255,1))] dark:bg-[radial-gradient(circle_at_0%_0%,rgba(37,99,235,0.24),transparent_32%),radial-gradient(circle_at_100%_0%,rgba(14,165,233,0.16),transparent_32%),linear-gradient(to_bottom,rgba(4,10,20,0.98),rgba(5,11,22,1))]" />
+    <main className="flex-1 px-6 py-8 md:px-10 lg:py-10">
       <div className="mx-auto flex w-full max-w-6xl flex-col gap-6">
         <header className="flex flex-wrap items-center justify-between gap-3">
           <GroxyLogo />
@@ -45,9 +44,9 @@ export default async function AccountPage() {
           </div>
         </header>
 
-        <section className="rounded-[2rem] border border-border/70 bg-card/85 p-6 shadow-sm lg:p-8">
-          <p className="text-xs uppercase tracking-[0.22em] text-sky-700 dark:text-sky-300">
-            Account Center
+        <section className="rounded-lg border border-border bg-card p-6 shadow-sm lg:p-8">
+          <p className="text-xs uppercase tracking-[0.18em] text-muted-foreground">
+            Account
           </p>
           <div className="mt-4 flex flex-col gap-6 lg:flex-row lg:items-end lg:justify-between">
             <div className="space-y-3">
@@ -55,14 +54,12 @@ export default async function AccountPage() {
                 {profile?.full_name ?? user.user_metadata?.full_name ?? "Welcome back"}
               </h1>
               <p className="max-w-2xl text-sm leading-7 text-muted-foreground">
-                Your Groxy account is attached to the {config.label.toLowerCase()} app.
-                Open the assigned workspace to continue managing books, shopping, or
-                platform operations.
+                This account is assigned to the {config.label.toLowerCase()} workspace.
               </p>
             </div>
             <Link
               href={getRoleHome(role)}
-              className="inline-flex h-11 items-center rounded-xl bg-primary px-5 text-sm text-primary-foreground"
+              className="inline-flex h-11 items-center rounded-md bg-primary px-5 text-sm text-primary-foreground"
             >
               Open {config.label} app
             </Link>
