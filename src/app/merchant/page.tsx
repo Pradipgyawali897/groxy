@@ -1,43 +1,31 @@
-import { MetricGrid } from "@/features/dashboard/metric-grid";
-import { SectionHeading } from "@/features/shared/section-heading";
 import { getMerchantDashboardData } from "@/lib/dashboard-data";
+import { PageSection } from "@/lib/design-system/primitives/layout";
 
 export default async function MerchantDashboardPage() {
   const { workspace, books, orderCount } = await getMerchantDashboardData();
 
+  const metrics = [
+    { label: "Active Listings", value: String(books.filter((b) => b.status === "published").length) },
+    { label: "Drafts", value: String(books.filter((b) => b.status === "draft").length) },
+    { label: "Orders", value: String(orderCount) },
+    { label: "Status", value: workspace?.approved ? "Approved" : "Pending" },
+  ];
+
   return (
-    <div className="space-y-8">
-      <section className="rounded-[2rem] border border-border/70 bg-card/90 p-6 shadow-sm">
-        <SectionHeading
-          eyebrow="Seller overview"
-          title={workspace?.store_name ?? "Your store"}
-          description="Current listing health, order load, and approval state."
-        />
-      </section>
-      <MetricGrid
-        metrics={[
-          {
-            label: "Books listed",
-            value: String(books.length),
-            meta: "Draft and live",
-          },
-          {
-            label: "Published",
-            value: String(books.filter((book) => book.status === "published").length),
-            meta: "Visible to buyers",
-          },
-          {
-            label: "Orders",
-            value: String(orderCount),
-            meta: "Fulfillment queue",
-          },
-          {
-            label: "Approval",
-            value: workspace?.approved ? "Approved" : "Pending",
-            meta: "Seller verification",
-          },
-        ]}
-      />
-    </div>
+    <PageSection className="space-y-12">
+      <div className="flex items-center justify-between border-b border-border pb-6">
+        <h1 className="font-heading text-3xl">{workspace?.store_name ?? "Your Store"}</h1>
+        <span className="text-xs uppercase tracking-[0.2em] text-muted-foreground">Seller Studio</span>
+      </div>
+
+      <div className="grid grid-cols-2 gap-4 lg:grid-cols-4">
+        {metrics.map((m) => (
+          <div key={m.label} className="rounded-xl border border-border p-4">
+            <p className="text-xs text-muted-foreground">{m.label}</p>
+            <p className="mt-2 font-heading text-2xl">{m.value}</p>
+          </div>
+        ))}
+      </div>
+    </PageSection>
   );
 }
