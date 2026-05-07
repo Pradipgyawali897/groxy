@@ -8,6 +8,7 @@ import { getViewerContext } from "@/lib/profile";
 import { APP_ROUTES, getAuthedPath } from "@/lib/roles";
 
 import "@/design-system/core/index.css";
+import "@/app/globals.css";
 
 export const metadata: Metadata = {
   title: {
