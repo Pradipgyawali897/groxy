@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { z } from "zod";
 
+import { BrokerAgent } from "@/lib/commerce/agents/commerce-agents";
 import { checkRateLimit, getClientIp } from "@/lib/rate-limit";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 
@@ -8,12 +9,12 @@ export const dynamic = "force-dynamic";
 
 const addSchema = z.object({
   book_id: z.string().uuid(),
-  quantity: z.coerce.number().int().min(1).max(20).default(1),
+  quantity: z.coerce.number().int().min(1).max(1).default(1),
 });
 
 const updateSchema = z.object({
   book_id: z.string().uuid(),
-  quantity: z.coerce.number().int().min(0).max(20),
+  quantity: z.coerce.number().int().min(0).max(1),
 });
 
 const removeSchema = z.object({
@@ -69,7 +70,7 @@ async function loadCart(
   const { data, error } = await supabase
     .from("cart_items")
     .select(
-      "id,quantity,unit_price,created_at,book_id,books(id,title,author,genre,price,original_price,stock,status,seller_email,cover_image_url,gallery_urls,is_featured,average_rating,rating_count,merchant_id,description,updated_at,created_at,language,book_condition)"
+      "id,quantity,unit_price,created_at,book_id,books(id,title,author,genre,price,original_price,stock,status,seller_email,cover_image_url,gallery_urls,is_featured,average_rating,rating_count,merchant_id,description,updated_at,created_at,language,book_condition,inventory_state,inventory_version)"
     )
     .eq("cart_id", cart.id)
     .order("created_at", { ascending: false });
@@ -91,8 +92,21 @@ async function loadCart(
   const unitsCount = items.reduce((sum, item) => sum + item.quantity, 0);
   const subtotal = items.reduce((sum, item) => sum + item.line_total, 0);
 
+  const { data: reservations } = await supabase
+    .from("book_reservations")
+    .select("id,book_id,status,expires_at")
+    .eq("buyer_id", userId)
+    .in(
+      "book_id",
+      items.map((item) => item.book_id)
+    );
+
   return {
-    items,
+    items: items.map((item) => ({
+      ...item,
+      reservation:
+        reservations?.find((reservation) => reservation.book_id === item.book_id) ?? null,
+    })),
     summary: {
       item_count: items.length,
       units_count: unitsCount,
@@ -152,7 +166,7 @@ export async function POST(request: Request) {
   try {
     const { data: book, error: bookError } = await supabase
       .from("books")
-      .select("id,title,price,stock,status")
+      .select("id,title,price,stock,status,inventory_state")
       .eq("id", parsed.data.book_id)
       .eq("status", "published")
       .maybeSingle();
@@ -161,10 +175,6 @@ export async function POST(request: Request) {
     if (!book) {
       return NextResponse.json({ error: "Book not found." }, { status: 404 });
     }
-    if (Number(book.stock ?? 0) < 1) {
-      return NextResponse.json({ error: "This book is currently out of stock." }, { status: 409 });
-    }
-
     const cartId = await ensureCartId(supabase, userId);
     const { data: existing, error: existingError } = await supabase
       .from("cart_items")
@@ -175,39 +185,39 @@ export async function POST(request: Request) {
 
     if (existingError) throw existingError;
 
-    const nextQuantity = Number(existing?.quantity ?? 0) + parsed.data.quantity;
-    if (nextQuantity > Number(book.stock ?? 0)) {
-      return NextResponse.json(
-        { error: `Only ${book.stock} copies are available right now.` },
-        { status: 409 }
-      );
-    }
-
     if (existing) {
-      const { error: updateError } = await supabase
-        .from("cart_items")
-        .update({
-          quantity: nextQuantity,
-          unit_price: book.price,
-        })
-        .eq("cart_id", cartId)
-        .eq("book_id", parsed.data.book_id);
-
-      if (updateError) throw updateError;
-    } else {
-      const { error: insertError } = await supabase.from("cart_items").insert({
-        cart_id: cartId,
-        book_id: parsed.data.book_id,
-        quantity: parsed.data.quantity,
-        unit_price: book.price,
+      return NextResponse.json({
+        ok: true,
+        message: "This book is already reserved in your cart.",
+        cart: await loadCart(supabase, userId),
       });
-
-      if (insertError) throw insertError;
     }
+
+    if (Number(book.stock ?? 0) < 1 || book.inventory_state !== "AVAILABLE") {
+      return NextResponse.json({ error: "This book is already reserved or sold." }, { status: 409 });
+    }
+
+    const broker = new BrokerAgent();
+    const reservation = await broker.reserveSecondhandBook({
+      bookId: parsed.data.book_id,
+      buyerId: userId,
+      cartId,
+      idempotencyKey: `cart:${cartId}:${parsed.data.book_id}`,
+    });
+
+    const { error: insertError } = await supabase.from("cart_items").insert({
+      cart_id: cartId,
+      book_id: parsed.data.book_id,
+      quantity: 1,
+      unit_price: book.price,
+    });
+
+    if (insertError) throw insertError;
 
     return NextResponse.json({
       ok: true,
-      message: existing ? "Cart updated." : "Added to cart.",
+      message: "Book reserved for 10 minutes.",
+      reservation,
       cart: await loadCart(supabase, userId),
     });
   } catch (error: any) {
@@ -277,9 +287,9 @@ export async function PATCH(request: Request) {
     if (!book) {
       return NextResponse.json({ error: "Book not found." }, { status: 404 });
     }
-    if (parsed.data.quantity > Number(book.stock ?? 0)) {
+    if (parsed.data.quantity > 1 || parsed.data.quantity > Number(book.stock ?? 0)) {
       return NextResponse.json(
-        { error: `Only ${book.stock} copies are available right now.` },
+        { error: "Secondhand books are unique items and cannot have quantity above 1." },
         { status: 409 }
       );
     }
@@ -337,6 +347,9 @@ export async function DELETE(request: Request) {
       .maybeSingle();
 
     if (cart?.id) {
+      const broker = new BrokerAgent();
+      await broker.releaseSecondhandBook(parsed.data.book_id, userId);
+
       const { error } = await supabase
         .from("cart_items")
         .delete()

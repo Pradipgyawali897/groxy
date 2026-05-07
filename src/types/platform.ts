@@ -24,6 +24,8 @@ export type CatalogBook = {
   price: number;
   original_price: number | null;
   stock: number;
+  inventory_state?: "AVAILABLE" | "RESERVED" | "CHECKOUT_PENDING" | "SOLD" | "EXPIRED";
+  inventory_version?: number;
   status: string;
   seller_email: string;
   cover_image_url: string;

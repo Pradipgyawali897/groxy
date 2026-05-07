@@ -1,8 +1,8 @@
 import Link from "next/link";
 
 import { ProgressiveBookCover } from "@/features/catalog/progressive-book-cover";
+import { CheckoutButton } from "@/features/checkout/checkout-button";
 import { RemoveFromCartButton } from "@/features/cart/remove-from-cart-button";
-import { CartQuantityControl } from "@/features/cart/cart-quantity-control";
 import { EmptyPanel } from "@/features/dashboard/empty-panel";
 import { SectionHeading } from "@/features/shared/section-heading";
 import { normalizeCloudinaryUrl } from "@/lib/books";
@@ -47,7 +47,7 @@ export default async function CustomerCartPage() {
   const { data, error } = await supabase
     .from("cart_items")
     .select(
-      "id,quantity,unit_price,created_at,books(id,title,author,genre,price,original_price,stock,status,seller_email,cover_image_url,gallery_urls,is_featured,average_rating,rating_count,merchant_id,description,updated_at,created_at,language,book_condition)"
+      "id,quantity,unit_price,created_at,book_id,books(id,title,author,genre,price,original_price,stock,status,seller_email,cover_image_url,gallery_urls,is_featured,average_rating,rating_count,merchant_id,description,updated_at,created_at,language,book_condition,inventory_state,inventory_version)"
     )
     .eq("cart_id", cart.id)
     .order("created_at", { ascending: false });
@@ -72,6 +72,15 @@ export default async function CustomerCartPage() {
     }))
     .filter((item) => item.book);
 
+  const { data: reservations } = await supabase
+    .from("book_reservations")
+    .select("id,book_id,status,expires_at")
+    .eq("buyer_id", user.id)
+    .in(
+      "book_id",
+      items.map((item) => item.book.id)
+    );
+
   if (!items.length) {
     return (
       <EmptyPanel
@@ -84,15 +93,18 @@ export default async function CustomerCartPage() {
   }
 
   const subtotal = items.reduce((sum, item) => sum + item.unitPrice * item.quantity, 0);
-  const totalUnits = items.reduce((sum, item) => sum + item.quantity, 0);
+  const activeReservations = items.filter((item) => {
+    const reservation = reservations?.find((entry) => entry.book_id === item.book.id);
+    return reservation?.status === "ACTIVE" && new Date(reservation.expires_at).getTime() > Date.now();
+  });
 
   return (
     <div className="space-y-6">
       <section className="rounded-[2rem] border border-border/70 bg-card/90 p-6 shadow-sm">
         <SectionHeading
           eyebrow="Cart"
-          title="Review your bag before checkout"
-          description="Adjust quantities, keep saved books separate, and verify availability before you place the order."
+          title="Reserved secondhand books"
+          description="Each listing is a unique copy. Your reservation lock lasts 10 minutes and checkout verifies it atomically before sale."
         />
       </section>
 
@@ -131,18 +143,19 @@ export default async function CustomerCartPage() {
 
                   <div className="flex flex-wrap items-center gap-3 text-sm">
                     <span className="rounded-full border border-border/70 bg-background/70 px-3 py-1 text-muted-foreground">
-                      {item.book.stock > 0 ? `${item.book.stock} left in stock` : "Out of stock"}
+                      {item.book.inventory_state === "RESERVED" ? "Reserved for you" : item.book.inventory_state}
                     </span>
                     <span className="rounded-full border border-border/70 bg-background/70 px-3 py-1 text-muted-foreground">
                       Unit ${item.unitPrice.toFixed(2)}
                     </span>
+                    <span className="rounded-full border border-border/70 bg-background/70 px-3 py-1 text-muted-foreground">
+                      Condition {String(item.book.book_condition).replace("_", " ")}
+                    </span>
                   </div>
 
-                  <CartQuantityControl
-                    bookId={item.book.id}
-                    quantity={item.quantity}
-                    stock={item.book.stock}
-                  />
+                  <p className="text-sm leading-6 text-muted-foreground">
+                    Unique secondhand copy. Quantity is locked to 1 to prevent duplicate selling.
+                  </p>
                 </div>
 
                 <div className="flex flex-col items-end justify-between gap-4">
@@ -165,8 +178,8 @@ export default async function CustomerCartPage() {
               <span className="font-medium">{items.length}</span>
             </div>
             <div className="flex items-center justify-between text-sm">
-              <span className="text-muted-foreground">Units</span>
-              <span className="font-medium">{totalUnits}</span>
+              <span className="text-muted-foreground">Active reservations</span>
+              <span className="font-medium">{activeReservations.length}</span>
             </div>
             <div className="flex items-center justify-between text-sm">
               <span className="text-muted-foreground">Subtotal</span>
@@ -174,8 +187,9 @@ export default async function CustomerCartPage() {
             </div>
           </div>
           <div className="rounded-2xl border border-border/70 bg-background/80 p-4 text-sm text-muted-foreground">
-            Checkout is the next surface to wire, but the cart logic, stock handling, and quantity updates are now live.
+            Checkout uses an idempotency key, a database mutex on your cart, and row-level inventory verification before books are marked sold.
           </div>
+          <CheckoutButton disabled={activeReservations.length !== items.length} />
           <Link
             href={APP_ROUTES.customerBooks}
             className="inline-flex h-11 w-full items-center justify-center rounded-xl border border-border bg-background text-sm font-medium hover:bg-muted"

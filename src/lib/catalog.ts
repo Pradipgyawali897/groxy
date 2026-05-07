@@ -18,6 +18,7 @@ export async function listPublishedBooks(limit?: number) {
       .from("books")
       .select("*")
       .eq("status", "published")
+      .eq("inventory_state", "AVAILABLE")
       .order("is_featured", { ascending: false })
       .order("created_at", { ascending: false });
 
@@ -42,6 +43,7 @@ export async function getPublishedBookBySlug(slug: string) {
       .select("*")
       .eq("id", id)
       .eq("status", "published")
+      .eq("inventory_state", "AVAILABLE")
       .maybeSingle();
 
     if (error) return null;

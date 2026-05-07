@@ -7,6 +7,14 @@ import { getBookHref } from "@/lib/catalog-shared";
 import type { CatalogBook } from "@/types/platform";
 import { WishlistButton } from "@/features/wishlist/wishlist-button";
 
+const conditionLabels: Record<string, string> = {
+  new: "Mint",
+  like_new: "Excellent",
+  good: "Good",
+  fair: "Fair",
+  poor: "Poor",
+};
+
 export function BookCard({
   book,
   compact = false,
@@ -30,18 +38,18 @@ export function BookCard({
             className="object-cover transition duration-700 group-hover:scale-[1.04]"
           />
           <div className="absolute inset-x-4 top-4 flex items-center justify-between">
-            <span className="rounded-full bg-background/90 px-3 py-1 text-xs font-medium text-foreground shadow-sm">
-              {book.genre}
+            <span className="rounded-full border border-white/30 bg-background/85 px-3 py-1 text-xs font-medium text-foreground shadow-sm backdrop-blur">
+              {conditionLabels[book.book_condition] ?? book.book_condition}
             </span>
-            <span className="rounded-full bg-background/90 px-3 py-1 text-xs font-medium text-foreground shadow-sm">
-              {book.stock > 0 ? "In stock" : "Sold out"}
+            <span className="rounded-full border border-white/30 bg-background/85 px-3 py-1 text-xs font-medium text-foreground shadow-sm backdrop-blur">
+              {book.stock > 0 && book.status === "published" ? "One copy" : "Sold"}
             </span>
           </div>
         </div>
       </InteractiveLink>
       <div className="space-y-4 p-5">
         <div className="space-y-2">
-          <p className="text-sm text-muted-foreground">{book.author}</p>
+          <p className="text-sm text-muted-foreground">{book.author} · {book.genre}</p>
           <InteractiveLink href={href} className="block" pendingClassName="translate-x-0.5 opacity-85">
             <h3 className="line-clamp-2 font-heading text-2xl leading-tight tracking-tight text-foreground">
               {book.title}

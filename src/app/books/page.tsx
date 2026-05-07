@@ -13,7 +13,7 @@ export default async function BooksPage({
 }) {
   const params = await searchParams;
   const books = await listPublishedBooks(60);
-  const { categories, authors } = groupCatalogBooks(books);
+  const { categories } = groupCatalogBooks(books);
 
   let filtered = books;
 
@@ -66,37 +66,20 @@ export default async function BooksPage({
         </div>
       </section>
 
-      <section className="grid gap-6 lg:grid-cols-[260px_1fr]">
-        <aside className="space-y-4 rounded-[1.75rem] border border-border/70 bg-card/85 p-5 shadow-sm">
-          <div>
-            <p className="text-xs uppercase tracking-[0.22em] text-primary/75">Popular categories</p>
-            <div className="mt-4 grid gap-2">
-              {categories.slice(0, 8).map((category) => (
-                <Link
-                  key={category.slug}
-                  href={`/books?category=${category.slug}`}
-                  className="rounded-xl px-3 py-2 text-sm text-muted-foreground hover:bg-muted hover:text-foreground"
-                >
-                  {category.name} ({category.count})
-                </Link>
-              ))}
-            </div>
-          </div>
-          <div>
-            <p className="text-xs uppercase tracking-[0.22em] text-primary/75">Trending authors</p>
-            <div className="mt-4 grid gap-2">
-              {authors.slice(0, 8).map((author) => (
-                <Link
-                  key={author.slug}
-                  href={`/books?author=${author.slug}`}
-                  className="rounded-xl px-3 py-2 text-sm text-muted-foreground hover:bg-muted hover:text-foreground"
-                >
-                  {author.name}
-                </Link>
-              ))}
-            </div>
-          </div>
-        </aside>
+      <section className="space-y-6">
+        <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+          {categories.slice(0, 4).map((category) => (
+            <Link
+              key={category.slug}
+              href={`/books?category=${category.slug}`}
+              className="group rounded-[1.5rem] border border-border/70 bg-card/85 p-5 shadow-sm transition duration-300 hover:-translate-y-0.5 hover:bg-background"
+            >
+              <p className="text-xs uppercase tracking-[0.22em] text-muted-foreground">Shelf</p>
+              <h2 className="mt-3 font-heading text-2xl tracking-tight">{category.name}</h2>
+              <p className="mt-2 text-sm text-muted-foreground">{category.count} available copies</p>
+            </Link>
+          ))}
+        </div>
         <div className="space-y-6">
           {filtered.length > 0 ? (
             <BookFeed books={filtered} compact batchSize={8} label="Catalog stream" />
