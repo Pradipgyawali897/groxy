@@ -212,7 +212,6 @@ export default async function BookDetailPage({
                 bookId={book.id}
                 stock={book.stock}
                 className="h-12 w-full rounded-2xl px-6"
-                label="Add to cart"
               />
               <div className="flex items-center gap-3 rounded-2xl border border-border bg-background/60 px-4 py-3">
                 <WishlistButton bookId={book.id} size="icon" />

@@ -5,7 +5,7 @@ export const EventSchema = z.object({
   timestamp: z.date(),
   source: z.string(),
   type: z.string(),
-  payload: z.record(z.any()),
+  payload: z.record(z.string(), z.any()),
 });
 
 export type Event = z.infer<typeof EventSchema>;

@@ -6,9 +6,15 @@ const config: Config = {
     "./src/app/**/*.{ts,tsx}",
     "./src/components/**/*.{ts,tsx}",
     "./src/lib/**/*.{ts,tsx}",
+    "./src/design-system/**/*.{ts,tsx}",
   ],
   theme: {
-    extend: {},
+    extend: {
+      colors: {
+        bg: { primary: "var(--bg-primary)" },
+        text: { primary: "var(--text-primary)" },
+      },
+    },
   },
   plugins: [],
 };
