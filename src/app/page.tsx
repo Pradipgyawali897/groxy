@@ -1,10 +1,11 @@
 import Link from "next/link";
-import { ArrowRight, Search, Sparkles } from "lucide-react";
+import { ArrowRight, Sparkles } from "lucide-react";
 import { BookGrid } from "@/features/catalog/book-grid";
 import { TrendingShelf } from "@/features/reco/trending-shelf";
 import { listPublishedBooks } from "@/lib/catalog";
 import { getViewerContext } from "@/lib/profile";
 import { APP_ROUTES, getAuthedPath } from "@/lib/roles";
+import { PageSection, ContentContainer } from "@/lib/design-system/primitives/layout";
 
 export default async function HomePage() {
   const [{ role, isOnboarded, canAccessAdmin }, books] = await Promise.all([
@@ -15,9 +16,8 @@ export default async function HomePage() {
   const featuredBooks = books.slice(0, 4);
 
   return (
-    <main className="mx-auto max-w-7xl px-4 py-16 sm:px-6 lg:px-8">
-      {/* Editorial Hero */}
-      <section className="mb-24 space-y-8">
+    <ContentContainer>
+      <PageSection>
         <div className="inline-flex items-center gap-2 rounded-full border border-primary/20 bg-primary/5 px-4 py-1.5 text-xs uppercase tracking-[0.2em] text-primary">
           <Sparkles className="size-3" />
           Secondhand Bookstore
@@ -34,10 +34,9 @@ export default async function HomePage() {
             <ArrowRight className="ml-2 size-4" />
           </Link>
         </div>
-      </section>
+      </PageSection>
 
-      {/* Featured Catalog */}
-      <section className="mb-24">
+      <PageSection>
         <div className="mb-12 flex items-baseline justify-between border-b border-border pb-6">
           <h2 className="font-heading text-3xl">Featured titles</h2>
           <Link href={APP_ROUTES.books} className="text-sm text-muted-foreground hover:text-foreground">
@@ -45,12 +44,11 @@ export default async function HomePage() {
           </Link>
         </div>
         <BookGrid books={featuredBooks} />
-      </section>
+      </PageSection>
 
-      {/* Editorial Shelves */}
-      <section className="space-y-24">
+      <PageSection className="mb-0">
         <TrendingShelf />
-      </section>
-    </main>
+      </PageSection>
+    </ContentContainer>
   );
 }
