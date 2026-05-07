@@ -69,7 +69,7 @@ export default async function MerchantOrdersPage() {
         <SectionHeading
           eyebrow="Operations"
           title="Incoming orders"
-          description="Review each order, validate payment state, and use the line items to prepare fulfillment."
+          description="Payment state, buyer reference, line items, and fulfillment amount."
         />
       </section>
       <div className="grid gap-4">

@@ -27,9 +27,10 @@ export default async function CustomerLayout({
 
   return (
     <DashboardShell
-      badge="Customer App"
-      title="Reader dashboard"
-      description="Browse, save, order, and shape your reading profile from one calm workspace."
+      badge="Buyer"
+      title="Reader"
+      description="Discover, save, reserve, and checkout without seller tools in the way."
+      tone="reader"
       nav={CUSTOMER_NAV}
       userEmail={viewer.user.email}
     >

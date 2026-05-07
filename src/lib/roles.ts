@@ -95,34 +95,32 @@ export const PUBLIC_NAV = [
 ] as const;
 
 export const CUSTOMER_NAV = [
-  { label: "Overview", href: APP_ROUTES.customerHome },
-  { label: "Books", href: APP_ROUTES.customerBooks },
+  { label: "Discover", href: APP_ROUTES.customerHome },
+  { label: "Catalog", href: APP_ROUTES.customerBooks },
   { label: "For you", href: APP_ROUTES.customerRecommendations },
-  { label: "Recently viewed", href: APP_ROUTES.customerRecentlyViewed },
   { label: "Wishlist", href: APP_ROUTES.customerWishlist },
   { label: "Cart", href: APP_ROUTES.customerCart },
   { label: "Orders", href: APP_ROUTES.customerOrders },
-  { label: "Profile", href: APP_ROUTES.customerProfile },
-  { label: "Settings", href: APP_ROUTES.customerSettings },
+  { label: "Reading profile", href: APP_ROUTES.customerProfile },
 ] as const;
 
 export const MERCHANT_NAV = [
   { label: "Overview", href: APP_ROUTES.merchantHome },
-  { label: "Books", href: APP_ROUTES.merchantBooks },
-  { label: "Add Book", href: APP_ROUTES.merchantNewBook },
+  { label: "Inventory", href: APP_ROUTES.merchantBooks },
+  { label: "New listing", href: APP_ROUTES.merchantNewBook },
   { label: "Orders", href: APP_ROUTES.merchantOrders },
   { label: "Analytics", href: APP_ROUTES.merchantAnalytics },
-  { label: "Store Settings", href: APP_ROUTES.merchantSettings },
+  { label: "Store", href: APP_ROUTES.merchantSettings },
 ] as const;
 
 export const ADMIN_NAV = [
   { label: "Overview", href: APP_ROUTES.adminHome },
-  { label: "Users", href: APP_ROUTES.adminUsers },
-  { label: "Merchants", href: APP_ROUTES.adminMerchants },
-  { label: "Books", href: APP_ROUTES.adminBooks },
+  { label: "Accounts", href: APP_ROUTES.adminUsers },
+  { label: "Seller review", href: APP_ROUTES.adminMerchants },
+  { label: "Catalog control", href: APP_ROUTES.adminBooks },
   { label: "Categories", href: APP_ROUTES.adminCategories },
-  { label: "Reviews", href: APP_ROUTES.adminReviews },
-  { label: "Analytics", href: APP_ROUTES.adminAnalytics },
+  { label: "Review queue", href: APP_ROUTES.adminReviews },
+  { label: "Signals", href: APP_ROUTES.adminAnalytics },
 ] as const;
 
 export function isAppRole(value: string | null | undefined): value is AppRole {

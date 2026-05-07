@@ -12,12 +12,12 @@ export default async function MerchantAnalyticsPage() {
         {
           label: "Total titles",
           value: String(books.length),
-          meta: "Draft + published inventory",
+          meta: "Draft and live",
         },
         {
           label: "Published titles",
           value: String(publishedBooks.length),
-          meta: "Customer-facing listings",
+          meta: "Buyer-facing",
         },
         {
           label: "Inventory units",
@@ -27,7 +27,7 @@ export default async function MerchantAnalyticsPage() {
         {
           label: "Featured books",
           value: String(books.filter((book) => book.is_featured).length),
-          meta: "Highlight-ready catalog entries",
+          meta: "Promoted inventory",
         },
       ]}
     />

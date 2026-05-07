@@ -36,13 +36,13 @@ export default async function BooksPage({
   }
 
   return (
-    <main className="mx-auto w-full max-w-7xl space-y-10 px-4 py-12 sm:px-6 lg:px-8">
-      <section className="grid gap-6 rounded-[2rem] border border-border/70 bg-card/85 p-8 shadow-sm lg:grid-cols-[1fr_320px]">
+    <main className="mx-auto w-full max-w-7xl space-y-10 px-4 py-10 sm:px-6 lg:px-8">
+      <section className="grid gap-6 border-b border-border pb-8 lg:grid-cols-[1fr_280px]">
         <div className="space-y-5">
           <SectionHeading
             eyebrow="Catalog"
-            title="Browse a modern bookstore catalog"
-            description="Search titles, follow categories, and move through a clean, premium browsing experience designed for books first."
+            title="Browse available books"
+            description="Search by title, author, genre, or description. Filter by shelf when you know what you want."
           />
           <form className="relative max-w-xl">
             <Search className="absolute left-4 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
@@ -54,12 +54,12 @@ export default async function BooksPage({
             />
           </form>
         </div>
-        <div className="grid gap-4 text-sm">
-          <div className="rounded-[1.5rem] border border-border/70 bg-background/75 p-4">
+        <div className="grid gap-3 text-sm">
+          <div className="rounded-lg border border-border bg-card p-4">
             <p className="text-muted-foreground">Books available</p>
             <p className="mt-3 font-heading text-4xl tracking-tight">{filtered.length}</p>
           </div>
-          <div className="rounded-[1.5rem] border border-border/70 bg-background/75 p-4">
+          <div className="rounded-lg border border-border bg-card p-4">
             <p className="text-muted-foreground">Categories</p>
             <p className="mt-3 font-heading text-4xl tracking-tight">{categories.length}</p>
           </div>
@@ -72,7 +72,7 @@ export default async function BooksPage({
             <Link
               key={category.slug}
               href={`/books?category=${category.slug}`}
-              className="group rounded-[1.5rem] border border-border/70 bg-card/85 p-5 shadow-sm transition duration-300 hover:-translate-y-0.5 hover:bg-background"
+              className="group rounded-lg border border-border bg-card p-5 shadow-sm transition hover:bg-background"
             >
               <p className="text-xs uppercase tracking-[0.22em] text-muted-foreground">Shelf</p>
               <h2 className="mt-3 font-heading text-2xl tracking-tight">{category.name}</h2>
@@ -84,7 +84,7 @@ export default async function BooksPage({
           {filtered.length > 0 ? (
             <BookFeed books={filtered} compact batchSize={8} label="Catalog stream" />
           ) : (
-            <div className="rounded-[1.75rem] border border-dashed border-border bg-card/70 p-8 text-center">
+            <div className="rounded-lg border border-dashed border-border bg-card p-8 text-center">
               <h2 className="font-heading text-3xl tracking-tight">No books matched this search</h2>
               <p className="mt-3 text-sm leading-7 text-muted-foreground">
                 Try a different keyword, clear the category filter, or return to the main catalog.

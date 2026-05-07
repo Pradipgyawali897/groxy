@@ -9,9 +9,9 @@ export default async function MerchantDashboardPage() {
     <div className="space-y-8">
       <section className="rounded-[2rem] border border-border/70 bg-card/90 p-6 shadow-sm">
         <SectionHeading
-          eyebrow="Merchant overview"
+          eyebrow="Seller overview"
           title={workspace?.store_name ?? "Your store"}
-          description="Track the health of your catalog, see how much inventory is live, and keep your store presentation polished."
+          description="Current listing health, order load, and approval state."
         />
       </section>
       <MetricGrid
@@ -19,22 +19,22 @@ export default async function MerchantDashboardPage() {
           {
             label: "Books listed",
             value: String(books.length),
-            meta: "All statuses",
+            meta: "Draft and live",
           },
           {
             label: "Published",
             value: String(books.filter((book) => book.status === "published").length),
-            meta: "Visible to customers",
+            meta: "Visible to buyers",
           },
           {
             label: "Orders",
             value: String(orderCount),
-            meta: "Ready for operations",
+            meta: "Fulfillment queue",
           },
           {
             label: "Approval",
             value: workspace?.approved ? "Approved" : "Pending",
-            meta: "Merchant verification state",
+            meta: "Seller verification",
           },
         ]}
       />

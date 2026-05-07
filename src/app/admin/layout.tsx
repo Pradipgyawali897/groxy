@@ -27,9 +27,10 @@ export default async function AdminLayout({
 
   return (
     <DashboardShell
-      badge="Admin Console"
-      title="Marketplace control"
-      description="Keep merchants, content, and bookstore quality structured inside a secure operational dashboard."
+      badge="Admin"
+      title="Control"
+      description="Moderation queues, seller verification, catalog controls, and audit-facing signals."
+      tone="admin"
       nav={ADMIN_NAV}
       userEmail={viewer.user.email}
     >

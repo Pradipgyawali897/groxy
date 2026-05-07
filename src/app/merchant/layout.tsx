@@ -27,9 +27,10 @@ export default async function MerchantLayout({
 
   return (
     <DashboardShell
-      badge="Merchant Studio"
-      title="Store operations"
-      description="Manage your bookstore identity, inventory, orders, and merchant growth with a cleaner dashboard."
+      badge="Seller"
+      title="Inventory"
+      description="Manage listings, stock, reservations, orders, and store settings."
+      tone="seller"
       nav={MERCHANT_NAV}
       userEmail={viewer.user.email}
     >

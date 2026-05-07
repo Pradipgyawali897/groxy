@@ -12,9 +12,9 @@ export default async function CustomerDashboardPage() {
     <div className="space-y-8">
       <section className="rounded-[2rem] border border-border/70 bg-card/90 p-6 shadow-sm">
         <SectionHeading
-          eyebrow="Overview"
-          title="Your bookstore home"
-          description="Pick up where you left off with recommendations, saved preferences, and a cleaner view of your reading activity."
+          eyebrow="Discover"
+          title="Pick up your search"
+          description="Recommendations, saved books, and order status stay here so browsing stays focused."
         />
       </section>
 
@@ -23,12 +23,12 @@ export default async function CustomerDashboardPage() {
           {
             label: "Preferred genres",
             value: String(preferences?.favorite_genres.length ?? 0),
-            meta: "Saved during onboarding",
+            meta: "Used for recommendations",
           },
           {
             label: "Reading interests",
             value: String(preferences?.reading_interests.length ?? 0),
-            meta: "Used for future recommendations",
+            meta: "Profile signals",
           },
           {
             label: "Orders",
@@ -38,7 +38,7 @@ export default async function CustomerDashboardPage() {
           {
             label: "Newsletter",
             value: preferences?.newsletter_opt_in ? "On" : "Off",
-            meta: "Curated updates preference",
+            meta: "Email preference",
           },
         ]}
       />
@@ -46,15 +46,15 @@ export default async function CustomerDashboardPage() {
       <section className="space-y-6">
         <SectionHeading
           eyebrow="Recommended"
-          title="Continue browsing with a curated shelf"
-          description="These featured books are ready to move from discovery into your wishlist or cart."
+          title="Books worth checking first"
+          description="Available copies selected from the current catalog."
         />
         <BookGrid books={books.slice(0, 4)} compact />
       </section>
 
       <RecommendationShelf
         title="Recommended for you"
-        description="Updated as you view books, save wishlist items, and place orders."
+        description="Updated from your recent views, wishlist saves, and orders."
         limit={8}
       />
       <RecentlyViewedShelf limit={8} />

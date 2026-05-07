@@ -8,7 +8,7 @@ export default function MerchantNewBookPage() {
         <SectionHeading
           eyebrow="New listing"
           title="Create a new book listing"
-          description="This form writes directly to your Supabase-backed inventory and keeps merchant changes isolated to your own workspace."
+          description="Add condition, price, stock, cover images, and publication status."
         />
       </section>
       <MerchantBookEditor mode="create" />

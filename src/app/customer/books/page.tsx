@@ -8,11 +8,11 @@ export default async function CustomerBooksPage() {
   return (
     <div className="space-y-6">
       <SectionHeading
-        eyebrow="Customer catalog"
-        title="Browse every published title"
-        description="This private customer view keeps the same premium browsing language while layering future wishlist and cart behavior on top."
+        eyebrow="Catalog"
+        title="All available books"
+        description="Compare price, condition, seller, and availability before adding a copy to your cart."
       />
-      <BookFeed books={books} compact batchSize={8} label="Reader feed" />
+      <BookFeed books={books} compact batchSize={8} label="Available copies" />
     </div>
   );
 }

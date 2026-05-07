@@ -21,9 +21,6 @@ export default async function MerchantStoreSettingsPage() {
         </div>
       </div>
       <div className="mt-6 grid gap-6 lg:grid-cols-[0.9fr_1.1fr]">
-        <div className="rounded-[1.75rem] border border-border/70 bg-background/75 p-5 text-sm leading-7 text-muted-foreground">
-          Keep the store name, slug, and visual identity consistent so listings, cover images, and seller trust signals feel aligned across the storefront.
-        </div>
         <MerchantWorkspaceForm
           initialName={workspace?.store_name}
           initialSlug={workspace?.store_slug}

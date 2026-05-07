@@ -126,9 +126,6 @@
   }
   body {
     @apply bg-background text-foreground;
-    background-image:
-      radial-gradient(circle at top left, rgba(43, 91, 235, 0.05), transparent 28%),
-      radial-gradient(circle at bottom right, rgba(212, 167, 98, 0.06), transparent 26%);
     min-height: 100vh;
   }
   html {

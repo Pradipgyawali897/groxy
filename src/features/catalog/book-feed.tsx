@@ -64,7 +64,7 @@ export function BookFeed({
         <div>
           <p className="text-xs uppercase tracking-[0.22em] text-primary/75">{label}</p>
           <p className="mt-1 text-sm text-muted-foreground">
-            More books appear as you scroll, so the catalog feels like a live reading feed.
+            Showing available copies from the current search.
           </p>
         </div>
         <div className="rounded-full border border-border/70 bg-background/80 px-3 py-1 text-sm text-muted-foreground">
@@ -91,16 +91,16 @@ export function BookFeed({
       >
         {hasMore ? (
           <div className="space-y-2">
-            <p className="text-sm font-medium text-foreground">Keep scrolling for more titles</p>
+            <p className="text-sm font-medium text-foreground">More titles loading</p>
             <p className="text-sm text-muted-foreground">
-              {loadingMore ? "Loading the next shelf..." : "The next set of books will appear automatically."}
+              {loadingMore ? "Loading the next shelf..." : "Scroll to continue browsing."}
             </p>
           </div>
         ) : (
           <div className="space-y-2">
-            <p className="text-sm font-medium text-foreground">You reached the end of this shelf</p>
+            <p className="text-sm font-medium text-foreground">End of results</p>
             <p className="text-sm text-muted-foreground">
-              The feed has shown every available title in this view.
+              Every available title in this view has been shown.
             </p>
           </div>
         )}

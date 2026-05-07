@@ -47,8 +47,8 @@ export default async function MerchantBooksPage({
         <div className="flex flex-wrap items-end justify-between gap-4">
           <SectionHeading
             eyebrow="Inventory"
-            title="Your book listings"
-            description="Manage drafts, published titles, stock levels, and featured placement from one place."
+            title="Listings"
+            description="Search, filter, edit stock, and open live book pages."
           />
           <Link
             href="/merchant/books/new"
@@ -79,33 +79,39 @@ export default async function MerchantBooksPage({
         </button>
       </form>
 
-      {filtered.map((book) => (
-        <article
-          key={book.id}
-          className="flex flex-wrap items-center justify-between gap-4 rounded-[1.5rem] border border-border/70 bg-card/85 p-5 shadow-sm"
-        >
-          <div>
-            <p className="font-heading text-2xl tracking-tight">{book.title}</p>
-            <p className="text-sm text-muted-foreground">
-              {book.author} • {book.status}
-            </p>
-          </div>
-          <div className="flex items-center gap-4 text-sm">
-            <span className="text-muted-foreground">Stock {book.stock}</span>
-            <span className="font-medium">${Number(book.price).toFixed(2)}</span>
-            <Link href={`/merchant/books/${book.id}`} className="text-foreground hover:underline">
-              Edit
-            </Link>
-            {book.status === "published" ? (
-              <Link href={getBookHref(book)} className="text-primary hover:underline">
-                View
+      <div className="overflow-hidden rounded-lg border border-border bg-card shadow-sm">
+        <div className="grid grid-cols-[1fr_96px_96px_120px] gap-4 border-b border-border bg-muted/40 px-4 py-3 text-xs font-medium uppercase tracking-[0.14em] text-muted-foreground">
+          <span>Book</span>
+          <span>Status</span>
+          <span>Stock</span>
+          <span className="text-right">Actions</span>
+        </div>
+        {filtered.map((book) => (
+          <article
+            key={book.id}
+            className="grid grid-cols-[1fr_96px_96px_120px] items-center gap-4 border-b border-border px-4 py-4 last:border-b-0"
+          >
+            <div className="min-w-0">
+              <p className="truncate font-medium">{book.title}</p>
+              <p className="truncate text-sm text-muted-foreground">
+                {book.author} · ${Number(book.price).toFixed(2)}
+              </p>
+            </div>
+            <span className="text-sm capitalize text-muted-foreground">{book.status}</span>
+            <span className="text-sm font-medium">{book.stock}</span>
+            <div className="flex items-center justify-end gap-3 text-sm">
+              <Link href={`/merchant/books/${book.id}`} className="text-foreground hover:underline">
+                Edit
               </Link>
-            ) : (
-              <span className="text-muted-foreground">Not published</span>
-            )}
-          </div>
-        </article>
-      ))}
+              {book.status === "published" ? (
+                <Link href={getBookHref(book)} className="text-primary hover:underline">
+                  View
+                </Link>
+              ) : null}
+            </div>
+          </article>
+        ))}
+      </div>
     </div>
   );
 }
