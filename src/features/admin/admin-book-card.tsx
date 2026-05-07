@@ -55,65 +55,28 @@ export function AdminBookCard({ book }: { book: CatalogBook }) {
   };
 
   return (
-    <article className="grid gap-3 border-b border-border px-4 py-4 last:border-b-0 xl:grid-cols-[1fr_520px] xl:items-center">
+    <article className="grid grid-cols-[1fr_auto] items-center gap-4 border-b border-border/50 py-3 last:border-b-0">
       <div className="min-w-0">
         <p className="truncate font-medium">{book.title}</p>
-        <p className="mt-1 truncate text-sm text-muted-foreground">{book.author}</p>
+        <p className="truncate text-xs text-muted-foreground">{book.author}</p>
       </div>
 
-      <div className="grid gap-2 sm:grid-cols-[130px_108px_86px_98px_1fr]">
-        <Select value={status} onChange={(e) => setStatus(e.target.value)} disabled={pending}>
+      <div className="flex items-center gap-2">
+        <Select value={status} onChange={(e) => setStatus(e.target.value)} disabled={pending} className="h-8 text-xs">
           {BOOK_STATUSES.map((s) => (
-            <option key={s} value={s}>
-              {s}
-            </option>
+            <option key={s} value={s}>{s}</option>
           ))}
         </Select>
-        <label className="flex items-center justify-between gap-2 rounded-md border border-border bg-background px-3 py-2 text-sm">
-          <span>Feature</span>
-          <input
-            type="checkbox"
-            className="h-4 w-4 accent-primary"
-            checked={featured}
-            onChange={(e) => setFeatured(e.target.checked)}
-            disabled={pending}
-          />
+        <label className="flex items-center gap-2 text-xs">
+          Feature
+          <input type="checkbox" className="h-4 w-4" checked={featured} onChange={(e) => setFeatured(e.target.checked)} disabled={pending} />
         </label>
-        <Input
-          type="number"
-          min={0}
-          step={1}
-          value={stock}
-          onChange={(e) => setStock(e.target.value)}
-          placeholder="Stock"
-          className="h-10 rounded-md px-3"
-          disabled={pending}
-        />
-        <Input
-          type="number"
-          min={0}
-          step={0.01}
-          value={price}
-          onChange={(e) => setPrice(e.target.value)}
-          placeholder="Price"
-          className="h-10 rounded-md px-3"
-          disabled={pending}
-        />
-        <div className="flex gap-2">
-          <Button onClick={onSave} disabled={pending} className="h-10 flex-1 rounded-md">
-            {pending ? "Saving" : "Save"}
-          </Button>
-          <Button
-            variant="outline"
-            onClick={onDelete}
-            disabled={pending}
-            className="h-10 rounded-md border-destructive/40 text-destructive hover:bg-destructive/10"
-          >
-            Delete
-          </Button>
-        </div>
-        {error ? <p className="text-sm text-destructive sm:col-span-5">{error}</p> : null}
+        <Input type="number" min={0} value={stock} onChange={(e) => setStock(e.target.value)} className="h-8 w-16 text-xs" disabled={pending} />
+        <Input type="number" min={0} value={price} onChange={(e) => setPrice(e.target.value)} className="h-8 w-20 text-xs" disabled={pending} />
+        <Button onClick={onSave} disabled={pending} size="sm" variant="outline">Save</Button>
+        <Button variant="ghost" onClick={onDelete} disabled={pending} size="sm" className="text-red-600 hover:text-red-700">Delete</Button>
       </div>
+      {error ? <p className="col-span-2 text-[10px] text-destructive">{error}</p> : null}
     </article>
   );
 }
