@@ -81,7 +81,7 @@ export async function middleware(request: NextRequest) {
   
   // CORS configuration
   const origin = request.headers.get("origin");
-  const allowedOrigins = ["https://groxy-blush.vercel.app"];
+  const allowedOrigins = ["https://groxy-blush.vercel.app", "http://localhost:3000"];
   
   if (origin && allowedOrigins.includes(origin)) {
     response.headers.set("Access-Control-Allow-Origin", origin);
