@@ -28,16 +28,18 @@ function getAuthRedirectPath(
   } = {}
 ) {
   const next = normalizeNextPath(nextPath, { allowResetPassword }) ?? fallbackPath;
-  return `${getBrowserAppOrigin()}/auth/callback?next=${encodeURIComponent(next)}`;
+  const callbackUrl = new URL("/auth/callback", getBrowserAppOrigin());
+  callbackUrl.searchParams.set("next", next);
+  return callbackUrl.toString();
 }
 
 function getDestinationCopy(nextPath?: string) {
   const next = normalizeNextPath(nextPath) ?? APP_ROUTES.onboardingStep1;
-  if (next.startsWith("/customer")) return "You will return to your reader workspace after authentication.";
-  if (next.startsWith("/merchant")) return "You will return to your merchant studio after authentication.";
-  if (next.startsWith("/admin")) return "You will return to the admin control room after authentication.";
-  if (next.startsWith("/onboarding")) return "You will continue directly into onboarding after authentication.";
-  return `You will return to ${next} after authentication.`;
+  if (next.startsWith("/customer")) return "Returns to your reader space.";
+  if (next.startsWith("/merchant")) return "Returns to your seller workspace.";
+  if (next.startsWith("/admin")) return "Returns to admin.";
+  if (next.startsWith("/onboarding")) return "Continues to onboarding.";
+  return `Returns to ${next}.`;
 }
 
 async function resolveClientPostAuthPath(nextPath?: string) {
@@ -88,7 +90,7 @@ export function OAuthButtons({ nextPath }: { nextPath?: string }) {
 
     if (!data?.url) {
       setLoadingProvider("");
-      setError("Google sign-in could not start. Check your Supabase OAuth redirect settings.");
+      setError("Google sign-in could not start. Please try again.");
       return;
     }
 
@@ -106,7 +108,7 @@ export function OAuthButtons({ nextPath }: { nextPath?: string }) {
       >
         {loadingProvider === "google" ? "Connecting..." : "Continue with Google"}
       </Button>
-      <p className="text-xs leading-6 text-muted-foreground">{destinationCopy}</p>
+      <p className="text-xs leading-5 text-muted-foreground">{destinationCopy}</p>
       {error ? <p className="text-sm text-destructive">{error}</p> : null}
     </div>
   );
@@ -196,7 +198,7 @@ export function EmailMagicLinkForm({ nextPath }: { nextPath?: string }) {
       return;
     }
 
-    setMessage("Check your email for a secure sign-in link. It will bring you back and continue automatically.");
+    setMessage("Check your email for a sign-in link.");
   };
 
   return (
@@ -209,7 +211,7 @@ export function EmailMagicLinkForm({ nextPath }: { nextPath?: string }) {
         placeholder="Email for a magic link"
         className="h-12 rounded-2xl px-4"
       />
-      <p className="text-xs leading-6 text-muted-foreground">{destinationCopy}</p>
+      <p className="text-xs leading-5 text-muted-foreground">{destinationCopy}</p>
       {error ? <p className="text-sm text-destructive">{error}</p> : null}
       {message ? <p className="text-sm text-emerald-700 dark:text-emerald-300">{message}</p> : null}
       <Button type="submit" variant="secondary" className="h-12 w-full rounded-2xl" disabled={loading}>
@@ -255,7 +257,7 @@ export function EmailSignUpForm() {
       return;
     }
 
-    setMessage("Account created. Check your email to verify your address, then continue directly into onboarding.");
+    setMessage("Account created. Check your email to verify it.");
   };
 
   return (
@@ -313,7 +315,7 @@ export function ForgotPasswordForm() {
       return;
     }
 
-    setMessage("Password reset email sent. Use the latest link to open the secure reset screen.");
+    setMessage("Password reset email sent.");
   };
 
   return (

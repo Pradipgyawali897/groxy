@@ -28,9 +28,9 @@ export default async function OnboardingStep2Page() {
     <OnboardingShell
       step={2}
       title="Choose your role"
-      description="Decide whether this account is for shopping and reading or for running a bookstore workspace."
-      asideTitle="Make the role choice clear and intentional."
-      asideBody="Role assignment lives here, not inside sign-up, so the onboarding flow stays understandable and the route model stays easier to maintain."
+      description="Use this account as a buyer or a seller."
+      asideTitle="Choose your path."
+      asideBody="You can shop for books or run a bookstore workspace."
     >
       <RoleSelectionForm currentRole={viewer.role} />
     </OnboardingShell>

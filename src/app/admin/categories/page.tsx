@@ -1,5 +1,7 @@
 import { groupCatalogBooks, listPublishedBooks } from "@/lib/catalog";
 
+export const dynamic = "force-dynamic";
+
 export default async function AdminCategoriesPage() {
   const books = await listPublishedBooks(32);
   const { categories } = groupCatalogBooks(books);

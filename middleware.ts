@@ -1,8 +1,9 @@
 import { createServerClient } from "@supabase/ssr";
 import { NextResponse, type NextRequest } from "next/server";
-import { ResponseCookie } from 'next/dist/compiled/@edge-runtime/cookies';
+import type { ResponseCookie } from "next/dist/compiled/@edge-runtime/cookies";
 
 import { getEffectiveOnboardingStep } from "@/lib/onboarding-progress";
+import { resolvePostAuthRedirect } from "@/lib/redirects";
 import {
   APP_ROUTES,
   getAuthedPath,
@@ -114,13 +115,21 @@ export async function middleware(request: NextRequest) {
     }
   );
 
+  function redirectWithAuthCookies(url: URL) {
+    const redirectResponse = NextResponse.redirect(url);
+    response.cookies.getAll().forEach((cookie) => {
+      redirectResponse.cookies.set(cookie);
+    });
+    return redirectResponse;
+  }
+
   const {
     data: { user },
   } = await supabase.auth.getUser();
 
   if (!user) {
     if (isProtectedRoute(pathname) || isOnboardingRoute(pathname)) {
-      return NextResponse.redirect(buildSignInRedirect(request));
+      return redirectWithAuthCookies(buildSignInRedirect(request));
     }
     return response;
   }
@@ -138,10 +147,14 @@ export async function middleware(request: NextRequest) {
   const requiredRole = getRoleFromPath(pathname);
 
   if (isAuthRoute(pathname)) {
-    const url = request.nextUrl.clone();
-    url.pathname = getAuthedPath({ role, isOnboarded, canAccessAdmin });
-    url.search = "";
-    return NextResponse.redirect(url);
+    const target = resolvePostAuthRedirect({
+      next: request.nextUrl.searchParams.get("next"),
+      role,
+      isOnboarded,
+      onboardingStep,
+      canAccessAdmin,
+    });
+    return redirectWithAuthCookies(new URL(target, request.url));
   }
 
   if (!isOnboarded) {
@@ -149,7 +162,7 @@ export async function middleware(request: NextRequest) {
       const url = request.nextUrl.clone();
       url.pathname = getOnboardingPath(onboardingStep);
       url.search = "";
-      return NextResponse.redirect(url);
+      return redirectWithAuthCookies(url);
     }
 
     if (isOnboardingRoute(pathname)) {
@@ -158,7 +171,7 @@ export async function middleware(request: NextRequest) {
         const url = request.nextUrl.clone();
         url.pathname = normalizedTarget;
         url.search = "";
-        return NextResponse.redirect(url);
+        return redirectWithAuthCookies(url);
       }
     }
 
@@ -169,14 +182,14 @@ export async function middleware(request: NextRequest) {
     const url = request.nextUrl.clone();
     url.pathname = getAuthedPath({ role, isOnboarded, canAccessAdmin });
     url.search = "";
-    return NextResponse.redirect(url);
+    return redirectWithAuthCookies(url);
   }
 
   if (requiredRole && role !== requiredRole) {
     if (requiredRole === "admin" && canAccessAdmin) {
       return response;
     }
-    return NextResponse.redirect(buildRoleRedirect(request, pathname, role, canAccessAdmin));
+    return redirectWithAuthCookies(buildRoleRedirect(request, pathname, role, canAccessAdmin));
   }
 
   return response;

@@ -5,6 +5,8 @@ import { SectionHeading } from "@/features/shared/section-heading";
 import { BOOK_STATUSES } from "@/lib/books";
 import { listAdminBooks } from "@/lib/dashboard-data";
 
+export const dynamic = "force-dynamic";
+
 export default async function AdminBooksPage({
   searchParams,
 }: {

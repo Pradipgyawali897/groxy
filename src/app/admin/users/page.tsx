@@ -3,6 +3,8 @@ import { AdminUserCard } from "@/features/admin/admin-user-card";
 import { SectionHeading } from "@/features/shared/section-heading";
 import { listAdminProfiles } from "@/lib/dashboard-data";
 
+export const dynamic = "force-dynamic";
+
 export default async function AdminUsersPage({
   searchParams,
 }: {

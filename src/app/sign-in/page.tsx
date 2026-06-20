@@ -3,9 +3,18 @@ import { redirect } from "next/navigation";
 
 import { EmailMagicLinkForm, EmailSignInForm, OAuthButtons } from "@/components/auth-controls";
 import { AuthShell } from "@/features/auth/auth-shell";
-import { normalizeNextPath } from "@/lib/redirects";
+import { normalizeNextPath, resolvePostAuthRedirect } from "@/lib/redirects";
 import { getViewerContext } from "@/lib/profile";
-import { APP_ROUTES, getAuthedPath } from "@/lib/roles";
+import { APP_ROUTES } from "@/lib/roles";
+
+function getFriendlyDestination(path: string | null) {
+  if (!path) return "your workspace";
+  if (path.startsWith("/customer")) return "your reader space";
+  if (path.startsWith("/merchant")) return "your seller workspace";
+  if (path.startsWith("/admin")) return "admin";
+  if (path.startsWith("/books")) return "the book catalog";
+  return "your page";
+}
 
 export default async function SignInPage({
   searchParams,
@@ -16,16 +25,24 @@ export default async function SignInPage({
   const safeNext = normalizeNextPath(next);
 
   if (viewer.user) {
-    redirect(getAuthedPath(viewer));
+    redirect(
+      resolvePostAuthRedirect({
+        next,
+        role: viewer.role,
+        isOnboarded: viewer.isOnboarded,
+        onboardingStep: viewer.onboardingStep,
+        canAccessAdmin: viewer.canAccessAdmin,
+      })
+    );
   }
 
   return (
     <AuthShell
       eyebrow="Sign in"
       title="Welcome back"
-      description="Return to your bookstore workspace, continue onboarding, or jump back into the catalog."
-      sideTitle="A smoother bookstore flow starts with simpler authentication."
-      sideBody="We keep identity and onboarding separate so account creation stays reliable and the role decision happens in a guided place."
+      description="Sign in with Google, password, or a magic link."
+      sideTitle="Buy and sell secondhand books."
+      sideBody="Access your saved books, cart, orders, or seller tools."
       footer={
         <>
           New here?{" "}
@@ -46,29 +63,17 @@ export default async function SignInPage({
             {error}
           </div>
         ) : null}
-        <div className="rounded-2xl border border-border/70 bg-background/75 px-4 py-3 text-sm text-muted-foreground">
+        <div className="rounded-md border border-border/70 bg-background/75 px-4 py-3 text-sm text-muted-foreground">
           {safeNext
-            ? `After authentication you will continue to ${safeNext}.`
-            : "After authentication you will continue into onboarding or your assigned workspace."}
-        </div>
-        <div className="grid gap-3 sm:grid-cols-3">
-          {[
-            { title: "Google", body: "Fastest way back into the platform with account selection." },
-            { title: "Password", body: "Standard sign-in for existing email accounts." },
-            { title: "Magic link", body: "Email-based access when you do not want to type a password." },
-          ].map((item) => (
-            <div key={item.title} className="rounded-2xl border border-border/70 bg-background/75 p-4">
-              <p className="text-sm font-medium text-foreground">{item.title}</p>
-              <p className="mt-2 text-xs leading-6 text-muted-foreground">{item.body}</p>
-            </div>
-          ))}
+            ? `You will continue to ${getFriendlyDestination(safeNext)}.`
+            : "You will continue to your workspace."}
         </div>
         <OAuthButtons nextPath={next} />
         <div className="relative py-2">
           <div className="absolute inset-0 flex items-center">
             <span className="w-full border-t border-border/70" />
           </div>
-          <div className="relative flex justify-center text-xs uppercase tracking-[0.22em] text-muted-foreground">
+          <div className="relative flex justify-center text-xs uppercase tracking-[0.16em] text-muted-foreground">
             <span className="bg-card px-4">Or use email</span>
           </div>
         </div>
@@ -77,8 +82,8 @@ export default async function SignInPage({
           <div className="absolute inset-0 flex items-center">
             <span className="w-full border-t border-border/70" />
           </div>
-          <div className="relative flex justify-center text-xs uppercase tracking-[0.22em] text-muted-foreground">
-            <span className="bg-card px-4">Or email a link</span>
+          <div className="relative flex justify-center text-xs uppercase tracking-[0.16em] text-muted-foreground">
+            <span className="bg-card px-4">Or magic link</span>
           </div>
         </div>
         <EmailMagicLinkForm nextPath={next} />

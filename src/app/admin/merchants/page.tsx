@@ -3,6 +3,8 @@ import { AdminMerchantCard } from "@/features/admin/admin-merchant-card";
 import { SectionHeading } from "@/features/shared/section-heading";
 import { listAdminMerchants } from "@/lib/dashboard-data";
 
+export const dynamic = "force-dynamic";
+
 export default async function AdminMerchantsPage({
   searchParams,
 }: {

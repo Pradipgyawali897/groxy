@@ -24,9 +24,9 @@ export default async function OnboardingStep1Page() {
     <OnboardingShell
       step={1}
       title="Set up your profile"
-      description="Add the basic identity details that should follow you across the platform."
-      asideTitle="Start with the person, not the role."
-      asideBody="Authentication creates the account. Onboarding now collects the information needed to route you properly and keep future access logic stable."
+      description="Add your name and an optional avatar."
+      asideTitle="First, your profile."
+      asideBody="This helps the store show the right account details."
     >
       <BasicProfileForm
         defaultName={viewer.profile?.full_name}

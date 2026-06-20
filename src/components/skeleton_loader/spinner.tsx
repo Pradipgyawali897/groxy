@@ -35,8 +35,8 @@ export default function SpinnerLoading() {
           <div className="relative h-2 overflow-hidden rounded-full bg-muted">
             <div className="absolute inset-y-0 left-1/2 w-24 -translate-x-1/2 rounded-full bg-primary animate-pulse-slow" />
           </div>
-          <p className="text-xs uppercase tracking-[0.22em] text-muted-foreground">
-            Centered progress
+          <p className="text-xs uppercase tracking-[0.16em] text-muted-foreground">
+            Loading
           </p>
         </div>
       </div>

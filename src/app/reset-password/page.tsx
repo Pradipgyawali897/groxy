@@ -9,9 +9,9 @@ export default function ResetPasswordPage() {
     <AuthShell
       eyebrow="New password"
       title="Choose a new password"
-      description="Set a strong password after opening the secure recovery link from your email."
-      sideTitle="Finish the reset with a single clear step."
-      sideBody="The recovery link signs you into a short-lived secure session first. Once you save the new password, you can sign in again and continue normally."
+      description="Set a new password after opening the email link."
+      sideTitle="Create a new password."
+      sideBody="Save it, then sign in again."
       footer={
         <>
           Back to{" "}

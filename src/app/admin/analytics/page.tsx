@@ -1,6 +1,8 @@
 import { MetricGrid } from "@/features/dashboard/metric-grid";
 import { getAdminDashboardData } from "@/lib/dashboard-data";
 
+export const dynamic = "force-dynamic";
+
 export default async function AdminAnalyticsPage() {
   const { books, merchants, profiles, reviewCount } = await getAdminDashboardData();
 

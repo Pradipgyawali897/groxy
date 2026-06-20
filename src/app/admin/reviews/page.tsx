@@ -3,6 +3,8 @@ import { EmptyPanel } from "@/features/dashboard/empty-panel";
 import { SectionHeading } from "@/features/shared/section-heading";
 import { createSupabaseAdminClient } from "@/lib/supabase/admin";
 
+export const dynamic = "force-dynamic";
+
 export default async function AdminReviewsPage() {
   const admin = createSupabaseAdminClient();
   const { data, error } = await admin

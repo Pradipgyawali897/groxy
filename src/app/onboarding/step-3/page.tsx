@@ -37,9 +37,9 @@ export default async function OnboardingStep3Page() {
       <OnboardingShell
         step={3}
         title="Tell us how you like to read"
-        description="These preferences shape recommendations, newsletters, and the overall customer experience."
-        asideTitle="Make the storefront feel personal from day one."
-        asideBody="Preferences let the catalog, wishlist prompts, and review surfaces feel more relevant without adding friction."
+        description="Pick a few genres and interests."
+        asideTitle="Tune your catalog."
+        asideBody="Your preferences help recommendations feel useful."
       >
         <CustomerPreferencesForm
           initialGenres={preferences?.favorite_genres ?? []}
@@ -60,9 +60,9 @@ export default async function OnboardingStep3Page() {
     <OnboardingShell
       step={3}
       title="Create your bookstore workspace"
-      description="Set the identity customers will see when they browse and buy from your store."
-      asideTitle="Build a premium store, not just a seller record."
-      asideBody="Store name, slug, description, and media are captured here so merchant onboarding turns into a usable workspace immediately after completion."
+      description="Add the store details customers will see."
+      asideTitle="Set up your store."
+      asideBody="Name, description, and images make your seller page ready."
     >
       <MerchantSetupForm
         initialName={workspace?.store_name}

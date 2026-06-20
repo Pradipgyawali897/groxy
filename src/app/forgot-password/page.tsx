@@ -21,9 +21,9 @@ export default async function ForgotPasswordPage({
     <AuthShell
       eyebrow="Reset password"
       title="Recover access"
-      description="Enter the email connected to your account and we’ll send a secure reset link."
-      sideTitle="Security should feel calm, not confusing."
-      sideBody="Password recovery uses the same reliable Supabase session flow as the rest of the platform."
+      description="Enter your account email. We will send a reset link."
+      sideTitle="Reset your password."
+      sideBody="Use the newest email link to choose a new password."
       footer={
         <>
           Back to{" "}
@@ -40,8 +40,8 @@ export default async function ForgotPasswordPage({
             {error}
           </div>
         ) : null}
-        <div className="rounded-2xl border border-border/70 bg-background/75 px-4 py-3 text-sm text-muted-foreground">
-          Use the most recent reset email on this device. The link opens a short-lived secure session before you choose a new password.
+        <div className="rounded-md border border-border/70 bg-background/75 px-4 py-3 text-sm text-muted-foreground">
+          The reset link opens the password screen.
         </div>
         <ForgotPasswordForm />
       </div>

@@ -25,21 +25,21 @@ export function OnboardingShell({
 }) {
   return (
     <main className="flex min-h-[calc(100vh-6rem)] items-center px-4 py-8 sm:px-6 lg:px-8">
-      <div className="mx-auto grid w-full max-w-5xl overflow-hidden rounded-lg border border-border bg-card shadow-sm lg:grid-cols-[0.82fr_1.18fr]">
+      <div className="mx-auto grid w-full max-w-4xl overflow-hidden rounded-lg border border-border bg-card shadow-sm lg:grid-cols-[0.78fr_1.22fr]">
         <section className="border-b border-border bg-foreground px-8 py-8 text-background lg:border-b-0 lg:border-r lg:px-10 lg:py-10">
           <div className="space-y-8">
             <div className="space-y-4">
               <div className="flex items-center justify-between gap-4">
                 <GroxyLogo mybackground="different" />
-                <span className="inline-flex rounded-full border border-white/15 bg-white/10 px-3 py-1 text-[11px] uppercase tracking-[0.22em] text-white/80">
+                <span className="inline-flex rounded-md border border-white/15 bg-white/10 px-3 py-1 text-[11px] uppercase tracking-[0.16em] text-white/80">
                   Step {step} of 4
                 </span>
               </div>
-              <p className="text-xs font-medium uppercase tracking-[0.22em] text-background/70">
+              <p className="text-xs font-medium uppercase tracking-[0.16em] text-background/70">
                 Onboarding
               </p>
-              <h1 className="mt-3 font-heading text-5xl tracking-tight">{asideTitle}</h1>
-              <p className="mt-3 max-w-md text-sm leading-7 text-background/72">{asideBody}</p>
+              <h1 className="mt-3 font-heading text-3xl tracking-tight">{asideTitle}</h1>
+              <p className="mt-3 max-w-sm text-sm leading-6 text-background/72">{asideBody}</p>
             </div>
             <div className="grid gap-3">
               {STEPS.map((item) => (
@@ -71,11 +71,11 @@ export function OnboardingShell({
         <section className="p-6 sm:p-8 lg:p-10">
           <div className="mx-auto w-full max-w-lg space-y-6">
             <div className="space-y-3">
-              <p className="text-xs font-medium uppercase tracking-[0.24em] text-primary/75">
+              <p className="text-xs font-medium uppercase tracking-[0.16em] text-primary/75">
                 Step {step}
               </p>
-              <h2 className="font-heading text-4xl tracking-tight">{title}</h2>
-              <p className="text-sm leading-7 text-muted-foreground">{description}</p>
+              <h2 className="font-heading text-3xl tracking-tight">{title}</h2>
+              <p className="text-sm leading-6 text-muted-foreground">{description}</p>
             </div>
             <div className="h-2 overflow-hidden rounded-full bg-muted">
               <div
